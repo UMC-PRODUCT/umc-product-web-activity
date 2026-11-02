@@ -169,10 +169,11 @@ const ProjectsPage = () => {
               )}
             />
           )}
-          {role !== 'HQ_ADMIN' && (!isPmChallenger || projects.length > 0) && (
+          {(!isPmChallenger || projects.length > 0) && (
             <Button
               size="sm"
               className="ml-auto h-11 shrink-0"
+              disabled={role === 'HQ_ADMIN'}
               onClick={() => navigate({ to: '/demo-day/project-settings/projects/new' })}
             >
               <div className="flex items-center gap-2">
