@@ -42,10 +42,11 @@ const MatchingResultSheet = ({
     <h3 className="rounded-t-xl border border-b-0 border-teal-300 bg-teal-100 py-2 pr-5 pl-[30px] text-heading-4-semibold text-teal-600">
       {PLATFORM_LABEL[platform]}
     </h3>
-    <div className="flex h-[38px] items-center gap-3.5 border-x border-teal-300 bg-teal-50 px-[30px] text-body-3-medium text-teal-900">
-      <p className="w-[154px] shrink-0">프로젝트 명</p>
-      <p className="w-[130px] shrink-0">Plan</p>
-      <div className="flex flex-1 items-center justify-between">
+    {/* 피그마 팀 매칭 Table Head: 열 너비(170 · 140 · 688)를 양 끝 정렬로 두어 아래 프로젝트 줄(170 · 150 · 688)과 열을 맞춤 */}
+    <div className="flex h-[38px] items-center justify-between border-x border-teal-300 bg-teal-50 pr-7 pl-[30px] text-body-3-medium text-teal-900">
+      <p className="w-[170px] shrink-0">프로젝트 명</p>
+      <p className="w-[140px] shrink-0">Plan</p>
+      <div className="flex w-[688px] shrink-0 items-center justify-between">
         <p>매칭 결과표</p>
         <ul className="flex items-center gap-3">
           {LEGEND.map(({ round, label }) => (
