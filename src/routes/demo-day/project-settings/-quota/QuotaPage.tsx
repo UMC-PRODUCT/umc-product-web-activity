@@ -5,7 +5,6 @@ import {
   PageHeader,
   SectionHeader,
   SegmentedControl,
-  Select,
   type SelectOption,
 } from '@umc-product/react';
 import { useRef, useState } from 'react';
@@ -25,6 +24,7 @@ import {
   savePartQuotas,
   type SavePartQuotasRequest,
 } from '@/features/project-quota/api/savePartQuotas';
+import SelectDropdown from '@/widgets/filterDropdownGroup/SelectDropdown';
 import SearchBar from '@/widgets/searchBar/SearchBar';
 import { useAppToast } from '@/widgets/toast';
 
@@ -63,7 +63,8 @@ const QuotaPage = () => {
   // 검색 및 필터
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 300);
-  const [schoolId, setSchoolId] = useState<number | undefined>(undefined);
+  const [schoolIds, setSchoolIds] = useState<string[]>([]);
+  const schoolId = schoolIds.length > 0 ? Number(schoolIds[0]) : undefined;
 
   const { data, isError } = useQuery(
     partQuotasQueryOptions({
@@ -144,7 +145,7 @@ const QuotaPage = () => {
   const handleReset = () => {
     setDraft(saved);
     setEditingCell(null);
-    setSchoolId(undefined);
+    setSchoolIds([]);
   };
 
   const handleSave = () => {
@@ -235,14 +236,11 @@ const QuotaPage = () => {
             />
 
             <div className="flex items-center gap-2">
-              <Select
-                variant="filter"
-                size="md"
-                placeholder="학교"
-                aria-label="학교 필터"
+              <SelectDropdown
+                label="학교"
                 options={schoolOptions}
-                value={schoolId !== undefined ? String(schoolId) : null}
-                onValueChange={(v) => setSchoolId(v !== null ? Number(v) : undefined)}
+                value={schoolIds}
+                onValueChange={setSchoolIds}
                 className="w-auto shrink-0 [&_.umc-select\_\_trigger]:[--umc-select-placeholder-color:var(--umc-color-text-neutral-default-900)]"
               />
 
