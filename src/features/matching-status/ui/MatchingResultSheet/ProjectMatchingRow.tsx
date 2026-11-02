@@ -44,18 +44,19 @@ const ProjectMatchingRow = ({
       <div className="flex w-[688px] shrink-0 flex-col gap-px">
         {parts.map((part, index) => (
           <div key={part.partLabel} className="flex w-full items-center justify-between">
-            <div className="flex items-center gap-3.5">
+            <div className="flex min-w-0 items-center gap-3.5">
               <p className="w-[58px] shrink-0 text-body-3-medium text-teal-900">{part.partLabel}</p>
               <PartSlots
                 part={part}
                 roundedClassName={index === 0 ? 'rounded-t-md' : 'rounded-tr-md'}
+                fillBlocked={index !== 0}
                 onMemberClick={onMemberClick && ((member) => onMemberClick(project, part, member))}
                 onEmptySlotClick={onEmptySlotClick && (() => onEmptySlotClick(project, part))}
               />
             </div>
             {/* 첫 줄 오른쪽: 매칭 진행 중이면 매칭 인원/모집 인원, 끝났으면 총 매칭 인원 */}
             {index === 0 && (
-              <p className="text-body-1-semibold whitespace-nowrap text-teal-600">
+              <p className="shrink-0 pl-3 text-body-1-semibold whitespace-nowrap text-teal-600">
                 {recruiting ? `${matchedCount}/${capacity}명` : `총 ${matchedCount}명`}
               </p>
             )}

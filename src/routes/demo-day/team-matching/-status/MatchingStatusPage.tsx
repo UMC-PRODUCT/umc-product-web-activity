@@ -162,7 +162,7 @@ const MatchingStatusPage = () => {
                 // 반응형 없음: 시트는 피그마 폭(1158) 그대로 두고, 화면에 보이는 폭(좌우 여백 32씩 제외)보다 넓으면 가로 스크롤
                 <div
                   key={platformResults.platform}
-                  className="w-full max-w-[calc(100cqw-64px)] overflow-x-auto"
+                  className="w-full max-w-[calc(100cqw-64px)] overflow-x-auto overscroll-x-contain"
                 >
                   <div className="min-w-[1158px]">
                     <MatchingResultSheet
