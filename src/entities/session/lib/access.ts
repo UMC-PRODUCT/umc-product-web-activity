@@ -90,7 +90,7 @@ export const canManageMatching = (
 
 // 11기 권한표 '매칭 차수 설정': 볼 수 있는 지부 · 일정을 바꿀 수 있는 지부
 // - 마스터(SUPER_ADMIN · HQ_LEAD): 전 지부 설정 · 수정 / 중앙운영진: 전 지부 조회만
-// - 지부장: 전 지부 조회, 소속 지부만 설정
+// - 지부장: 소속 지부만 고르고 설정 (다른 지부는 비활성)
 // 1차 매칭이 시작됐는지는 따로 확인
 export type MatchingScheduleAccess = {
   chapterScope: ChapterScope; // 고를 수 있는 지부
@@ -101,7 +101,7 @@ export const getMatchingScheduleAccess = (role: Role): MatchingScheduleAccess =>
   if (role === 'SUPER_ADMIN' || role === 'HQ_LEAD')
     return { chapterScope: 'ALL', editScope: 'ALL' };
   if (role === 'HQ_ADMIN') return { chapterScope: 'ALL', editScope: 'NONE' };
-  if (role === 'CHAPTER_ADMIN') return { chapterScope: 'ALL', editScope: 'OWN' };
+  if (role === 'CHAPTER_ADMIN') return { chapterScope: 'OWN', editScope: 'OWN' };
   return { chapterScope: 'OWN', editScope: 'NONE' };
 };
 

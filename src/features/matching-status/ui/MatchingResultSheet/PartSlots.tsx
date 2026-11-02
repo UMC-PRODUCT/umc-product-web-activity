@@ -24,18 +24,33 @@ const memberSlotClass = (round: RoundMatchingKey, clickable: boolean) =>
 type PartSlotsProps = {
   part: PartMatching;
   roundedClassName: string; // 첫 줄은 위 양쪽, 나머지 줄은 오른쪽 위만 둥글게 (피그마)
+  // 빗금 칸을 MAX_SLOTS까지 채울지. 첫 줄은 오른쪽에 매칭 인원이 있어 빗금 칸 하나만 (피그마)
+  fillBlocked: boolean;
   onMemberClick?: (member: MatchedMember) => void; // 지원서 열기 (→ 매칭 해제). 없으면 조회만
   onEmptySlotClick?: () => void; // 수동 배정. 없으면 빈 칸만 보임
 };
 
 // 파트 하나의 매칭 결과 칸: 매칭된 챌린저 → 남은 빈 자리 → (모집 인원 밖) 빗금 칸
-const PartSlots = ({ part, roundedClassName, onMemberClick, onEmptySlotClick }: PartSlotsProps) => {
+const PartSlots = ({
+  part,
+  roundedClassName,
+  fillBlocked,
+  onMemberClick,
+  onEmptySlotClick,
+}: PartSlotsProps) => {
   const emptyCount = Math.max(0, part.capacity - part.members.length);
+  const slotCount = part.members.length + emptyCount;
+  const blockedCount = Math.max(
+    0,
+    fillBlocked ? MAX_SLOTS - slotCount : Math.min(1, MAX_SLOTS - slotCount),
+  );
 
   return (
+    // 칸이 MAX_SLOTS(5)를 넘으면 5칸 너비(124 + 123 × 4)에서 가로 스크롤 (스크롤바는 숨김)
+    // 끝까지 스크롤해도 페이지로 넘기지 않음: 안 막으면 트랙패드 가로 스와이프가 브라우저 뒤로 가기 제스처가 돼 흰 화면이 밀려 나옴
     <ul
       aria-label={`${part.partLabel} ${part.members.length}/${part.capacity}명 매칭`}
-      className={`flex items-center overflow-clip ${roundedClassName}`}
+      className={`flex max-w-[616px] min-w-0 [scrollbar-width:none] items-center overflow-x-auto overscroll-x-contain [&::-webkit-scrollbar]:hidden ${roundedClassName}`}
     >
       {part.members.map((member) => {
         const content = (
@@ -87,11 +102,11 @@ const PartSlots = ({ part, roundedClassName, onMemberClick, onEmptySlotClick }: 
           )}
         </li>
       ))}
-      {part.capacity < MAX_SLOTS && (
-        <li aria-hidden className="shrink-0">
+      {Array.from({ length: blockedCount }, (_, index) => (
+        <li key={`blocked-${index}`} aria-hidden className="-mr-px shrink-0 last:mr-0">
           <img src={blockedSlot} alt="" width={124} height={34} className="block" />
         </li>
-      )}
+      ))}
     </ul>
   );
 };
