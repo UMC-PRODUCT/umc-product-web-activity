@@ -11,12 +11,12 @@ import {
   useDeleteNotice,
   useUpdateNotice,
 } from '@/entities/notice';
+import ServerChapterSelect from '@/features/chapter-select/ui/ServerChapterSelect';
 import { NoticeList } from '@/features/notice-list';
 import { NoticeEditForm } from '@/features/notice-write';
 import { DeleteNoticeDialog } from '@/widgets/dialog';
 import { useAppToast } from '@/widgets/toast';
 
-import ServerChapterSelect from '../team-matching/-shared/ServerChapterSelect';
 import { NOTICE_PAGE_CONFIG, NOTICE_PAGE_LAYOUT_CLASS } from './config';
 import { useNoticeChapters } from './useNoticeChapters';
 

@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import { useChapters } from '@/entities/chapter';
 import { useMatchingScheduleAccess, useSessionStore } from '@/entities/session';
+import { BLOCKED_CHAPTER_MESSAGE } from '@/features/chapter-select';
 import {
   AnnouncementTimeField,
   calculateSchedule,
@@ -229,7 +230,7 @@ const MatchingRoundsPage = () => {
                   value={chapterId}
                   onValueChange={setSelectedChapterId}
                   onlyChapterId={chapterScope === 'OWN' ? ownChapterId : undefined}
-                  onBlockedClick={() => toast.show(TOAST_MESSAGE.otherChapter, { color: 'error' })}
+                  onBlockedClick={() => toast.show(BLOCKED_CHAPTER_MESSAGE, { color: 'error' })}
                 />
                 <div className="flex flex-col gap-5">
                   <OverallScheduleField
