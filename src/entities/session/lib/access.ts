@@ -105,19 +105,29 @@ export const getMatchingScheduleAccess = (role: Role): MatchingScheduleAccess =>
   return { chapterScope: 'OWN', editScope: 'NONE' };
 };
 
-// 11기 권한표 '지원 현황' (어드민 뷰): 지원자 목록 · 지원서를 볼 수 있는지
-// - 마스터 · 지부장: 지원자 목록 조회 · 지원서 열람
-// - 중앙운영진: 지원자 목록 조회만 (지원서 열람 불가)
-// - 학교회장단 · 학교운영진: 지원 통계만 (지원자 목록 조회 불가)
+// 11기 권한표 '지원 현황' (어드민 뷰): 지원자 목록(지원 시트) · 프로젝트 지원서 모달 · 개인 지원서를 볼 수 있는지
+// - 마스터 · 지부장: 지원 시트 · 지원서 모달 · 개인 지원서
+// - 중앙운영진: 지원 시트 · 지원서 모달 (개인 지원서 열람 불가)
+// - 학교회장단 · 학교운영진: 지원 통계 · 지원 시트만 (지원서 모달 · 개인 지원서 열람 불가)
+//   서버는 학교 회장단에게 지원 마감 후에만 지원자를 주고, 그 외 학교 운영진에게는 빈 목록을 줌
 // 합격 · 불합격 판정은 서버 권한(canDecide)으로 따로 확인
-export const getApplicationsAccess = (
-  role: Role,
-): { canReadApplicants: boolean; canReadApplication: boolean } => {
+export type ApplicationsAccess = {
+  canReadApplicants: boolean; // 02 지원자 목록 (지원 시트)
+  canOpenProject: boolean; // 프로젝트명을 눌러 프로젝트 지원서 모달 열기
+  canReadApplication: boolean; // 모달에서 지원자 이름을 눌러 개인 지원서(아코디언) 열기
+};
+
+export const getApplicationsAccess = (role: Role): ApplicationsAccess => {
   if (['SUPER_ADMIN', 'HQ_LEAD', 'CHAPTER_ADMIN'].includes(role)) {
-    return { canReadApplicants: true, canReadApplication: true };
+    return { canReadApplicants: true, canOpenProject: true, canReadApplication: true };
   }
-  if (role === 'HQ_ADMIN') return { canReadApplicants: true, canReadApplication: false };
-  return { canReadApplicants: false, canReadApplication: false };
+  if (role === 'HQ_ADMIN') {
+    return { canReadApplicants: true, canOpenProject: true, canReadApplication: false };
+  }
+  if (role === 'SCHOOL_ADMIN' || role === 'SCHOOL_STAFF') {
+    return { canReadApplicants: true, canOpenProject: false, canReadApplication: false };
+  }
+  return { canReadApplicants: false, canOpenProject: false, canReadApplication: false };
 };
 
 export const getProjectSettingsAccess = (role: Role, view: View): ProjectSettingsAccess => {

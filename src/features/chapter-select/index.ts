@@ -1,3 +1,4 @@
+export { BLOCKED_CHAPTER_MESSAGE } from './model/messages';
 export { useResolvedChapterId } from './model/useResolvedChapterId';
-export { useVisibleChapters } from './model/useVisibleChapters';
-export { default as ChapterSelectHeader } from './ui/ChapterSelectHeader';
+export { type ChapterOption, useVisibleChapters } from './model/useVisibleChapters';
+export { default as ServerChapterSelect } from './ui/ServerChapterSelect';

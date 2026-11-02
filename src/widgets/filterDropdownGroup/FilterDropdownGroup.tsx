@@ -1,4 +1,4 @@
-import { Select, type SelectOption } from '@umc-product/react';
+import type { SelectOption } from '@umc-product/react';
 
 import SelectDropdown from './SelectDropdown';
 
@@ -21,7 +21,8 @@ const FILTER_CLASS =
   'w-auto shrink-0 [&_.umc-select\\_\\_trigger]:[--umc-select-placeholder-color:var(--umc-color-text-neutral-default-900)] [&_.umc-select\\_\\_value]:flex-none';
 
 // 목록 화면 공용 필터 드롭다운 모음
-// 단일 선택은 DS Select, 다중 선택은 DS가 지원하지 않아 SelectDropdown (다시 누르면 해제)
+// DS Select는 다중 선택과 다시 눌러 해제하기를 지원하지 않아, 단일 · 다중 모두 SelectDropdown을 씀
+// 선택한 항목을 다시 누르면 해제 (= 전체)
 const FilterDropdownGroup = <K extends string>({
   filters,
   keys,
@@ -34,32 +35,18 @@ const FilterDropdownGroup = <K extends string>({
 
   return (
     <div className="flex shrink-0 items-center gap-2">
-      {visibleFilters.map(({ key, label, options, multiple }) =>
-        multiple ? (
-          <SelectDropdown
-            key={key}
-            label={label}
-            options={options}
-            multiple
-            value={values[key] ?? []}
-            onValueChange={(value) => onValueChange(key, value)}
-            className={FILTER_CLASS}
-          />
-        ) : (
-          // 필터 값은 단일 선택이어도 배열 (0개 또는 1개)
-          <Select
-            key={key}
-            variant="filter"
-            size="md"
-            placeholder={label}
-            aria-label={label}
-            options={options}
-            value={values[key]?.[0] ?? null}
-            onValueChange={(value) => onValueChange(key, value ? [value] : [])}
-            className={FILTER_CLASS}
-          />
-        ),
-      )}
+      {visibleFilters.map(({ key, label, options, multiple }) => (
+        // 필터 값은 단일 선택이어도 배열 (0개 또는 1개)
+        <SelectDropdown
+          key={key}
+          label={label}
+          options={options}
+          multiple={multiple}
+          value={values[key] ?? []}
+          onValueChange={(value) => onValueChange(key, value)}
+          className={FILTER_CLASS}
+        />
+      ))}
     </div>
   );
 };

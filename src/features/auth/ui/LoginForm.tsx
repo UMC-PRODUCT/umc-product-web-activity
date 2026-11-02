@@ -5,12 +5,11 @@ import { useEmailLogin } from '../hooks/useEmailLogin';
 import { QA_ACCOUNTS } from '../model/qaAccounts';
 
 type LoginFormProps = {
-  redirectTo: string;
   initialError?: string; // 콜백에서 로그인을 끝내지 못하고 돌아온 경우
 };
 
 // TODO: 정식 로그인 화면(다른 팀)이 오면 삭제. QA 동안 권한별 계정으로 바로 로그인하는 임시 화면
-const LoginForm = ({ redirectTo, initialError }: LoginFormProps) => {
+const LoginForm = ({ initialError }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { mutate, isPending, error } = useEmailLogin();
@@ -19,7 +18,7 @@ const LoginForm = ({ redirectTo, initialError }: LoginFormProps) => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    mutate({ email: email.trim(), password, redirectTo });
+    mutate({ email: email.trim(), password });
   };
 
   return (

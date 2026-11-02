@@ -11,7 +11,7 @@ import {
   useSessionStore,
   type View,
 } from '@/entities/session';
-import { TEAM_MATCHING_MENU } from '@/shared/config/teamMatchingMenu';
+import { HOME_PATH, TEAM_MATCHING_MENU } from '@/shared/config/teamMatchingMenu';
 
 // 사이드바가 선택 상태에 따라 아이콘 색을 바꾸도록 currentColor를 넘긴다
 const peopleIcon = <PeoplePictogram color="currentColor" />;
@@ -71,10 +71,10 @@ const Sidebar = () => {
     ? [projectSettingsGroup, teamMatchingGroup]
     : [teamMatchingGroup];
 
+  // 뷰를 바꾸면 어느 페이지에 있었든 프로젝트 목록으로 (모든 뷰에서 볼 수 있는 화면)
   const handleViewChange = (nextView: View) => {
     setView(nextView);
-    // 바뀐 뷰에서 권한이 없는 페이지에 있으면 라우트 가드가 리다이렉트하도록 다시 검사
-    router.invalidate();
+    void router.navigate({ to: HOME_PATH });
   };
 
   return (
