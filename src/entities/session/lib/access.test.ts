@@ -108,16 +108,24 @@ describe('getMatchingScheduleAccess', () => {
 });
 
 describe('getApplicationsAccess', () => {
-  it.each<[Role, boolean, boolean]>([
-    ['SUPER_ADMIN', true, true],
-    ['HQ_LEAD', true, true],
-    ['CHAPTER_ADMIN', true, true],
-    ['HQ_ADMIN', true, false],
-    ['SCHOOL_ADMIN', false, false],
-    ['SCHOOL_STAFF', false, false],
-  ])('%s: 지원자 목록 %s, 지원서 열람 %s', (role, canReadApplicants, canReadApplication) => {
-    expect(getApplicationsAccess(role)).toEqual({ canReadApplicants, canReadApplication });
-  });
+  it.each<[Role, boolean, boolean, boolean]>([
+    ['SUPER_ADMIN', true, true, true],
+    ['HQ_LEAD', true, true, true],
+    ['CHAPTER_ADMIN', true, true, true],
+    ['HQ_ADMIN', true, true, false],
+    ['SCHOOL_ADMIN', true, false, false],
+    ['SCHOOL_STAFF', true, false, false],
+    ['CHALLENGER', false, false, false],
+  ])(
+    '%s: 지원 시트 %s, 지원서 모달 %s, 개인 지원서 %s',
+    (role, canReadApplicants, canOpenProject, canReadApplication) => {
+      expect(getApplicationsAccess(role)).toEqual({
+        canReadApplicants,
+        canOpenProject,
+        canReadApplication,
+      });
+    },
+  );
 });
 
 describe('getProjectSettingsAccess', () => {
