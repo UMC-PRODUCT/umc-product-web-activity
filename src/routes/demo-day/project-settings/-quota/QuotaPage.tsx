@@ -237,14 +237,21 @@ const QuotaPage = () => {
                 onValueChange={setSchoolIds}
                 className="w-auto shrink-0 [&_.umc-select\_\_trigger]:[--umc-select-placeholder-color:var(--umc-color-text-neutral-default-900)]"
               />
-
-              <Button variant="fill" color="white" size="sm" leadingIcon={<ResetIcon size={14} />}>
-                초기화
-              </Button>
-
-              <Button size="sm" disabled={isSaving || allColumnsLocked} onClick={handleSave}>
-                저장
-              </Button>
+              {canEdit && (
+                <>
+                  <Button
+                    variant="fill"
+                    color="white"
+                    size="sm"
+                    leadingIcon={<ResetIcon size={14} />}
+                  >
+                    초기화
+                  </Button>
+                  <Button size="sm" disabled={isSaving || allColumnsLocked} onClick={handleSave}>
+                    저장
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
