@@ -53,7 +53,7 @@ const toManagedProject = (p: ApiProject): ManagedProject => {
     projectId: String(p.id!),
     chapterId: '',
     projectName: p.name ?? '',
-    logoUrl: null,
+    logoUrl: p.logoImageUrl ?? null,
     thumbnailUrl: p.thumbnailImageUrl ?? null,
     pmName: p.productOwner?.name ?? '',
     schoolName: p.productOwner?.schoolName ?? '',

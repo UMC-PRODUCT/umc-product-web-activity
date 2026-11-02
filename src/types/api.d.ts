@@ -14361,6 +14361,7 @@ export interface components {
             name?: string;
             description?: string;
             thumbnailImageUrl?: string;
+            logoImageUrl?: string;
             /** @enum {string} */
             status?: "DRAFT" | "PENDING_REVIEW" | "IN_PROGRESS" | "COMPLETED" | "ABORTED";
             productOwner?: components["schemas"]["MemberBrief"];
