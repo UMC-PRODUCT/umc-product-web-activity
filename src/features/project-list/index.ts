@@ -1,5 +1,6 @@
 export type { ProjectMembersResponse } from './api/getProjectMembers';
 export { getProjectMembers } from './api/getProjectMembers';
+export { useProjectById } from './hooks/useProjectById';
 export { useProjectFilters } from './hooks/useProjectFilters';
 export { useProjects } from './hooks/useProjects';
 export { useProjectViewer } from './hooks/useProjectViewer';

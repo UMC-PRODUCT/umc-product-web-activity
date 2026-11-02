@@ -1,6 +1,7 @@
 export { useMatchingRounds } from './hooks/useMatchingRounds';
 export { useSaveMatchingSchedule } from './hooks/useSaveMatchingSchedule';
 export { calculateSchedule, isScheduleLocked } from './model/calculateSchedule';
+export { findApplyRoundId } from './model/findApplyRoundId';
 export { getCurrentMatchingStep, type MatchingStep } from './model/getCurrentMatchingStep';
 export { getDecisionOpenRoundIds } from './model/getDecisionOpenRoundIds';
 export { getOpenRoundIds } from './model/getOpenRoundIds';

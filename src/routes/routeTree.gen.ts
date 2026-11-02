@@ -31,6 +31,7 @@ import { Route as DemoDayProjectSettingsProjectsProjectIdRouteImport } from './d
 import { Route as DemoDayProjectSettingsProjectsNewRouteImport } from './demo-day/project-settings/projects/new'
 import { Route as DemoDayTeamMatchingNoticeIndexRouteImport } from './demo-day/team-matching/notice/index'
 import { Route as DemoDayTeamMatchingNoticeNewRouteImport } from './demo-day/team-matching/notice/new'
+import { Route as DemoDayTeamMatchingProjectsProjectIdApplyRouteImport } from './demo-day/team-matching/projects/$projectId/apply'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -158,6 +159,12 @@ const DemoDayTeamMatchingNoticeNewRoute =
     path: '/new',
     getParentRoute: () => DemoDayTeamMatchingNoticeRouteRoute,
   } as any)
+const DemoDayTeamMatchingProjectsProjectIdApplyRoute =
+  DemoDayTeamMatchingProjectsProjectIdApplyRouteImport.update({
+    id: '/$projectId/apply',
+    path: '/$projectId/apply',
+    getParentRoute: () => DemoDayTeamMatchingProjectsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -173,7 +180,7 @@ export interface FileRoutesByFullPath {
   '/demo-day/project-settings/quota': typeof DemoDayProjectSettingsQuotaRoute
   '/demo-day/project-settings/rounds': typeof DemoDayProjectSettingsRoundsRoute
   '/demo-day/team-matching/applications': typeof DemoDayTeamMatchingApplicationsRoute
-  '/demo-day/team-matching/projects': typeof DemoDayTeamMatchingProjectsRoute
+  '/demo-day/team-matching/projects': typeof DemoDayTeamMatchingProjectsRouteWithChildren
   '/demo-day/team-matching/status': typeof DemoDayTeamMatchingStatusRoute
   '/demo-day/project-settings/notice/new': typeof DemoDayProjectSettingsNoticeNewRoute
   '/demo-day/project-settings/projects/$projectId': typeof DemoDayProjectSettingsProjectsProjectIdRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/demo-day/project-settings/notice/': typeof DemoDayProjectSettingsNoticeIndexRoute
   '/demo-day/project-settings/projects/': typeof DemoDayProjectSettingsProjectsIndexRoute
   '/demo-day/team-matching/notice/': typeof DemoDayTeamMatchingNoticeIndexRoute
+  '/demo-day/team-matching/projects/$projectId/apply': typeof DemoDayTeamMatchingProjectsProjectIdApplyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -193,7 +201,7 @@ export interface FileRoutesByTo {
   '/demo-day/project-settings/quota': typeof DemoDayProjectSettingsQuotaRoute
   '/demo-day/project-settings/rounds': typeof DemoDayProjectSettingsRoundsRoute
   '/demo-day/team-matching/applications': typeof DemoDayTeamMatchingApplicationsRoute
-  '/demo-day/team-matching/projects': typeof DemoDayTeamMatchingProjectsRoute
+  '/demo-day/team-matching/projects': typeof DemoDayTeamMatchingProjectsRouteWithChildren
   '/demo-day/team-matching/status': typeof DemoDayTeamMatchingStatusRoute
   '/demo-day/project-settings/notice/new': typeof DemoDayProjectSettingsNoticeNewRoute
   '/demo-day/project-settings/projects/$projectId': typeof DemoDayProjectSettingsProjectsProjectIdRoute
@@ -202,6 +210,7 @@ export interface FileRoutesByTo {
   '/demo-day/project-settings/notice': typeof DemoDayProjectSettingsNoticeIndexRoute
   '/demo-day/project-settings/projects': typeof DemoDayProjectSettingsProjectsIndexRoute
   '/demo-day/team-matching/notice': typeof DemoDayTeamMatchingNoticeIndexRoute
+  '/demo-day/team-matching/projects/$projectId/apply': typeof DemoDayTeamMatchingProjectsProjectIdApplyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -218,7 +227,7 @@ export interface FileRoutesById {
   '/demo-day/project-settings/quota': typeof DemoDayProjectSettingsQuotaRoute
   '/demo-day/project-settings/rounds': typeof DemoDayProjectSettingsRoundsRoute
   '/demo-day/team-matching/applications': typeof DemoDayTeamMatchingApplicationsRoute
-  '/demo-day/team-matching/projects': typeof DemoDayTeamMatchingProjectsRoute
+  '/demo-day/team-matching/projects': typeof DemoDayTeamMatchingProjectsRouteWithChildren
   '/demo-day/team-matching/status': typeof DemoDayTeamMatchingStatusRoute
   '/demo-day/project-settings/notice/new': typeof DemoDayProjectSettingsNoticeNewRoute
   '/demo-day/project-settings/projects/$projectId': typeof DemoDayProjectSettingsProjectsProjectIdRoute
@@ -227,6 +236,7 @@ export interface FileRoutesById {
   '/demo-day/project-settings/notice/': typeof DemoDayProjectSettingsNoticeIndexRoute
   '/demo-day/project-settings/projects/': typeof DemoDayProjectSettingsProjectsIndexRoute
   '/demo-day/team-matching/notice/': typeof DemoDayTeamMatchingNoticeIndexRoute
+  '/demo-day/team-matching/projects/$projectId/apply': typeof DemoDayTeamMatchingProjectsProjectIdApplyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/demo-day/project-settings/notice/'
     | '/demo-day/project-settings/projects/'
     | '/demo-day/team-matching/notice/'
+    | '/demo-day/team-matching/projects/$projectId/apply'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -273,6 +284,7 @@ export interface FileRouteTypes {
     | '/demo-day/project-settings/notice'
     | '/demo-day/project-settings/projects'
     | '/demo-day/team-matching/notice'
+    | '/demo-day/team-matching/projects/$projectId/apply'
   id:
     | '__root__'
     | '/'
@@ -297,6 +309,7 @@ export interface FileRouteTypes {
     | '/demo-day/project-settings/notice/'
     | '/demo-day/project-settings/projects/'
     | '/demo-day/team-matching/notice/'
+    | '/demo-day/team-matching/projects/$projectId/apply'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -463,6 +476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoDayTeamMatchingNoticeNewRouteImport
       parentRoute: typeof DemoDayTeamMatchingNoticeRouteRoute
     }
+    '/demo-day/team-matching/projects/$projectId/apply': {
+      id: '/demo-day/team-matching/projects/$projectId/apply'
+      path: '/$projectId/apply'
+      fullPath: '/demo-day/team-matching/projects/$projectId/apply'
+      preLoaderRoute: typeof DemoDayTeamMatchingProjectsProjectIdApplyRouteImport
+      parentRoute: typeof DemoDayTeamMatchingProjectsRoute
+    }
   }
 }
 
@@ -542,12 +562,27 @@ const DemoDayTeamMatchingNoticeRouteRouteWithChildren =
     DemoDayTeamMatchingNoticeRouteRouteChildren,
   )
 
+interface DemoDayTeamMatchingProjectsRouteChildren {
+  DemoDayTeamMatchingProjectsProjectIdApplyRoute: typeof DemoDayTeamMatchingProjectsProjectIdApplyRoute
+}
+
+const DemoDayTeamMatchingProjectsRouteChildren: DemoDayTeamMatchingProjectsRouteChildren =
+  {
+    DemoDayTeamMatchingProjectsProjectIdApplyRoute:
+      DemoDayTeamMatchingProjectsProjectIdApplyRoute,
+  }
+
+const DemoDayTeamMatchingProjectsRouteWithChildren =
+  DemoDayTeamMatchingProjectsRoute._addFileChildren(
+    DemoDayTeamMatchingProjectsRouteChildren,
+  )
+
 interface DemoDayRouteRouteChildren {
   DemoDayProjectSettingsRouteRoute: typeof DemoDayProjectSettingsRouteRouteWithChildren
   DemoDayIndexRoute: typeof DemoDayIndexRoute
   DemoDayTeamMatchingNoticeRouteRoute: typeof DemoDayTeamMatchingNoticeRouteRouteWithChildren
   DemoDayTeamMatchingApplicationsRoute: typeof DemoDayTeamMatchingApplicationsRoute
-  DemoDayTeamMatchingProjectsRoute: typeof DemoDayTeamMatchingProjectsRoute
+  DemoDayTeamMatchingProjectsRoute: typeof DemoDayTeamMatchingProjectsRouteWithChildren
   DemoDayTeamMatchingStatusRoute: typeof DemoDayTeamMatchingStatusRoute
 }
 
@@ -558,7 +593,8 @@ const DemoDayRouteRouteChildren: DemoDayRouteRouteChildren = {
   DemoDayTeamMatchingNoticeRouteRoute:
     DemoDayTeamMatchingNoticeRouteRouteWithChildren,
   DemoDayTeamMatchingApplicationsRoute: DemoDayTeamMatchingApplicationsRoute,
-  DemoDayTeamMatchingProjectsRoute: DemoDayTeamMatchingProjectsRoute,
+  DemoDayTeamMatchingProjectsRoute:
+    DemoDayTeamMatchingProjectsRouteWithChildren,
   DemoDayTeamMatchingStatusRoute: DemoDayTeamMatchingStatusRoute,
 }
 
