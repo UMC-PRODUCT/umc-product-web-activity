@@ -1,3 +1,4 @@
+import { Outlet, useMatchRoute } from '@tanstack/react-router';
 import { PageHeader, Pagination } from '@umc-product/react';
 import { useEffect, useState } from 'react';
 
@@ -60,6 +61,9 @@ const ProjectListPage = () => {
     projects.find(({ projectId }) => projectId === selectedProjectId) ?? null,
   );
   const filterDropdowns = useProjectFilters(session.gisuId);
+  // 지원서 시트가 떠 있는 동안 상세 카드는 숨김 (선택은 유지해서 시트를 닫으면 다시 보임)
+  const matchRoute = useMatchRoute();
+  const isApplying = !!matchRoute({ to: '/demo-day/team-matching/projects/$projectId/apply' });
 
   const handleFilterChange = (key: ProjectFilterKey, value: string[]) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -114,7 +118,7 @@ const ProjectListPage = () => {
         )}
       </div>
       <ProjectDetailModal
-        project={selectedProject}
+        project={isApplying ? null : selectedProject}
         period={period}
         actions={
           selectedProject &&
@@ -130,6 +134,8 @@ const ProjectListPage = () => {
         }
         onClose={() => setSelectedProjectId(null)}
       />
+      {/* 지원하기 라우트(projects/$projectId/apply)의 지원서 시트가 목록 위에 뜸 */}
+      <Outlet />
     </main>
   );
 };

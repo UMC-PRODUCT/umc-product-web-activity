@@ -62,6 +62,13 @@ const ProjectDetailModal = ({ project, period, actions, onClose }: ProjectDetail
       setRecruitmentFormOpen(true);
       return;
     }
+    if (actions?.primary?.kind === 'APPLY' && project) {
+      // 지원서 시트로 이동. 상세 카드는 선택된 채로 숨겨져 있다가 시트를 닫으면 다시 보임
+      navigate({
+        to: '/demo-day/team-matching/projects/$projectId/apply',
+        params: { projectId: project.projectId },
+      });
+    }
   };
 
   return (
