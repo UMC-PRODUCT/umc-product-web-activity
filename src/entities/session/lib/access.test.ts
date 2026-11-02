@@ -100,7 +100,7 @@ describe('getMatchingScheduleAccess', () => {
     ['SUPER_ADMIN', 'ALL', 'ALL'],
     ['HQ_LEAD', 'ALL', 'ALL'],
     ['HQ_ADMIN', 'ALL', 'NONE'],
-    ['CHAPTER_ADMIN', 'ALL', 'OWN'],
+    ['CHAPTER_ADMIN', 'OWN', 'OWN'],
     ['SCHOOL_ADMIN', 'OWN', 'NONE'],
   ])('%s는 %s 지부를 보고, %s 지부 일정을 바꿀 수 있다', (role, chapterScope, editScope) => {
     expect(getMatchingScheduleAccess(role)).toEqual({ chapterScope, editScope });
