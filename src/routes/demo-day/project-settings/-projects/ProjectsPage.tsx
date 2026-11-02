@@ -160,13 +160,26 @@ const ProjectsPage = () => {
           {!isPmChallenger && allChapters.length > 0 && (
             <SegmentedControl
               aria-label="지부 선택"
-              items={allChapters.map((c) => ({ value: String(c.id), label: c.name }))}
+              items={allChapters.map((c) => ({
+                value: String(c.id),
+                label:
+                  isChapterLeader && c.id !== ownChapterId ? (
+                    <span className="text-teal-grey-400" aria-disabled>
+                      {c.name}
+                    </span>
+                  ) : (
+                    c.name
+                  ),
+              }))}
               value={String(selectedChapterId ?? allChapters[0]?.id ?? '')}
-              onValueChange={(v) => !isChapterLeader && setSelectedChapterId(Number(v))}
-              className={cn(
-                '[&_[role=radio]:not([data-checked])]:text-teal-600',
-                isChapterLeader && '[&_[role=radio]:not([data-checked])]:cursor-not-allowed',
-              )}
+              onValueChange={(v) => {
+                if (isChapterLeader && Number(v) !== ownChapterId) {
+                  toast.show('소속 지부의 프로젝트만 볼 수 있어요', { color: 'error' });
+                  return;
+                }
+                setSelectedChapterId(Number(v));
+              }}
+              className="[&_[role=radio]:not([data-checked])]:text-teal-600"
             />
           )}
           {(!isPmChallenger || projects.length > 0) && (
