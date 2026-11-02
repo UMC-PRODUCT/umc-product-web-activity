@@ -139,7 +139,7 @@ export const getProjectRegisterAccess = (role: Role, view: View): ProjectRegiste
   return 'NONE';
 };
 
-// 공지 작성·수정·삭제 권한. 총괄단은 전 지부, 지부장은 본인 지부만, 학교 운영진 등은 불가.
+// 공지 작성·수정·삭제 권한. 최고 관리자·총괄단은 전 지부, 지부장은 본인 지부만, 중앙운영·학교 운영진 등은 불가.
 export const canManageNotice = (
   role: Role,
   ownChapterId: string | null,

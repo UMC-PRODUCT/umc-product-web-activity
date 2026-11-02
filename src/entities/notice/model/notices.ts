@@ -14,8 +14,8 @@ const HARDCODED_TITLES: Record<NoticeKind, [string, string]> = {
   PROJECT_SETTINGS: ['자주 질문하는 내용', '서비스 이용 및 문의사항, 버그 제보 안내'],
 };
 
-// TODO: 공지 목록 API가 나오면 실제 데이터로 교체
-export const getMockNotices = (kind: NoticeKind, chapterId: string): Notice[] => {
+// 프로덕트 팀이 코드로 넣는 기본 공지 3개. 서버 공지와 상관없이 항상 목록에 붙는다 (수정·삭제 불가)
+export const getHardcodedNotices = (kind: NoticeKind, chapterId: string): Notice[] => {
   const idPrefix = `${kind}-${chapterId}`;
   const [faqTitle, guideTitle] = HARDCODED_TITLES[kind];
   const contents = NOTICE_CONTENTS[kind];
@@ -30,6 +30,7 @@ export const getMockNotices = (kind: NoticeKind, chapterId: string): Notice[] =>
       createdAt: '2026-11-10',
       required: true,
       authorLabel: PRODUCT_AUTHOR,
+      hardcoded: true,
     },
     {
       id: `${idPrefix}-faq`,
