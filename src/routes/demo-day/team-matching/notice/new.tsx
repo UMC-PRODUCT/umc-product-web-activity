@@ -1,27 +1,24 @@
 import { createFileRoute, Navigate } from '@tanstack/react-router';
 
-import { useCanManageNotice } from '@/entities/session';
-import { useResolvedChapterId } from '@/features/chapter-select';
-
 import { NoticeWritePage } from '../../-notice';
+import { useNoticeChapters } from '../../-notice/useNoticeChapters';
 
 type NoticeWriteSearch = { chapter?: string };
 
-const TeamMatchingNoticeWritePage = () => {
+const TeamMatchingNoticeWriteRoute = () => {
   const { chapter } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const chapterId = useResolvedChapterId(chapter);
-  const canManage = useCanManageNotice(chapterId);
+  const { chaptersLoaded, canManage } = useNoticeChapters(chapter);
 
-  // 공지를 관리할 수 없는 사용자는 목록으로 돌려보낸다
-  if (!canManage) {
+  // 지부 목록을 불러온 뒤에도 공지를 관리할 수 없는 사용자는 목록으로 돌려보낸다
+  if (chaptersLoaded && !canManage) {
     return <Navigate to="/demo-day/team-matching/notice" replace />;
   }
 
   return (
     <NoticeWritePage
       kind="TEAM_MATCHING"
-      chapterId={chapterId}
+      chapter={chapter}
       onComplete={(completedChapterId) =>
         navigate({
           to: '/demo-day/team-matching/notice',
@@ -36,5 +33,5 @@ export const Route = createFileRoute('/demo-day/team-matching/notice/new')({
   validateSearch: (search): NoticeWriteSearch => ({
     chapter: typeof search.chapter === 'string' ? search.chapter : undefined,
   }),
-  component: TeamMatchingNoticeWritePage,
+  component: TeamMatchingNoticeWriteRoute,
 });

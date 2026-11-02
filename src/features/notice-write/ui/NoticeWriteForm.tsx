@@ -16,13 +16,10 @@ type ChapterOption = { id: string; name: string };
 type NoticeWriteFormProps = {
   chapters: ChapterOption[]; // 고를 수 있는 지부 (지부장은 본인 지부 하나)
   initialChapterIds: string[];
-  onSubmit: (input: NoticeInput, chapterIds: string[]) => void;
+  // 등록 요청이 끝날 때까지 로딩을 보여준다. 실패하면(throw) 로딩을 풀고 확인창을 닫는다
+  onSubmit: (input: NoticeInput, chapterIds: string[]) => void | Promise<void>;
   onTitleExceed: () => void;
 };
-
-// TODO: 공지 API가 나오면 실제 요청으로 교체
-const MOCK_REQUEST_DELAY_MS = 800;
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // 피그마 '공지 작성': 위에 지부 선택·필독·작성 완료, 아래 카드에 제목과 본문
 const NoticeWriteForm = ({
@@ -42,8 +39,11 @@ const NoticeWriteForm = ({
 
   const handleConfirm = async () => {
     setStatus('submitting');
-    await wait(MOCK_REQUEST_DELAY_MS);
-    onSubmit({ title: title.trim(), content, required }, chapterIds);
+    try {
+      await onSubmit({ title: title.trim(), content, required }, chapterIds);
+    } catch {
+      setStatus('idle');
+    }
   };
 
   return (

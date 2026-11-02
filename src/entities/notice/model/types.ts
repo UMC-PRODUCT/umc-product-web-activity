@@ -18,4 +18,5 @@ export type NoticeInput = Pick<Notice, 'title' | 'content' | 'required'>;
 
 // TODO: 제목 최대 글자수는 디자인에 정해져 있지 않다 (피그마 토스트가 '00자'). 정해지면 교체.
 export const NOTICE_TITLE_MAX_LENGTH = 50;
-export const NOTICE_CONTENT_MAX_LENGTH = 10000;
+// 서버 제한: 제목 255자, 본문 3,000자 (넘으면 400)
+export const NOTICE_CONTENT_MAX_LENGTH = 3000;

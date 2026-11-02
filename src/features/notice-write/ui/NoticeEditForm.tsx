@@ -8,13 +8,10 @@ import NoticeTitleInput from './NoticeTitleInput';
 
 type NoticeEditFormProps = {
   notice: Notice;
-  onSubmit: (input: NoticeInput) => void;
+  // 수정 요청이 끝날 때까지 로딩을 보여준다. 실패하면(throw) 로딩을 푼다
+  onSubmit: (input: NoticeInput) => void | Promise<void>;
   onTitleExceed: () => void;
 };
-
-// TODO: 공지 API가 나오면 실제 요청으로 교체
-const MOCK_REQUEST_DELAY_MS = 800;
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // 피그마 '공지 수정': 목록 안에서 제목·필독·본문을 바로 고친다
 const NoticeEditForm = ({ notice, onSubmit, onTitleExceed }: NoticeEditFormProps) => {
@@ -30,8 +27,11 @@ const NoticeEditForm = ({ notice, onSubmit, onTitleExceed }: NoticeEditFormProps
 
   const handleSubmit = async () => {
     setSubmitting(true);
-    await wait(MOCK_REQUEST_DELAY_MS);
-    onSubmit({ title: title.trim(), content, required });
+    try {
+      await onSubmit({ title: title.trim(), content, required });
+    } catch {
+      setSubmitting(false);
+    }
   };
 
   return (
