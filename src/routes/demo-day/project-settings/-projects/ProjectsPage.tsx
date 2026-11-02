@@ -174,7 +174,12 @@ const ProjectsPage = () => {
               size="sm"
               className="ml-auto h-11 shrink-0"
               disabled={role === 'HQ_ADMIN'}
-              onClick={() => navigate({ to: '/demo-day/project-settings/projects/new' })}
+              onClick={() =>
+                navigate({
+                  to: '/demo-day/project-settings/projects/new',
+                  search: { chapterId: chapterId ?? undefined },
+                })
+              }
             >
               <div className="flex items-center gap-2">
                 <AddIcon size={16} />
@@ -188,7 +193,12 @@ const ProjectsPage = () => {
           <div className="flex min-h-[400px] w-full items-center justify-center rounded-xl border border-teal-grey-100 bg-white shadow-drop-neutral-3">
             <EmptyState
               showRegisterButton={isPmChallenger}
-              onRegister={() => navigate({ to: '/demo-day/project-settings/projects/new' })}
+              onRegister={() =>
+                navigate({
+                  to: '/demo-day/project-settings/projects/new',
+                  search: { chapterId: chapterId ?? undefined },
+                })
+              }
             />
           </div>
         ) : isPmChallenger ? (

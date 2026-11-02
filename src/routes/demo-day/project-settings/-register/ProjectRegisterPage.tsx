@@ -51,6 +51,7 @@ const PE_PLATFORM_LABEL: Record<PePlatform, string> = { WEB: 'Web', MOBILE: 'Mob
 type ProjectRegisterPageProps = {
   onComplete: () => void;
   projectId?: number; // 수정 모드: 기존 프로젝트 ID
+  initialChapterId?: number | null;
 };
 
 // 피그마 프로젝트 등록: 1 기본 정보 → 2 모집 정보 → 3 지원 문항
@@ -58,7 +59,11 @@ type ProjectRegisterPageProps = {
 // 단계 번호: 1 기본 정보 · 2 모집 정보 · 3 지원 문항
 const RECRUIT_STEP = 2;
 
-const ProjectRegisterPage = ({ onComplete, projectId }: ProjectRegisterPageProps) => {
+const ProjectRegisterPage = ({
+  onComplete,
+  projectId,
+  initialChapterId,
+}: ProjectRegisterPageProps) => {
   const toast = useAppToast();
   const access = useProjectRegisterAccess();
   const { role, gisuId, serverChapterId } = useSessionStore((state) => state.session);
@@ -72,7 +77,7 @@ const ProjectRegisterPage = ({ onComplete, projectId }: ProjectRegisterPageProps
   // 지부장은 본인 지부 PM만 고를 수 있음
   const { data: pmCandidates = [] } = usePmCandidates({
     gisuId,
-    chapterId: role === 'CHAPTER_ADMIN' ? serverChapterId : null,
+    chapterId: role === 'CHAPTER_ADMIN' ? serverChapterId : (initialChapterId ?? null),
     enabled: isAdmin,
   });
   const myPmLabel = `${myInfo?.nickname ?? ''}/${myInfo?.name ?? ''} · ${formatSchoolName(myInfo?.schoolName)}`;
@@ -124,7 +129,7 @@ const ProjectRegisterPage = ({ onComplete, projectId }: ProjectRegisterPageProps
       await saveProject({
         gisuId,
         isAdmin,
-        chapterId: role === 'CHAPTER_ADMIN' ? serverChapterId : null,
+        chapterId: role === 'CHAPTER_ADMIN' ? serverChapterId : (initialChapterId ?? null),
         draft,
         server: serverState.current,
         submit,
