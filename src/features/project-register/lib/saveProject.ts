@@ -9,6 +9,7 @@ import {
   removeProjectMember,
   transferProjectOwnership,
 } from '../api/projectMembers';
+import { publishProject } from '../api/publishProject';
 import { submitProject } from '../api/submitProject';
 import { updateProject, type UpdateProjectRequest } from '../api/updateProject';
 import { uploadProjectImage } from '../api/uploadProjectImage';
@@ -41,7 +42,8 @@ type SaveProjectParams = {
   isAdmin: boolean; // 운영진만 PM 지정 · 모집 정보(정원) 입력
   draft: ProjectDraft;
   server: ServerProjectState; // 저장하면서 바로 갱신됨
-  submit: boolean; // true면 저장 뒤 제출까지
+  submit: boolean; // true면 저장 뒤 제출까지 (PM은 승인 대기, 운영진은 바로 승인 완료)
+  publish?: boolean; // true면 저장 뒤 승인 처리까지 (운영진이 PM이 올린 승인 대기 프로젝트를 승인)
 };
 
 const NO_GISU = '기수 정보를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.';
@@ -56,6 +58,7 @@ export const saveProject = async ({
   draft,
   server,
   submit,
+  publish = false,
 }: SaveProjectParams): Promise<number> => {
   if (gisuId === null) throw new ApiError(0, 'NO_GISU', NO_GISU);
 
@@ -119,5 +122,6 @@ export const saveProject = async ({
   }
 
   if (submit) await submitProject(projectId);
+  else if (publish) await publishProject(projectId);
   return projectId;
 };

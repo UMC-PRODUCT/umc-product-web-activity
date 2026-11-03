@@ -68,8 +68,7 @@ const ProjectRegisterPage = ({ onComplete, projectId, status }: ProjectRegisterP
   const { hasDraft, loadDraft } = useMyDraftProject(gisuId);
   const { mutateAsync: saveProject } = useSaveProject();
   const isEditMode = projectId !== undefined;
-  // 승인 전(임시 저장 · 승인 대기) 프로젝트를 열었으면 마지막 단계 버튼이 '프로젝트 등록하기'. 임시 저장 상태일 때만 제출
-  const isPreApproval = isEditMode && (status === 'DRAFT' || status === 'PENDING');
+  // 임시 저장 상태로 연 프로젝트는 등록(제출)까지 이어서 함. 운영진이 연 승인 대기 프로젝트는 최종 승인까지 이어서 함
   const { editData, isPending: isEditLoading } = useEditProject(isEditMode ? projectId : null);
 
   const isAdmin = access === 'ADMIN';
@@ -124,7 +123,7 @@ const ProjectRegisterPage = ({ onComplete, projectId, status }: ProjectRegisterP
   // PM은 모집 정보를 입력하지 않으므로 운영진만 확인
   const recruitComplete = !isAdmin || isRecruitComplete(draft.recruit);
 
-  const save = async (submit: boolean) => {
+  const save = async (submit: boolean, publish = false) => {
     try {
       await saveProject({
         gisuId,
@@ -132,6 +131,7 @@ const ProjectRegisterPage = ({ onComplete, projectId, status }: ProjectRegisterP
         draft,
         server: serverState.current,
         submit,
+        publish,
       });
       setDirty(false);
       return true;
@@ -200,11 +200,15 @@ const ProjectRegisterPage = ({ onComplete, projectId, status }: ProjectRegisterP
       return;
     }
     setSubmitting(true);
-    // 수정 모드: 이미 제출된 프로젝트이므로 업데이트만 (재제출 금지). 임시 저장 상태로 연 프로젝트만 제출
-    const submitted = await save(!isEditMode || status === 'DRAFT');
+    // 수정 모드: 이미 제출된 프로젝트는 업데이트만 (재제출 금지). 임시 저장 상태로 연 프로젝트만 제출하고, 승인 대기 프로젝트는 운영진만 승인
+    const shouldSubmit = !isEditMode || status === 'DRAFT';
+    const shouldPublish = isEditMode && isAdmin && status === 'PENDING';
+    const submitted = await save(shouldSubmit, shouldPublish);
     setSubmitting(false);
     if (!submitted) return;
-    toast.show(isEditMode && !isPreApproval ? '프로젝트가 수정되었어요' : TOAST_MESSAGE.registered);
+    toast.show(
+      shouldSubmit || shouldPublish ? TOAST_MESSAGE.registered : '프로젝트가 수정되었어요',
+    );
     window.setTimeout(onComplete, 0);
   };
 
@@ -304,7 +308,7 @@ const ProjectRegisterPage = ({ onComplete, projectId, status }: ProjectRegisterP
                   disabled={draftSaving}
                   onClick={() => void handleSubmit()}
                 >
-                  {isEditMode && !isPreApproval ? '수정 완료' : '프로젝트 등록하기'}
+                  프로젝트 등록하기
                 </Button>
               )}
             </div>

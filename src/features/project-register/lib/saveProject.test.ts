@@ -30,6 +30,11 @@ vi.mock('../api/submitProject', () => ({
     calls.push('submit');
   }),
 }));
+vi.mock('../api/publishProject', () => ({
+  publishProject: vi.fn(async () => {
+    calls.push('publish');
+  }),
+}));
 vi.mock('../api/projectMembers', () => ({
   addProjectMember: vi.fn(async (_id: number, body: { memberId: number }) => {
     calls.push(`addPm:${body.memberId}`);
@@ -170,5 +175,20 @@ describe('saveProject', () => {
     });
 
     expect(calls).toContain('quotas:10:[{"part":"DESIGN","quota":1}]');
+  });
+
+  it('승인 처리(publish)를 켜면 저장 뒤 프로젝트를 공개하고 다시 제출하지는 않는다', async () => {
+    const server = { ...createServerProjectState(), projectId: 10 };
+    await saveProject({
+      gisuId: 6,
+      isAdmin: true,
+      draft: filled({ thumbnail: null, logo: null, pmIds: [''] }),
+      server,
+      submit: false,
+      publish: true,
+    });
+
+    expect(calls.at(-1)).toBe('publish');
+    expect(calls).not.toContain('submit');
   });
 });
