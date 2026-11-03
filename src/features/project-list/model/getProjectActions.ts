@@ -45,29 +45,19 @@ type GetProjectActionsParams = {
   viewer: ProjectViewer;
 };
 
-// 운영진 · PM 뷰: 지원 기간에는 모집 문항 보기, 매칭 기간에는 수정 권한이 있는 프로젝트만 수정하기
-// 수정 권한: 마스터(전 지부) · 지부장(소속 지부) · PM(본인 프로젝트). PM은 지원 기간에 수정할 수 없음
-const getStaffPrimaryAction = ({
-  role,
-  chapterId,
-  view,
+// 운영진 뷰(모든 어드민 동일): 등록 · 지원 기간에는 모집 문항 보기, 매칭 기간에는 비활성 + 지원 기간 아님 안내 (피그마)
+const getAdminPrimaryAction = ({ period }: GetProjectActionsParams): ProjectAction =>
+  period.phase === 'MATCHING'
+    ? disabled('RECRUIT_QUESTIONS', '모집 문항 보기', NOTICE_NOT_APPLY_PERIOD)
+    : enabled('RECRUIT_QUESTIONS', '모집 문항 보기');
+
+// PM 뷰: 지원 기간에는 모집 문항 보기, 그 외에는 본인 프로젝트만 수정하기. PM은 지원 기간에 수정할 수 없음
+const getPmPrimaryAction = ({
   project,
   period,
   viewer,
-}: GetProjectActionsParams): ProjectAction | null => {
-  // TODO: 중앙운영진(HQ_ADMIN)은 프로젝트 목록만 볼 수 있고 상세 접근은 불가 (권한 정리 기준)
-  if (view === 'ADMIN' && role === 'HQ_ADMIN') return null;
-
-  const isOwnProject = view === 'PM_CHALLENGER' && viewer.myProjectId === project.projectId;
-  const canEdit =
-    isOwnProject ||
-    (view === 'ADMIN' &&
-      (role === 'SUPER_ADMIN' ||
-        role === 'HQ_LEAD' ||
-        (role === 'CHAPTER_ADMIN' &&
-          chapterId !== null &&
-          project.chapterId !== null &&
-          chapterId === project.chapterId)));
+}: GetProjectActionsParams): ProjectAction => {
+  const canEdit = viewer.myProjectId === project.projectId;
 
   if (period.phase === 'APPLY') return enabled('RECRUIT_QUESTIONS', '모집 문항 보기');
   if (canEdit) return enabled('EDIT_PROJECT', '프로젝트 수정하기');
@@ -103,7 +93,7 @@ const getChallengerPrimaryAction = ({
   if (viewer.appliedProjectId !== null) {
     return disabled('APPLY', '지원하기', NOTICE_ALREADY_APPLIED);
   }
-  if (period.phase === 'MATCHING') return disabled('APPLY', '지원하기', NOTICE_NOT_APPLY_PERIOD);
+  if (period.phase !== 'APPLY') return disabled('APPLY', '지원하기', NOTICE_NOT_APPLY_PERIOD);
   return enabled('APPLY', '지원하기');
 };
 
@@ -112,7 +102,9 @@ export const getProjectActions = (params: GetProjectActionsParams): ProjectActio
   primary:
     params.view === 'CHALLENGER'
       ? getChallengerPrimaryAction(params)
-      : getStaffPrimaryAction(params),
+      : params.view === 'ADMIN'
+        ? getAdminPrimaryAction(params)
+        : getPmPrimaryAction(params),
   // 피그마 상세 카드에는 항상 있음. 매칭 기간에도 전 차수 결과를 유지하다가 결과 발표 시 함께 갱신되고,
   // 매칭된 팀원이 아직 없으면 팀원 구성 패널이 "매칭이 진행 중이에요"로 안내함
   showTeamButton: true,

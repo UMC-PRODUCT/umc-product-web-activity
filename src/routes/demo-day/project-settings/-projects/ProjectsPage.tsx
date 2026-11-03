@@ -235,6 +235,7 @@ const ProjectsPage = () => {
                                 navigate({
                                   to: '/demo-day/project-settings/projects/$projectId',
                                   params: { projectId: project.projectId },
+                                  search: { status: project.status },
                                 })
                               }
                               onDelete={() => setDeleteTarget(project)}
@@ -263,6 +264,7 @@ const ProjectsPage = () => {
                                 navigate({
                                   to: '/demo-day/project-settings/projects/$projectId',
                                   params: { projectId: project.projectId },
+                                  search: { status: project.status },
                                 })
                               }
                               onDelete={() => setDeleteTarget(project)}

@@ -149,13 +149,13 @@ export const getProjectRegisterAccess = (role: Role, view: View): ProjectRegiste
   return 'NONE';
 };
 
-// 공지 작성·수정·삭제 권한. 최고 관리자·총괄단은 전 지부, 지부장은 본인 지부만, 중앙운영·학교 운영진 등은 불가.
-// 중앙운영은 전 지부 공지를 조회만 함 (getChapterScope)
+// 공지 작성·수정·삭제 권한. 최고 관리자는 전 지부, 지부장은 본인 지부만, 총괄단·중앙운영·학교 운영진 등은 불가.
+// 총괄단·중앙운영은 전 지부 공지를 조회만 함 (getChapterScope)
 export const canManageNotice = (
   role: Role,
   ownChapterId: string | null,
   targetChapterId: string,
 ): boolean => {
-  if (role === 'SUPER_ADMIN' || role === 'HQ_LEAD') return true;
+  if (role === 'SUPER_ADMIN') return true;
   return role === 'CHAPTER_ADMIN' && ownChapterId === targetChapterId;
 };

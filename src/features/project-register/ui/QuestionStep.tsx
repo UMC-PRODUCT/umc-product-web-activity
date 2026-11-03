@@ -24,6 +24,7 @@ import {
   TextLineIcon,
 } from '@umc-product/icons';
 import {
+  Button,
   FormAttachmentField,
   FormChoiceListEditor,
   FormEditableQuestion,
@@ -38,7 +39,8 @@ import {
 } from '@umc-product/react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 
-import { changeQuestionType, createQuestion } from '../model/draft';
+import { changeQuestionType, createQuestion, duplicateQuestion } from '../model/draft';
+import { FIXED_NAME_TITLE, FIXED_PORTFOLIO_TITLE } from '../model/fixedQuestions';
 import { LONG_ANSWER_MAX_LENGTH, SHORT_ANSWER_MAX_LENGTH } from '../model/limits';
 import type {
   ProjectDraft,
@@ -70,6 +72,7 @@ type QuestionEditorProps = {
   active: boolean; // 포커스된 문항: 왼쪽 강조선 + 아래에 유형 선택
   onActiveChange: (active: boolean) => void;
   onChange: (question: ProjectQuestion) => void;
+  onDuplicate: () => void;
   onDelete: () => void;
 };
 
@@ -80,6 +83,7 @@ const QuestionEditor = ({
   active,
   onActiveChange,
   onChange,
+  onDuplicate,
   onDelete,
 }: QuestionEditorProps) => {
   const { type, title, description, required, choices } = question;
@@ -108,13 +112,18 @@ const QuestionEditor = ({
       <FormQuestionEditor
         active={active}
         toolbar={
-          <FormQuestionTypeList
-            items={QUESTION_TYPE_ITEMS}
-            value={type}
-            onValueChange={(next) => {
-              if (isQuestionType(next)) onChange(changeQuestionType(question, next));
-            }}
-          />
+          <div className="flex items-center gap-2">
+            <FormQuestionTypeList
+              items={QUESTION_TYPE_ITEMS}
+              value={type}
+              onValueChange={(next) => {
+                if (isQuestionType(next)) onChange(changeQuestionType(question, next));
+              }}
+            />
+            <Button variant="weak" color="neutral" size="sm" onClick={onDuplicate}>
+              문항 복제
+            </Button>
+          </div>
         }
         dragging={isDragging}
         dragHandleProps={{ ref: setActivatorNodeRef, ...attributes, ...listeners }}
@@ -219,6 +228,16 @@ const QuestionList = ({
     onChange(arrayMove(questions, from, to));
   };
 
+  // 복제한 문항은 원본 바로 아래에 붙고, 바로 질문을 고칠 수 있게 포커스
+  const handleDuplicate = (question: ProjectQuestion, index: number) => {
+    const copy = duplicateQuestion(question);
+    const next = [...questions];
+    next.splice(index + 1, 0, copy);
+    onChange(next);
+    setActiveId(copy.id);
+    focusIdRef.current = copy.id;
+  };
+
   const handleDelete = (question: ProjectQuestion, index: number) => {
     onChange(questions.filter((item) => item.id !== question.id));
     onQuestionDeleted(() => {
@@ -252,6 +271,7 @@ const QuestionList = ({
               onChange={(next) =>
                 onChange(questions.map((item) => (item.id === next.id ? next : item)))
               }
+              onDuplicate={() => handleDuplicate(question, index)}
               onDelete={() => handleDelete(question, index)}
             />
           ))}
@@ -307,14 +327,14 @@ const QuestionStep = ({
       <div className="flex flex-col gap-6">
         <FormSection title="공통 문항">
           <div className="flex flex-col gap-10 px-5 pt-8 pb-6">
-            <FormQuestion number="01" title="지원자님의 이름/닉네임을 작성해주세요" required>
+            <FormQuestion number="01" title={FIXED_NAME_TITLE} required>
               <FormTextAnswer
                 disabled
                 placeholder="작성하세요"
                 maxLength={SHORT_ANSWER_MAX_LENGTH}
               />
             </FormQuestion>
-            <FormQuestion number="02" title="포트폴리오를 업로드해주세요" required>
+            <FormQuestion number="02" title={FIXED_PORTFOLIO_TITLE} required>
               <FormAttachmentField disabled />
             </FormQuestion>
             <QuestionList
