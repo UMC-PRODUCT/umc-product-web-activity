@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiError } from '@/shared/api/client';
 import { toId } from '@/shared/api/toId';
 
-import { getApplicationForm } from '../api/applicationForm';
+import { type ApplicationFormSections, getApplicationForm } from '../api/applicationForm';
 import { getMyDraftProject } from '../api/getMyDraftProject';
 import { getProjectDetail } from '../api/getProjectDetail';
 import { fromServerDraft } from '../lib/toDraft';
@@ -28,7 +28,11 @@ export const useMyDraftProject = (gisuId: number | null) => {
   });
 
   // 이어 쓰기를 고르면 그때서야 초안의 정원 · 지원 폼을 받아 화면 초안으로 만듦
-  const loadDraft = async (): Promise<{ draft: ProjectDraft; projectId: number } | null> => {
+  const loadDraft = async (): Promise<{
+    draft: ProjectDraft;
+    projectId: number;
+    formSections: ApplicationFormSections;
+  } | null> => {
     const projectId = toId(draft?.id);
     if (!draft || projectId === null) return null;
 
@@ -43,7 +47,11 @@ export const useMyDraftProject = (gisuId: number | null) => {
       }),
     ]);
 
-    return { draft: fromServerDraft(draft, detail.partQuotas, form), projectId };
+    return {
+      draft: fromServerDraft(draft, detail.partQuotas, form),
+      projectId,
+      formSections: form?.sections ?? [],
+    };
   };
 
   return { hasDraft: draft !== null, isPending: gisuId !== null && isPending, loadDraft };

@@ -18,7 +18,7 @@ const getChallengerTrack = ({ challengerPart }: ProjectViewer): Track | null => 
 
 // 지금 시각과 소속 지부의 매칭 일정으로 프로젝트 목록 화면이 따를 기간을 계산
 // - 챌린저는 본인 트랙, 운영진 · PM은 PE 매칭이 진행 중이면 PE, 아니면 Design 트랙을 따름
-// - 시작 전 · 모두 끝남 · 일정 없음(소속 지부 없음 · 불러오는 중 포함)은 지원할 수 없는 매칭 기간으로 취급
+// - 시작 전은 프로젝트 등록 기간, 모두 끝남 · 일정 없음(소속 지부 없음 · 불러오는 중 포함)은 지원할 수 없는 매칭 기간으로 취급
 export const useProjectPeriod = (
   session: Pick<Session, 'serverChapterId'>,
   view: View,
@@ -44,5 +44,6 @@ export const useProjectPeriod = (
 
   const step = stepOf(track);
   if (step?.status === 'ONGOING') return { track, phase: step.phase, round: step.round };
+  if (step?.status === 'BEFORE_START') return { track, phase: 'REGISTER', round: 1 };
   return { track, phase: 'MATCHING', round: step?.status === 'ENDED' ? 3 : 1 };
 };

@@ -38,8 +38,10 @@ import {
 } from '@umc-product/react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 
-import { changeQuestionType, createQuestion } from '../model/draft';
+import { changeQuestionType, createQuestion, duplicateQuestion } from '../model/draft';
+import { FIXED_NAME_TITLE, FIXED_PORTFOLIO_TITLE } from '../model/fixedQuestions';
 import { LONG_ANSWER_MAX_LENGTH, SHORT_ANSWER_MAX_LENGTH } from '../model/limits';
+import { parseQuestion, serializeQuestion } from '../model/questionClipboard';
 import type {
   ProjectDraft,
   ProjectQuestion,
@@ -70,6 +72,7 @@ type QuestionEditorProps = {
   active: boolean; // 포커스된 문항: 왼쪽 강조선 + 아래에 유형 선택
   onActiveChange: (active: boolean) => void;
   onChange: (question: ProjectQuestion) => void;
+  onPasteQuestion: (question: ProjectQuestion) => void; // Ctrl+V로 붙여넣은 문항. 이 문항 아래에 들어감
   onDelete: () => void;
 };
 
@@ -80,6 +83,7 @@ const QuestionEditor = ({
   active,
   onActiveChange,
   onChange,
+  onPasteQuestion,
   onDelete,
 }: QuestionEditorProps) => {
   const { type, title, description, required, choices } = question;
@@ -98,9 +102,27 @@ const QuestionEditor = ({
       ref={setNodeRef}
       data-question-id={question.id}
       // 피그마: 편집 카드는 섹션 좌우 끝까지 차고, 강조선이 섹션 왼쪽 끝에 붙음 (섹션 안쪽 여백 20px을 덜어냄)
-      className="-mx-5"
+      className="-mx-5 outline-none"
       style={{ transform: CSS.Translate.toString(transform), transition }}
+      // 카드의 빈 곳을 눌러도 카드가 선택되어 Ctrl+C · Ctrl+V가 먹음
+      tabIndex={-1}
       onFocus={() => onActiveChange(true)}
+      // 입력칸에서 글자를 드래그해 둔 채로는 일반 복사. 그 외에는 문항 카드를 복사
+      onCopy={(event) => {
+        const { target } = event;
+        const hasTextSelected =
+          target instanceof HTMLInputElement && target.selectionStart !== target.selectionEnd;
+        if (hasTextSelected) return;
+        event.clipboardData.setData('text/plain', serializeQuestion(question));
+        event.preventDefault();
+      }}
+      // 복사한 문항이 클립보드에 있을 때만 문항으로 붙여넣음. 일반 텍스트는 입력칸에 그대로 붙음
+      onPaste={(event) => {
+        const copied = parseQuestion(event.clipboardData.getData('text/plain'));
+        if (!copied) return;
+        event.preventDefault();
+        onPasteQuestion(copied);
+      }}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange(false);
       }}
@@ -219,6 +241,16 @@ const QuestionList = ({
     onChange(arrayMove(questions, from, to));
   };
 
+  // 붙여넣은 문항은 선택한 문항 바로 아래에 붙고, 바로 질문을 고칠 수 있게 포커스
+  const handlePasteQuestion = (copied: ProjectQuestion, index: number) => {
+    const copy = duplicateQuestion(copied);
+    const next = [...questions];
+    next.splice(index + 1, 0, copy);
+    onChange(next);
+    setActiveId(copy.id);
+    focusIdRef.current = copy.id;
+  };
+
   const handleDelete = (question: ProjectQuestion, index: number) => {
     onChange(questions.filter((item) => item.id !== question.id));
     onQuestionDeleted(() => {
@@ -252,6 +284,7 @@ const QuestionList = ({
               onChange={(next) =>
                 onChange(questions.map((item) => (item.id === next.id ? next : item)))
               }
+              onPasteQuestion={(copied) => handlePasteQuestion(copied, index)}
               onDelete={() => handleDelete(question, index)}
             />
           ))}
@@ -307,14 +340,14 @@ const QuestionStep = ({
       <div className="flex flex-col gap-6">
         <FormSection title="공통 문항">
           <div className="flex flex-col gap-10 px-5 pt-8 pb-6">
-            <FormQuestion number="01" title="지원자님의 이름/닉네임을 작성해주세요" required>
+            <FormQuestion number="01" title={FIXED_NAME_TITLE} required>
               <FormTextAnswer
                 disabled
                 placeholder="작성하세요"
                 maxLength={SHORT_ANSWER_MAX_LENGTH}
               />
             </FormQuestion>
-            <FormQuestion number="02" title="포트폴리오를 업로드해주세요" required>
+            <FormQuestion number="02" title={FIXED_PORTFOLIO_TITLE} required>
               <FormAttachmentField disabled />
             </FormQuestion>
             <QuestionList

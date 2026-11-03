@@ -1,4 +1,5 @@
 import { createInitialDraft, createQuestion } from '../model/draft';
+import { FIXED_NAME_TITLE, FIXED_PORTFOLIO_TITLE } from '../model/fixedQuestions';
 import type { PePlatform } from '../model/types';
 import { fromApplicationForm, toApplicationFormRequest } from './toApplicationForm';
 
@@ -44,6 +45,95 @@ describe('toApplicationFormRequest', () => {
         { content: 'Mobile', orderNo: 2 },
       ],
     });
+  });
+
+  it('서버에 이미 있는 섹션 · 문항 · 선택지는 ID를 같이 보낸다', () => {
+    const draft = createInitialDraft();
+    draft.questions.COMMON = [
+      {
+        id: 'q',
+        type: 'SINGLE',
+        title: '질문',
+        description: '',
+        required: true,
+        choices: [
+          { id: 'a', label: 'A' },
+          { id: 'b', label: 'B' },
+        ],
+      },
+    ];
+
+    const { sections } = toApplicationFormRequest(draft, [
+      {
+        sectionId: 7,
+        type: 'COMMON',
+        title: '공통 문항',
+        questions: [
+          {
+            questionId: 70,
+            type: 'RADIO',
+            title: '질문',
+            options: [
+              { optionId: 700, content: 'A' },
+              { optionId: 701, content: 'B' },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    expect(sections[0].sectionId).toBe(7);
+    expect(sections[0].questions[2].questionId).toBe(70);
+    expect(sections[0].questions[2].options.map(({ optionId }) => optionId)).toEqual([700, 701]);
+  });
+
+  it('공통 섹션 맨 앞에 고정 문항 2개를 넣고 추가 문항은 3번부터 매긴다', () => {
+    const draft = createInitialDraft();
+    draft.questions.COMMON = [{ ...createQuestion('SHORT'), title: '동기' }];
+
+    const [common] = toApplicationFormRequest(draft).sections;
+
+    expect(common.questions.map(({ type, title, orderNo }) => [type, title, orderNo])).toEqual([
+      ['SHORT_TEXT', FIXED_NAME_TITLE, 1],
+      ['PORTFOLIO', FIXED_PORTFOLIO_TITLE, 2],
+      ['SHORT_TEXT', '동기', 3],
+    ]);
+  });
+
+  it('서버에서 받은 고정 문항은 편집 목록에서 빼고, 다시 저장할 때 ID를 이어 보낸다', () => {
+    const form = {
+      sections: [
+        {
+          sectionId: 7,
+          type: 'COMMON' as const,
+          title: '공통 문항',
+          questions: [
+            {
+              questionId: 1,
+              type: 'SHORT_TEXT' as const,
+              title: FIXED_NAME_TITLE,
+              options: [],
+              orderNo: 1,
+            },
+            {
+              questionId: 2,
+              type: 'PORTFOLIO' as const,
+              title: FIXED_PORTFOLIO_TITLE,
+              options: [],
+              orderNo: 2,
+            },
+            { questionId: 3, type: 'SHORT_TEXT' as const, title: '동기', options: [], orderNo: 3 },
+          ],
+        },
+      ],
+    };
+
+    const { questions } = fromApplicationForm(form);
+    expect(questions.COMMON.map(({ title }) => title)).toEqual(['동기']);
+
+    const draft = { ...createInitialDraft(), questions };
+    const [common] = toApplicationFormRequest(draft, form.sections).sections;
+    expect(common.questions.map(({ questionId }) => questionId)).toEqual([1, 2, 3]);
   });
 
   it('플랫폼을 모르면 PE 섹션은 Web · Mobile PE 모두 대상이다', () => {

@@ -24,6 +24,7 @@ import {
   TeamCompositionPanel,
 } from '@/features/project-list';
 import { getApplicationForm } from '@/features/project-register/api/applicationForm';
+import { withFixedCommonQuestions } from '@/features/project-register/model/fixedQuestions';
 import { ProjectCard } from '@/widgets/card';
 
 type ProjectDetailModalProps = {
@@ -44,7 +45,7 @@ const ProjectDetailModal = ({ project, period, actions, onClose }: ProjectDetail
     queryFn: () => getApplicationForm(Number(project!.projectId)),
     enabled: recruitmentFormOpen && project !== null,
   });
-  const formSections = applicationFormData?.sections ?? [];
+  const formSections = withFixedCommonQuestions(applicationFormData?.sections ?? []);
 
   const handleOpenChange = (open: boolean) => {
     if (open) return;
@@ -54,8 +55,12 @@ const ProjectDetailModal = ({ project, period, actions, onClose }: ProjectDetail
   };
 
   const handlePrimaryClick = () => {
-    if (actions?.primary?.kind === 'EDIT_PROJECT') {
-      navigate({ to: '/demo-day/project-settings/projects' });
+    if (actions?.primary?.kind === 'EDIT_PROJECT' && project) {
+      navigate({
+        to: '/demo-day/project-settings/projects/$projectId',
+        params: { projectId: project.projectId },
+        search: {},
+      });
       return;
     }
     if (actions?.primary?.kind === 'RECRUIT_QUESTIONS') {
@@ -99,7 +104,7 @@ const ProjectDetailModal = ({ project, period, actions, onClose }: ProjectDetail
                       variant="weak"
                       color="neutral"
                       size="md"
-                      icon={<UsersPictogram size={30} />}
+                      icon={<UsersPictogram size={30} color="var(--color-icon-subtle)" />}
                       aria-label="팀원 구성 보기"
                       onClick={() => setTeamPanelOpen(true)}
                     />

@@ -16,14 +16,8 @@ vi.mock('../api/updateProject', () => ({
   }),
 }));
 vi.mock('../api/partQuotaManagement', () => ({
-  getQuotaManagement: vi.fn(async (query: { chapterId?: number }) => {
-    calls.push(`chapters:${query.chapterId ?? 'default'}`);
-    return query.chapterId === 37
-      ? { chapterId: '37', projects: [{ projectId: '10' }] }
-      : { chapterId: '33', chapters: [{ chapterId: '33' }, { chapterId: '37' }], projects: [] };
-  }),
-  saveQuotaManagement: vi.fn(async (body: object) => {
-    calls.push(`quotas:${JSON.stringify(body)}`);
+  updatePartQuotas: vi.fn(async (projectId: number, entries: object) => {
+    calls.push(`quotas:${projectId}:${JSON.stringify(entries)}`);
   }),
 }));
 vi.mock('../api/applicationForm', () => ({
@@ -34,6 +28,11 @@ vi.mock('../api/applicationForm', () => ({
 vi.mock('../api/submitProject', () => ({
   submitProject: vi.fn(async () => {
     calls.push('submit');
+  }),
+}));
+vi.mock('../api/publishProject', () => ({
+  publishProject: vi.fn(async () => {
+    calls.push('publish');
   }),
 }));
 vi.mock('../api/projectMembers', () => ({
@@ -96,9 +95,7 @@ describe('saveProject', () => {
       'upload:thumb.png',
       'upload:logo.png',
       'update:{"name":"프로젝트","description":"소개","externalLink":"https://notion.so","thumbnailFileId":"file-thumb.png","logoFileId":"file-logo.png"}',
-      'chapters:default',
-      'chapters:37',
-      'quotas:{"gisuId":6,"chapterId":37,"projects":[{"projectId":10,"entries":[{"part":"DESIGN","quota":1},{"part":"WEB_PRODUCT_ENGINEER","quota":0},{"part":"MOBILE_PRODUCT_ENGINEER","quota":0}]}]}',
+      'quotas:10:[{"part":"DESIGN","quota":1}]',
     ]);
     expect(server).toMatchObject({ projectId: 10, mainPmId: 1, coPmId: 2 });
   });
@@ -166,5 +163,32 @@ describe('saveProject', () => {
     expect(calls.slice(0, 3)).toEqual(['transfer:3', 'removePm:2', 'upload:logo.png']);
     expect(calls).not.toContain('create');
     expect(server).toMatchObject({ mainPmId: 3, coPmId: null });
+  });
+
+  it('임시 저장도 지부를 몰라도 정원을 저장한다', async () => {
+    await saveProject({
+      gisuId: 6,
+      isAdmin: true,
+      draft: filled({ thumbnail: null, logo: null }),
+      server: createServerProjectState(),
+      submit: false,
+    });
+
+    expect(calls).toContain('quotas:10:[{"part":"DESIGN","quota":1}]');
+  });
+
+  it('승인 처리(publish)를 켜면 저장 뒤 프로젝트를 공개하고 다시 제출하지는 않는다', async () => {
+    const server = { ...createServerProjectState(), projectId: 10 };
+    await saveProject({
+      gisuId: 6,
+      isAdmin: true,
+      draft: filled({ thumbnail: null, logo: null, pmIds: [''] }),
+      server,
+      submit: false,
+      publish: true,
+    });
+
+    expect(calls.at(-1)).toBe('publish');
+    expect(calls).not.toContain('submit');
   });
 });

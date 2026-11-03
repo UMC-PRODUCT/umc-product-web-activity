@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiError } from '@/shared/api/client';
 import { toId } from '@/shared/api/toId';
 
-import { getApplicationForm } from '../api/applicationForm';
+import { type ApplicationFormSections, getApplicationForm } from '../api/applicationForm';
 import type { DraftProjectResponse } from '../api/getMyDraftProject';
 import { getProjectDetail } from '../api/getProjectDetail';
 import { fromServerDraft } from '../lib/toDraft';
@@ -20,6 +20,7 @@ export type EditProjectData = {
   projectId: number;
   mainPmId: number | null;
   coPmId: number | null;
+  formSections: ApplicationFormSections;
 };
 
 export const useEditProject = (projectId: number | null) => {
@@ -55,6 +56,7 @@ export const useEditProject = (projectId: number | null) => {
           projectId,
           mainPmId: toId(data.detail.productOwner?.memberId) ?? null,
           coPmId: toId(data.detail.coProductOwners?.[0]?.memberId) ?? null,
+          formSections: data.form?.sections ?? [],
         }
       : null;
 

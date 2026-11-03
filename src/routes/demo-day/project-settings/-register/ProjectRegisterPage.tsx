@@ -4,6 +4,7 @@ import { Button, Dialog, PageHeader, StepNavigation } from '@umc-product/react';
 import { useEffect, useRef, useState } from 'react';
 
 import { myInfoQueryOptions, useProjectRegisterAccess, useSessionStore } from '@/entities/session';
+import type { ProjectStatus } from '@/features/project-management';
 import {
   BasicInfoStep,
   createInitialDraft,
@@ -51,6 +52,7 @@ const PE_PLATFORM_LABEL: Record<PePlatform, string> = { WEB: 'Web', MOBILE: 'Mob
 type ProjectRegisterPageProps = {
   onComplete: () => void;
   projectId?: number; // 수정 모드: 기존 프로젝트 ID
+  status?: ProjectStatus; // 수정 모드: 프로젝트 상태. 아직 승인 전이면 등록(승인 요청)까지 이어서 함
 };
 
 // 피그마 프로젝트 등록: 1 기본 정보 → 2 모집 정보 → 3 지원 문항
@@ -58,7 +60,7 @@ type ProjectRegisterPageProps = {
 // 단계 번호: 1 기본 정보 · 2 모집 정보 · 3 지원 문항
 const RECRUIT_STEP = 2;
 
-const ProjectRegisterPage = ({ onComplete, projectId }: ProjectRegisterPageProps) => {
+const ProjectRegisterPage = ({ onComplete, projectId, status }: ProjectRegisterPageProps) => {
   const toast = useAppToast();
   const access = useProjectRegisterAccess();
   const { role, gisuId, serverChapterId } = useSessionStore((state) => state.session);
@@ -66,6 +68,7 @@ const ProjectRegisterPage = ({ onComplete, projectId }: ProjectRegisterPageProps
   const { hasDraft, loadDraft } = useMyDraftProject(gisuId);
   const { mutateAsync: saveProject } = useSaveProject();
   const isEditMode = projectId !== undefined;
+  // 임시 저장 상태로 연 프로젝트는 등록(제출)까지 이어서 함. 운영진이 연 승인 대기 프로젝트는 최종 승인까지 이어서 함
   const { editData, isPending: isEditLoading } = useEditProject(isEditMode ? projectId : null);
 
   const isAdmin = access === 'ADMIN';
@@ -98,6 +101,7 @@ const ProjectRegisterPage = ({ onComplete, projectId }: ProjectRegisterPageProps
       projectId: editData.projectId,
       mainPmId: editData.mainPmId,
       coPmId: editData.coPmId,
+      formSections: editData.formSections,
     };
     setDraft(editData.draft);
   }, [editData]);
@@ -119,15 +123,15 @@ const ProjectRegisterPage = ({ onComplete, projectId }: ProjectRegisterPageProps
   // PM은 모집 정보를 입력하지 않으므로 운영진만 확인
   const recruitComplete = !isAdmin || isRecruitComplete(draft.recruit);
 
-  const save = async (submit: boolean) => {
+  const save = async (submit: boolean, publish = false) => {
     try {
       await saveProject({
         gisuId,
         isAdmin,
-        chapterId: role === 'CHAPTER_ADMIN' ? serverChapterId : null,
         draft,
         server: serverState.current,
         submit,
+        publish,
       });
       setDirty(false);
       return true;
@@ -159,6 +163,7 @@ const ProjectRegisterPage = ({ onComplete, projectId }: ProjectRegisterPageProps
         projectId: loaded.projectId,
         mainPmId: mainPmId ?? null,
         coPmId: coPmId ?? null,
+        formSections: loaded.formSections,
       };
       setDraft(loaded.draft);
       setDirty(false);
@@ -195,11 +200,15 @@ const ProjectRegisterPage = ({ onComplete, projectId }: ProjectRegisterPageProps
       return;
     }
     setSubmitting(true);
-    // 수정 모드: 이미 제출된 프로젝트이므로 업데이트만 (재제출 금지)
-    const submitted = await save(!isEditMode);
+    // 수정 모드: 이미 제출된 프로젝트는 업데이트만 (재제출 금지). 임시 저장 상태로 연 프로젝트만 제출하고, 승인 대기 프로젝트는 운영진만 승인
+    const shouldSubmit = !isEditMode || status === 'DRAFT';
+    const shouldPublish = isEditMode && isAdmin && status === 'PENDING';
+    const submitted = await save(shouldSubmit, shouldPublish);
     setSubmitting(false);
     if (!submitted) return;
-    toast.show(isEditMode ? '프로젝트가 수정되었어요' : TOAST_MESSAGE.registered);
+    toast.show(
+      shouldSubmit || shouldPublish ? TOAST_MESSAGE.registered : '프로젝트가 수정되었어요',
+    );
     window.setTimeout(onComplete, 0);
   };
 
@@ -299,7 +308,7 @@ const ProjectRegisterPage = ({ onComplete, projectId }: ProjectRegisterPageProps
                   disabled={draftSaving}
                   onClick={() => void handleSubmit()}
                 >
-                  {isEditMode ? '수정 완료' : '프로젝트 등록하기'}
+                  프로젝트 등록하기
                 </Button>
               )}
             </div>

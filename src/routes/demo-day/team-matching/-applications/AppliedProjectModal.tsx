@@ -92,7 +92,7 @@ const AppliedProjectModal = ({
                     variant="weak"
                     color="neutral"
                     size="md"
-                    icon={<UsersPictogram size={30} />}
+                    icon={<UsersPictogram size={30} color="var(--color-icon-subtle)" />}
                     aria-label="팀원 보기"
                   />
                   {/* 기획 링크를 새 탭으로. 상세를 불러오기 전이나 링크가 없으면 비활성 */}

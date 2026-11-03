@@ -37,8 +37,8 @@ export type Project = {
   recruitments: PartRecruitment[]; // Design + 서비스 플랫폼의 PE만
 };
 
-// 지원 기간: 챌린저가 프로젝트에 지원 / 매칭 기간: 운영진이 지원자를 매칭 (지원 불가)
-export type ProjectPeriodPhase = 'APPLY' | 'MATCHING';
+// 등록 기간: 1차 지원 시작 전, 프로젝트를 등록하는 때 / 지원 기간: 챌린저가 프로젝트에 지원 / 매칭 기간: 운영진이 지원자를 매칭 (지원 불가)
+export type ProjectPeriodPhase = 'REGISTER' | 'APPLY' | 'MATCHING';
 
 export type ProjectPeriod = {
   track: 'DESIGN' | 'PE'; // 진행 중인 매칭 트랙 (Plan-Design / Plan-PE)
