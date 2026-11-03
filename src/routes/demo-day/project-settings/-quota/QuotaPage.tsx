@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ResetIcon } from '@umc-product/icons';
 import {
   Button,
+  Dialog,
   PageHeader,
   SectionHeader,
   SegmentedControl,
@@ -85,18 +85,22 @@ const QuotaPage = () => {
   const [saved, setSaved] = useState<DraftValues>({});
   const [draft, setDraft] = useState<DraftValues>({});
   const [editingCell, setEditingCell] = useState<{ projectId: string; part: string } | null>(null);
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const toast = useAppToast();
   const queryClient = useQueryClient();
 
   const { mutate: saveMutate, isPending: isSaving } = useMutation({
-    mutationFn: ({ isUnder: _, ...body }: SavePartQuotasRequest & { isUnder: boolean }) =>
-      savePartQuotas(body),
-    onSuccess: (_, { isUnder }) => {
+    mutationFn: ({
+      isUnder: _,
+      skipToast: __,
+      ...body
+    }: SavePartQuotasRequest & { isUnder: boolean; skipToast?: boolean }) => savePartQuotas(body),
+    onSuccess: (_, { isUnder, skipToast }) => {
       setSaved(draft);
       setEditingCell(null);
-      toast.show(isUnder ? '정해진 인원보다 적게 배정되었어요' : '저장되었어요');
+      if (!skipToast) toast.show(isUnder ? '정해진 인원보다 적게 배정되었어요' : '저장되었어요');
       queryClient.invalidateQueries({ queryKey: ['part-quotas'] });
     },
     onError: (error: Error) => {
@@ -182,159 +186,226 @@ const QuotaPage = () => {
     label: c.name,
   }));
 
-  return (
-    <main className="flex min-w-[1082px] flex-col items-start gap-8 px-8 pt-12 pb-20">
-      <PageHeader
-        className="w-full max-w-[1082px]"
-        breadcrumbs={BREADCRUMBS}
-        title="프로젝트 TO 관리"
-        description="지부 별 전체 프로젝트 TO를 한번에 관리할 수 있어요."
-      />
+  const handleReset = () => {
+    if (!data?.chapterId) return;
+    // PM은 currentCount, 나머지 파트는 0으로 (서버 저장하기 전 값)
+    const resetDraft = Object.fromEntries(
+      projects.map((p) => {
+        const projectId = String(p.projectId!);
+        const cells = p.cells ?? [];
+        return [
+          projectId,
+          Object.fromEntries(
+            cells.map((c) => {
+              const isPm = c.part === 'PLAN';
+              return [c.part!, isPm ? Number(c.currentCount ?? 0) : 0];
+            }),
+          ),
+        ];
+      }),
+    );
+    setDraft(resetDraft);
 
-      <div className="flex w-full max-w-[1082px] flex-col">
-        <SegmentedControl
-          aria-label="지부 선택"
-          items={chapterItems}
-          value={String(chapterId ?? '')}
-          onValueChange={(v) => setSelectedChapterId(Number(v))}
-          className="[&_[role=radio]:not([data-checked])]:text-teal-600"
+    const partTotalReset = (part: string) =>
+      projects.reduce((sum, p) => sum + (resetDraft[String(p.projectId!)]?.[part] ?? 0), 0);
+
+    const isUnder = columns
+      .filter((col) => col.canEdit?.allowed === true)
+      .some((col) => partTotalReset(col.part!) < partQuota(col.part!));
+
+    type CellPart = SavePartQuotasRequest['projects'][0]['entries'][0]['part'];
+
+    const changedProjects = Object.entries(resetDraft)
+      .map(([projectId, parts]) => {
+        const savedParts = saved[projectId] ?? {};
+        const entries = Object.entries(parts)
+          .filter(([part, quota]) => quota !== savedParts[part])
+          .map(([part, quota]) => ({ part: part as CellPart, quota }));
+        return entries.length > 0 ? { projectId: Number(projectId), entries } : null;
+      })
+      .filter((p): p is NonNullable<typeof p> => p !== null);
+
+    if (changedProjects.length === 0) return;
+
+    saveMutate({
+      isUnder,
+      skipToast: true,
+      gisuId: gisuId ?? 0,
+      chapterId: data.chapterId,
+      projects: changedProjects,
+    });
+  };
+
+  return (
+    <>
+      <main className="flex min-w-[1082px] flex-col items-start gap-8 px-8 pt-12 pb-20">
+        <PageHeader
+          className="w-full max-w-[1082px]"
+          breadcrumbs={BREADCRUMBS}
+          title="프로젝트 TO 관리"
+          description="지부 별 전체 프로젝트 TO를 한번에 관리할 수 있어요."
         />
 
-        <section className="mt-8 flex flex-col">
-          <SectionHeader title="파트별 인원 현황" />
-          <div className="mt-3 flex gap-2.5">
-            {columns.map((col) => (
-              <PartStatCard
-                key={col.part}
-                title={col.label ?? ''}
-                count={partTotalAll(col.part!)}
-              />
-            ))}
-          </div>
-        </section>
+        <div className="flex w-full max-w-[1082px] flex-col">
+          <SegmentedControl
+            aria-label="지부 선택"
+            items={chapterItems}
+            value={String(chapterId ?? '')}
+            onValueChange={(v) => setSelectedChapterId(Number(v))}
+            className="[&_[role=radio]:not([data-checked])]:text-teal-600"
+          />
 
-        <section className="flex flex-col">
-          <div className="mt-16 flex flex-col">
-            <SectionHeader title="프로젝트별 파트 TO" />
-            <span className="mt-1.5 mb-6 pl-1.5 text-body-2-regular text-teal-grey-600">
-              매칭이 시작되면 프로젝트TO를 수정할 수 없어요
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <SearchBar
-              value={search}
-              onValueChange={setSearch}
-              placeholder="프로젝트 명으로 검색하세요"
-              className="w-114"
-            />
-
-            <div className="flex items-center gap-2">
-              <SelectDropdown
-                label="학교"
-                options={schoolOptions}
-                value={schoolIds}
-                onValueChange={setSchoolIds}
-                className="w-auto shrink-0 [&_.umc-select\_\_trigger]:[--umc-select-placeholder-color:var(--umc-color-text-neutral-default-900)]"
-              />
-              {canEdit && (
-                <>
-                  <Button
-                    variant="fill"
-                    color="white"
-                    size="sm"
-                    leadingIcon={<ResetIcon size={14} />}
-                  >
-                    초기화
-                  </Button>
-                  <Button size="sm" disabled={isSaving || allColumnsLocked} onClick={handleSave}>
-                    저장
-                  </Button>
-                </>
-              )}
+          <section className="mt-8 flex flex-col">
+            <SectionHeader title="파트별 인원 현황" />
+            <div className="mt-3 flex gap-2.5">
+              {columns.map((col) => (
+                <PartStatCard
+                  key={col.part}
+                  title={col.label ?? ''}
+                  count={partTotalAll(col.part!)}
+                />
+              ))}
             </div>
-          </div>
+          </section>
 
-          <div className="mt-8 overflow-hidden rounded-xl border border-teal-grey-200">
-            <div className="overflow-x-auto">
-              <table className="w-auto min-w-full border-collapse">
-                <thead>
-                  <tr className="flex bg-teal-grey-100">
-                    <th className="flex w-[170px] shrink-0 cursor-pointer flex-col items-center justify-center gap-1 border border-t-0 border-l-0 border-teal-300 bg-teal-50">
-                      <span className="text-heading-3-semibold leading-[1.4] tracking-[-0.4px] text-teal-600">
-                        {data?.chapterName ?? ''} 지부
-                      </span>
-                      <span className="text-body-2-medium leading-normal tracking-[-0.15px] text-teal-grey-500">
-                        총 {data?.totalProjectCount ?? 0}개 팀
-                      </span>
-                    </th>
-                    {columns.map((col) => (
-                      <th
-                        key={col.part}
-                        className="flex w-[186.75px] shrink-0 flex-col items-center justify-center gap-1 border-b-2 border-teal-500 bg-teal-50 pt-3 pb-4"
-                      >
-                        <span className="text-title-2-semibold leading-[1.4] tracking-[-0.2px] text-neutral-strong-800">
-                          {col.label}
-                        </span>
-                        <span className="text-heading-4-semibold leading-[1.4] tracking-[-0.36px] text-teal-600">
-                          {partTotal(col.part!)}명
-                        </span>
-                      </th>
-                    ))}
-                    <th className="flex min-w-[150px] flex-1 cursor-pointer flex-col items-center justify-center border border-t-0 border-r-0 border-teal-grey-300 bg-fill-neutral-medium-100 pt-3 pb-4">
-                      <span className="text-[20px] leading-[1.4] font-semibold tracking-[-0.2px] whitespace-nowrap text-teal-grey-800">
-                        합계 인원
-                      </span>
-                    </th>
-                  </tr>
-                </thead>
-              </table>
+          <section className="flex flex-col">
+            <div className="mt-16 flex flex-col">
+              <SectionHeader title="프로젝트별 파트 TO" />
+              <span className="mt-1.5 mb-6 pl-1.5 text-body-2-regular text-teal-grey-600">
+                매칭이 시작되면 프로젝트TO를 수정할 수 없어요
+              </span>
+            </div>
 
-              <div className="max-h-[510px] scrollbar-none overflow-y-auto">
-                {isError ? (
-                  <div className="flex w-full flex-col items-center justify-center gap-2 py-[74px] text-teal-grey-600">
-                    <h3 className="text-body-1-semibold">데이터를 불러오지 못했어요</h3>
-                    <p className="text-body-3-regular">잠시 후 다시 시도해 주세요.</p>
-                  </div>
-                ) : (
+            <div className="flex items-center justify-between">
+              <SearchBar
+                value={search}
+                onValueChange={setSearch}
+                placeholder="프로젝트 명으로 검색하세요"
+                className="w-114"
+              />
+
+              <div className="flex items-center gap-2">
+                <SelectDropdown
+                  label="학교"
+                  options={schoolOptions}
+                  value={schoolIds}
+                  onValueChange={setSchoolIds}
+                  className="w-auto shrink-0 [&_.umc-select\_\_trigger]:rounded-xl [&_.umc-select\_\_trigger]:[--umc-select-placeholder-color:var(--umc-color-text-neutral-default-900)]"
+                />
+                {canEdit && (
                   <>
-                    <table className="w-auto min-w-full border-collapse">
-                      <tbody>
-                        {projects.map((project) => (
-                          <QuotaTableRow
-                            key={project.projectId}
-                            project={project}
-                            values={draft[String(project.projectId!)]}
-                            columns={columns}
-                            editingCell={editingCell}
-                            inputRef={inputRef}
-                            canEdit={canEdit}
-                            onCellClick={handleCellClick}
-                            onCellChange={handleCellChange}
-                            onCellBlur={handleCellBlur}
-                          />
-                        ))}
-                      </tbody>
-                    </table>
-
-                    {projects.length === 0 && (
-                      <div className="flex flex-col items-center justify-center gap-2 py-[74px] text-teal-grey-600">
-                        <h3 className="text-body-1-semibold">검색 결과가 없어요</h3>
-                        <p className="text-body-3-regular">
-                          프로젝트명을 확인하고 다시 검색해 보세요.
-                        </p>
-                      </div>
-                    )}
+                    <Button
+                      variant="fill"
+                      color="white"
+                      size="sm"
+                      onClick={() => setResetConfirmOpen(true)}
+                      className="[--umc-button-border-pressed:var(--umc-color-teal-grey-300)] [--umc-button-border:var(--umc-color-teal-grey-300)]"
+                    >
+                      초기화
+                    </Button>
+                    <Button size="sm" disabled={isSaving || allColumnsLocked} onClick={handleSave}>
+                      저장
+                    </Button>
                   </>
                 )}
               </div>
-
-              <QuotaTableFooter columns={columns} partTotal={partTotal} partQuota={partQuota} />
             </div>
-          </div>
-        </section>
-      </div>
-    </main>
+
+            <div className="mt-8 overflow-hidden rounded-xl border border-teal-grey-200">
+              <div className="overflow-x-auto">
+                <table className="w-auto min-w-full border-collapse">
+                  <thead>
+                    <tr className="flex bg-teal-grey-100">
+                      <th className="flex w-[170px] shrink-0 cursor-pointer flex-col items-center justify-center gap-1 border border-t-0 border-l-0 border-teal-300 bg-teal-50">
+                        <span className="text-heading-3-semibold leading-[1.4] tracking-[-0.4px] text-teal-600">
+                          {data?.chapterName ?? ''} 지부
+                        </span>
+                        <span className="text-body-2-medium leading-normal tracking-[-0.15px] text-teal-grey-500">
+                          총 {data?.totalProjectCount ?? 0}개 팀
+                        </span>
+                      </th>
+                      {columns.map((col) => (
+                        <th
+                          key={col.part}
+                          className="flex w-[186.75px] shrink-0 flex-col items-center justify-center gap-1 border-b-2 border-teal-500 bg-teal-50 pt-3 pb-4"
+                        >
+                          <span className="text-title-2-semibold leading-[1.4] tracking-[-0.2px] text-neutral-strong-800">
+                            {col.label}
+                          </span>
+                          <span className="text-heading-4-semibold leading-[1.4] tracking-[-0.36px] text-teal-600">
+                            {partTotal(col.part!)}명
+                          </span>
+                        </th>
+                      ))}
+                      <th className="flex min-w-[150px] flex-1 cursor-pointer flex-col items-center justify-center border border-t-0 border-r-0 border-teal-grey-300 bg-fill-neutral-medium-100 pt-3 pb-4">
+                        <span className="text-[20px] leading-[1.4] font-semibold tracking-[-0.2px] whitespace-nowrap text-teal-grey-800">
+                          합계 인원
+                        </span>
+                      </th>
+                    </tr>
+                  </thead>
+                </table>
+
+                <div className="max-h-[510px] scrollbar-none overflow-y-auto">
+                  {isError ? (
+                    <div className="flex w-full flex-col items-center justify-center gap-2 py-[74px] text-teal-grey-600">
+                      <h3 className="text-body-1-semibold">데이터를 불러오지 못했어요</h3>
+                      <p className="text-body-3-regular">잠시 후 다시 시도해 주세요.</p>
+                    </div>
+                  ) : (
+                    <>
+                      <table className="w-auto min-w-full border-collapse">
+                        <tbody>
+                          {projects.map((project) => (
+                            <QuotaTableRow
+                              key={project.projectId}
+                              project={project}
+                              values={draft[String(project.projectId!)]}
+                              columns={columns}
+                              editingCell={editingCell}
+                              inputRef={inputRef}
+                              canEdit={canEdit}
+                              onCellClick={handleCellClick}
+                              onCellChange={handleCellChange}
+                              onCellBlur={handleCellBlur}
+                            />
+                          ))}
+                        </tbody>
+                      </table>
+
+                      {projects.length === 0 && (
+                        <div className="flex flex-col items-center justify-center gap-2 py-[74px] text-teal-grey-600">
+                          <h3 className="text-body-1-semibold">검색 결과가 없어요</h3>
+                          <p className="text-body-3-regular">
+                            프로젝트명을 확인하고 다시 검색해 보세요.
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <QuotaTableFooter columns={columns} partTotal={partTotal} partQuota={partQuota} />
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <Dialog
+        open={resetConfirmOpen}
+        onOpenChange={(open) => !open && setResetConfirmOpen(false)}
+        color="error"
+        title="프로젝트별 TO를 초기화할까요?"
+        description="초기화하면 PM을 제외한 Design, Web PE, Mobile PE의 프로젝트 TO가 모두 0으로 변경돼요."
+        cancelLabel="취소"
+        confirmLabel="초기화"
+        onConfirm={() => {
+          setResetConfirmOpen(false);
+          handleReset();
+        }}
+      />
+    </>
   );
 };
 
