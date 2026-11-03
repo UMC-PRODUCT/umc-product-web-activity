@@ -14,10 +14,12 @@ export const useNoticeChapters = (requestedChapter?: string) => {
   const { data: allChapters = [], isSuccess: chaptersLoaded } = useChapters(gisuId);
   const isAdminView = useApplicationsView() === 'ADMIN';
 
-  const chapters =
-    getChapterScope(role) === 'ALL'
-      ? allChapters
-      : allChapters.filter(({ id }) => id === serverChapterId);
+  const ownChapterOnly = getChapterScope(role) === 'OWN';
+  const chapters = ownChapterOnly
+    ? allChapters.filter(({ id }) => id === serverChapterId)
+    : allChapters;
+  // 지부 탭에서 고를 수 있는 지부 (undefined면 전 지부)
+  const selectableChapterId = ownChapterOnly ? serverChapterId : undefined;
   const requestedId = toId(requestedChapter);
   const chapterId =
     chapters.find(({ id }) => id === requestedId)?.id ??
@@ -33,5 +35,12 @@ export const useNoticeChapters = (requestedChapter?: string) => {
       String(chapterId),
     );
 
-  return { gisuId, chapters, chaptersLoaded, chapterId, canManage };
+  return {
+    gisuId,
+    allChapters,
+    selectableChapterId,
+    chaptersLoaded,
+    chapterId,
+    canManage,
+  };
 };

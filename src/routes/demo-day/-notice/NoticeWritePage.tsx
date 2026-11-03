@@ -1,6 +1,7 @@
 import { PageHeader } from '@umc-product/react';
 
 import { NOTICE_TITLE_MAX_LENGTH, type NoticeKind, useCreateNotice } from '@/entities/notice';
+import { BLOCKED_NOTICE_WRITE_CHAPTER_MESSAGE } from '@/features/chapter-select';
 import { NoticeWriteForm } from '@/features/notice-write';
 import { useAppToast } from '@/widgets/toast';
 
@@ -17,7 +18,7 @@ type NoticeWritePageProps = {
 const NoticeWritePage = ({ kind, chapter, onComplete }: NoticeWritePageProps) => {
   const config = NOTICE_PAGE_CONFIG[kind];
   const toast = useAppToast();
-  const { gisuId, chapters, chapterId } = useNoticeChapters(chapter);
+  const { gisuId, allChapters, selectableChapterId, chapterId } = useNoticeChapters(chapter);
   const createNotice = useCreateNotice();
 
   // 기수나 지부를 알기 전에는 폼을 그리지 않음 (처음 선택된 지부를 폼이 한 번만 읽기 때문)
@@ -31,8 +32,16 @@ const NoticeWritePage = ({ kind, chapter, onComplete }: NoticeWritePageProps) =>
         description={config.writeDescription}
       />
       <NoticeWriteForm
-        chapters={chapters.map(({ id, name }) => ({ id: String(id), name }))}
+        chapters={allChapters.map(({ id, name }) => ({
+          id: String(id),
+          name,
+          disabled: selectableChapterId !== undefined && id !== selectableChapterId,
+        }))}
         initialChapterIds={[String(chapterId)]}
+        // 공지 화면 토스트는 기본이 상단이라, 다른 페이지의 지부 선택처럼 하단에 띄움
+        onBlockedChapterClick={() =>
+          toast.showBottom(BLOCKED_NOTICE_WRITE_CHAPTER_MESSAGE, { color: 'error' })
+        }
         onTitleExceed={() =>
           toast.show(`제목은 ${NOTICE_TITLE_MAX_LENGTH}자까지 작성할 수 있어요`, { color: 'error' })
         }
