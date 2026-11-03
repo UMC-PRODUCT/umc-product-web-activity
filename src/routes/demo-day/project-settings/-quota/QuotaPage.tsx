@@ -176,7 +176,7 @@ const QuotaPage = () => {
     saveMutate({
       isUnder,
       gisuId: gisuId ?? 0,
-      chapterId: data.chapterId,
+      chapterId: Number(data.chapterId),
       projects: changedProjects,
     });
   };
@@ -188,30 +188,18 @@ const QuotaPage = () => {
 
   const handleReset = () => {
     if (!data?.chapterId) return;
-    // PM은 currentCount, 나머지 파트는 0으로 (서버 저장하기 전 값)
+
     const resetDraft = Object.fromEntries(
       projects.map((p) => {
         const projectId = String(p.projectId!);
         const cells = p.cells ?? [];
         return [
           projectId,
-          Object.fromEntries(
-            cells.map((c) => {
-              const isPm = c.part === 'PLAN';
-              return [c.part!, isPm ? Number(c.currentCount ?? 0) : 0];
-            }),
-          ),
+          Object.fromEntries(cells.map((c) => [c.part!, Number(c.resetQuota ?? 0)])),
         ];
       }),
     );
     setDraft(resetDraft);
-
-    const partTotalReset = (part: string) =>
-      projects.reduce((sum, p) => sum + (resetDraft[String(p.projectId!)]?.[part] ?? 0), 0);
-
-    const isUnder = columns
-      .filter((col) => col.canEdit?.allowed === true)
-      .some((col) => partTotalReset(col.part!) < partQuota(col.part!));
 
     type CellPart = SavePartQuotasRequest['projects'][0]['entries'][0]['part'];
 
@@ -228,10 +216,10 @@ const QuotaPage = () => {
     if (changedProjects.length === 0) return;
 
     saveMutate({
-      isUnder,
+      isUnder: false,
       skipToast: true,
       gisuId: gisuId ?? 0,
-      chapterId: data.chapterId,
+      chapterId: Number(data.chapterId),
       projects: changedProjects,
     });
   };
