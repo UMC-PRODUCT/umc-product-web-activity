@@ -125,7 +125,7 @@ const QuotaPage = () => {
   const partTotal = (part: string) =>
     projects.reduce((sum, p) => sum + (draft[String(p.projectId!)]?.[part] ?? 0), 0);
   const partTotalAll = (part: string) =>
-    Number(data?.summary?.find((s) => s.part === part)?.allocatedQuota ?? 0);
+    Number(data?.summary?.find((s) => s.part === part)?.availableCount ?? 0);
   const partQuota = (part: string) =>
     Number(data?.filteredSummary?.find((s) => s.part === part)?.availableCount ?? 0);
 
