@@ -8,7 +8,8 @@ import { clearAuthTokens } from '@/shared/api/authToken';
 import { EXTERNAL_LINKS, openExternalLink } from '@/shared/config/externalLinks';
 
 import LogoActivity from './assets/logo-activity.svg?react';
-import { toProfileMenu } from './toProfileMenu';
+import { getGisus, toGisuYears } from './gisuYears';
+import { getProfileGisuIds, toProfileMenu } from './toProfileMenu';
 
 type HeaderNavItem = { label: string; href: NonNullable<LinkProps['to']> };
 
@@ -27,11 +28,19 @@ const Header = () => {
   const queryClient = useQueryClient();
   const role = useSessionStore((state) => state.session.role);
   // 로그인 화면에서는 토큰이 없어 내 정보를 부르지 않음 (루트 beforeLoad가 이미 불러와 캐시에 있음)
-  const { data: profileMenu, isPending } = useQuery({
+  const { data: myInfo, isPending } = useQuery({
     ...myInfoQueryOptions,
     enabled: pathname !== LOGIN_PATH,
-    select: (myInfo) => toProfileMenu(myInfo, role),
   });
+  const gisuIds = myInfo ? getProfileGisuIds(myInfo) : [];
+  // 기수 오른쪽 연도. 불러오지 못해도 메뉴는 그대로 쓸 수 있어서 연도만 비워 둠
+  const { data: gisuYears } = useQuery({
+    queryKey: ['header', 'gisu-years', gisuIds],
+    queryFn: () => getGisus(gisuIds),
+    enabled: pathname !== LOGIN_PATH && gisuIds.length > 0,
+    select: toGisuYears,
+  });
+  const profileMenu = myInfo && toProfileMenu(myInfo, role, gisuYears);
   // 로그인 화면이거나 내 정보를 못 불러왔으면(로그아웃 상태) 로그인 버튼. 불러오는 중에는 둘 다 안 보임
   const showLogin = pathname === LOGIN_PATH || (!profileMenu && !isPending);
 
@@ -72,7 +81,7 @@ const Header = () => {
                 profile={profileMenu.profile}
                 generations={profileMenu.generations}
                 generation={profileMenu.generation}
-                // TODO: 계정 설정 화면이 생기면 연결
+                // TODO: 계정 설정 화면이 생기면 연결하고 app.css의 숨김 규칙 제거
                 onLogout={handleLogout}
               />
             )

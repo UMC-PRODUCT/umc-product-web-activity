@@ -13,6 +13,11 @@
   --umc-tooltip-max-width: none;
 }
 
+/* 계정 설정 화면이 없어서 프로필 메뉴의 '계정 설정'을 숨김. 디자인 시스템 메뉴에 항목을 끄는 옵션이 없어서 로그아웃(danger)만 남김 */
+.umc-header-profile-menu__action:not([data-tone='danger']) {
+  display: none;
+}
+
 /* 피그마 Dialog: 팝업 뒤 그림자는 없고, 뒤 배경(Dimmed)은 medium(#0f1010 65%). 디자인 시스템 Dialog는 backdrop에 className을 못 줘서 표식 클래스로 맞춤 */
 .umc-dialog__popup.dialog-flat {
   box-shadow: none;
