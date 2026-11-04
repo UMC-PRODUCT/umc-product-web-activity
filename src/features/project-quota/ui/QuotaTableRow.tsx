@@ -59,7 +59,7 @@ const QuotaTableRow = ({
           return (
             <td
               key={part}
-              className="flex h-[60px] w-[186.75px] shrink-0 cursor-pointer items-center justify-center bg-teal-grey-75 text-[18px] leading-[1.4] font-semibold tracking-[-0.36px] text-teal-grey-300"
+              className="flex h-[60px] w-[186.75px] shrink-0 cursor-pointer items-center justify-center border border-teal-grey-200 bg-teal-grey-75 text-[18px] leading-[1.4] font-semibold tracking-[-0.36px] text-teal-grey-300"
             >
               <span>0</span>
               <span className="font-medium text-teal-grey-300">명</span>
@@ -108,7 +108,7 @@ const QuotaTableRow = ({
         );
       })}
 
-      <td className="flex h-[60px] min-w-[150px] flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 border border-r-0 border-teal-grey-200 bg-[#F6F7F7]">
+      <td className="flex h-[60px] min-w-[150px] flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 border border-r-0 border-teal-grey-200 bg-fill-neutral-weak-75">
         <span className="text-body-3-medium leading-normal text-teal-grey-500">팀 배정 인원</span>
         <div className="flex items-start gap-0.5 text-[18px] leading-[1.4]">
           <span className="font-semibold tracking-[-0.36px] text-teal-600">{total}</span>
