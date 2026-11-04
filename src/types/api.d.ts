@@ -14473,6 +14473,8 @@ export interface components {
             currentCount?: number;
             /** Format: int64 */
             minimumQuota?: number;
+            /** Format: int64 */
+            resetQuota?: number;
             canEdit?: components["schemas"]["ProjectPermissionCapabilityInfo"];
         };
         ChapterOption: {

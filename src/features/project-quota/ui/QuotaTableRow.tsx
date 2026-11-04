@@ -35,7 +35,7 @@ const QuotaTableRow = ({
 
   return (
     <tr className="flex">
-      <td className="flex h-[60px] w-[170px] shrink-0 cursor-pointer items-center justify-center overflow-hidden border border-l-0 border-teal-grey-300 bg-fill-neutral-weaker-50 px-3">
+      <td className="flex h-[60px] w-[170px] shrink-0 cursor-pointer items-center justify-center overflow-hidden border border-l-0 border-teal-grey-200 bg-fill-neutral-weaker-50 px-3">
         <span
           className="truncate text-[18px] leading-[1.4] font-semibold tracking-[-0.18px] text-teal-grey-700"
           title={project.projectName ?? ''}
@@ -97,7 +97,7 @@ const QuotaTableRow = ({
         return (
           <td
             key={part}
-            className={`flex h-[60px] w-[186.75px] shrink-0 items-center justify-center gap-0.25 border border-teal-grey-300 bg-fill-neutral-default leading-[1.4] ${canEdit && !isLocked ? 'hover:border hover:border-teal-500 hover:bg-teal-50' : ''}`}
+            className={`flex h-[60px] w-[186.75px] shrink-0 items-center justify-center gap-0.25 border border-teal-grey-200 bg-fill-neutral-default leading-[1.4] ${canEdit && !isLocked ? 'hover:border hover:border-teal-500 hover:bg-teal-50' : ''}`}
             onClick={() => onCellClick(projectId, part, isDisabled)}
           >
             <span className="text-heading-4-semibold tracking-[-0.36px] text-teal-600">
@@ -108,7 +108,7 @@ const QuotaTableRow = ({
         );
       })}
 
-      <td className="flex h-[60px] min-w-[150px] flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 border border-r-0 border-teal-grey-300 bg-[#F6F7F7]">
+      <td className="flex h-[60px] min-w-[150px] flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 border border-r-0 border-teal-grey-200 bg-[#F6F7F7]">
         <span className="text-body-3-medium leading-normal text-teal-grey-500">팀 배정 인원</span>
         <div className="flex items-start gap-0.5 text-[18px] leading-[1.4]">
           <span className="font-semibold tracking-[-0.36px] text-teal-600">{total}</span>

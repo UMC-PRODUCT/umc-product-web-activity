@@ -142,7 +142,7 @@ const ProjectsPage = () => {
   };
 
   return (
-    <main className="flex flex-col items-start gap-8 px-8 pt-12 pb-20">
+    <main className="flex min-w-[1082px] flex-col items-start gap-8 px-8 pt-12 pb-20">
       <PageHeader
         className="w-full max-w-[1082px]"
         breadcrumbs={BREADCRUMBS}
@@ -160,13 +160,26 @@ const ProjectsPage = () => {
           {!isPmChallenger && allChapters.length > 0 && (
             <SegmentedControl
               aria-label="지부 선택"
-              items={allChapters.map((c) => ({ value: String(c.id), label: c.name }))}
+              items={allChapters.map((c) => ({
+                value: String(c.id),
+                label:
+                  isChapterLeader && c.id !== ownChapterId ? (
+                    <span className="text-teal-grey-400" aria-disabled>
+                      {c.name}
+                    </span>
+                  ) : (
+                    c.name
+                  ),
+              }))}
               value={String(selectedChapterId ?? allChapters[0]?.id ?? '')}
-              onValueChange={(v) => !isChapterLeader && setSelectedChapterId(Number(v))}
-              className={cn(
-                '[&_[role=radio]:not([data-checked])]:text-teal-600',
-                isChapterLeader && '[&_[role=radio]:not([data-checked])]:cursor-not-allowed',
-              )}
+              onValueChange={(v) => {
+                if (isChapterLeader && Number(v) !== ownChapterId) {
+                  toast.show('소속 지부의 프로젝트만 볼 수 있어요', { color: 'error' });
+                  return;
+                }
+                setSelectedChapterId(Number(v));
+              }}
+              className="[&_[role=radio]:not([data-checked])]:text-teal-600"
             />
           )}
           {(!isPmChallenger || projects.length > 0) && (
@@ -174,7 +187,12 @@ const ProjectsPage = () => {
               size="sm"
               className="ml-auto h-11 shrink-0"
               disabled={role === 'HQ_ADMIN'}
-              onClick={() => navigate({ to: '/demo-day/project-settings/projects/new' })}
+              onClick={() =>
+                navigate({
+                  to: '/demo-day/project-settings/projects/new',
+                  search: { chapterId: chapterId ?? undefined },
+                })
+              }
             >
               <div className="flex items-center gap-2">
                 <AddIcon size={16} />
@@ -188,7 +206,12 @@ const ProjectsPage = () => {
           <div className="flex min-h-[400px] w-full items-center justify-center rounded-xl border border-teal-grey-100 bg-white shadow-drop-neutral-3">
             <EmptyState
               showRegisterButton={isPmChallenger}
-              onRegister={() => navigate({ to: '/demo-day/project-settings/projects/new' })}
+              onRegister={() =>
+                navigate({
+                  to: '/demo-day/project-settings/projects/new',
+                  search: { chapterId: chapterId ?? undefined },
+                })
+              }
             />
           </div>
         ) : isPmChallenger ? (
