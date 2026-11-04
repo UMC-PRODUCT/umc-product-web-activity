@@ -28,5 +28,5 @@ export const NOTICE_PAGE_CONFIG: Record<NoticeKind, NoticePageConfig> = {
   },
 };
 
-// 피그마 Web/Page Header 위치: 사이드바에서 32px, 오른쪽은 화면 끝에서 128px 떨어진 폭 1062px 영역
-export const NOTICE_PAGE_LAYOUT_CLASS = 'flex flex-col gap-8 pt-12 pr-32 pb-20 pl-8';
+// 피그마 Web/Page Header 위치: 사이드바에서 32px, 오른쪽은 화면 끝에서 128px 떨어진 폭 1062px 영역. 반응형 없이 1222px(32+1062+128) 아래로는 줄이지 않고 잘리게 둔다
+export const NOTICE_PAGE_LAYOUT_CLASS = 'flex min-w-[1222px] flex-col gap-8 pt-12 pr-32 pb-20 pl-8';
