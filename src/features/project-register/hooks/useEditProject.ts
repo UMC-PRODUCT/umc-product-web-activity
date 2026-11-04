@@ -42,7 +42,6 @@ export const useEditProject = (projectId: number | null) => {
       return { detail, form };
     },
     enabled: projectId !== null,
-    staleTime: Infinity,
   });
 
   const editData: EditProjectData | null =

@@ -8,11 +8,13 @@ export const useSaveProject = () => {
 
   return useMutation({
     mutationFn: saveProject,
-    onSuccess: () => {
+    onSuccess: (projectId) => {
       void queryClient.invalidateQueries({ queryKey: ['projects'] });
       void queryClient.invalidateQueries({ queryKey: ['project-draft'] });
       void queryClient.invalidateQueries({ queryKey: ['project'] });
       void queryClient.invalidateQueries({ queryKey: ['application-form'] });
+      void queryClient.invalidateQueries({ queryKey: ['managed-projects'] });
+      void queryClient.invalidateQueries({ queryKey: ['project-edit', projectId] });
     },
   });
 };
