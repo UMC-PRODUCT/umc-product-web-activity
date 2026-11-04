@@ -60,7 +60,7 @@ const ApplicantDetailRow = ({
           <span className="text-caption-3-regular text-teal-grey-500">{schoolName}</span>
         </button>
       ) : (
-        // 지원서를 열 수 없는 역할(중앙운영진)은 이름만 표시
+        // 지원서를 열 수 없으면 이름만 표시
         <p className="flex h-[50px] w-[150px] shrink-0 flex-col justify-center gap-0.5 px-3.5 whitespace-nowrap">
           <span className="text-body-3-medium text-teal-grey-800">{challengerName}</span>
           <span className="text-caption-3-regular text-teal-grey-500">{schoolName}</span>

@@ -112,7 +112,7 @@ describe('getApplicationsAccess', () => {
     ['SUPER_ADMIN', true, true, true],
     ['HQ_LEAD', true, true, true],
     ['CHAPTER_ADMIN', true, true, true],
-    ['HQ_ADMIN', true, true, false],
+    ['HQ_ADMIN', true, false, false],
     ['SCHOOL_ADMIN', true, false, false],
     ['SCHOOL_STAFF', true, false, false],
     ['CHALLENGER', false, false, false],

@@ -38,7 +38,7 @@ type ProjectApplicantsModalProps = {
   // 이 지원자의 배정 상태를 지금 바꿀 수 있는지 (서버 권한 + 그 차수의 결정 기간)
   canChangeStatus?: (applicant: Applicant) => boolean;
   isUpdatingStatus?: boolean; // 변경 요청 중 (중복 클릭 방지)
-  canReadApplication?: boolean; // 지원서 열람 가능 여부 (권한표: 중앙운영진은 지원자 목록만)
+  canReadApplication?: boolean; // 지원서 열람 가능 여부
 };
 
 // 어드민 지원 현황에서 프로젝트명을 누르면 뜨는 프로젝트 상세: 파트별 지원한 챌린저 목록

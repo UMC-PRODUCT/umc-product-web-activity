@@ -62,7 +62,7 @@ export const getApplicationsView = (role: Role, view: View): View => {
 // 매칭 기간 안인지는 차수별로 따로 확인
 // - 마스터(SUPER_ADMIN · HQ_LEAD): 전체 / 지부장: 본인 지부 프로젝트만 / 학교 운영진: 조회만
 // - PM: 본인 프로젝트만 (PM 뷰에는 본인 프로젝트만 보임)
-// TODO: HQ_ADMIN(중앙운영)은 기획 미정이라 우선 조회만
+// - 중앙운영진: 합불 판정 불가
 export const canEditApplicantStatus = (
   { role, chapterId }: Pick<Session, 'role' | 'chapterId'>,
   applicationsView: View,
@@ -107,8 +107,7 @@ export const getMatchingScheduleAccess = (role: Role): MatchingScheduleAccess =>
 
 // 11기 권한표 '지원 현황' (어드민 뷰): 지원자 목록(지원 시트) · 프로젝트 지원서 모달 · 개인 지원서를 볼 수 있는지
 // - 마스터 · 지부장: 지원 시트 · 지원서 모달 · 개인 지원서
-// - 중앙운영진: 지원 시트 · 지원서 모달 (개인 지원서 열람 불가)
-// - 학교회장단 · 학교운영진: 지원 통계 · 지원 시트만 (지원서 모달 · 개인 지원서 열람 불가)
+// - 중앙운영진 · 학교회장단 · 학교운영진: 지원 통계 · 지원 시트만 (지원서 모달 · 개인 지원서 열람 불가)
 //   서버는 학교 회장단에게 지원 마감 후에만 지원자를 주고, 그 외 학교 운영진에게는 빈 목록을 줌
 // 합격 · 불합격 판정은 서버 권한(canDecide)으로 따로 확인
 export type ApplicationsAccess = {
@@ -121,10 +120,7 @@ export const getApplicationsAccess = (role: Role): ApplicationsAccess => {
   if (['SUPER_ADMIN', 'HQ_LEAD', 'CHAPTER_ADMIN'].includes(role)) {
     return { canReadApplicants: true, canOpenProject: true, canReadApplication: true };
   }
-  if (role === 'HQ_ADMIN') {
-    return { canReadApplicants: true, canOpenProject: true, canReadApplication: false };
-  }
-  if (role === 'SCHOOL_ADMIN' || role === 'SCHOOL_STAFF') {
+  if (role === 'HQ_ADMIN' || role === 'SCHOOL_ADMIN' || role === 'SCHOOL_STAFF') {
     return { canReadApplicants: true, canOpenProject: false, canReadApplication: false };
   }
   return { canReadApplicants: false, canOpenProject: false, canReadApplication: false };
