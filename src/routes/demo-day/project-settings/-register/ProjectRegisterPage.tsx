@@ -134,7 +134,6 @@ const ProjectRegisterPage = ({
       await saveProject({
         gisuId,
         isAdmin,
-        chapterId: role === 'CHAPTER_ADMIN' ? serverChapterId : (initialChapterId ?? null),
         draft,
         server: serverState.current,
         submit,
