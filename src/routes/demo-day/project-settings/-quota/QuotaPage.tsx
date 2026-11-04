@@ -315,7 +315,7 @@ const QuotaPage = () => {
                       {columns.map((col) => (
                         <th
                           key={col.part}
-                          className="flex w-[186.75px] shrink-0 flex-col items-center justify-center gap-1 border-b-2 border-teal-500 bg-teal-50 pt-3 pb-4"
+                          className="flex w-[186.75px] shrink-0 flex-col items-center justify-center gap-1 border-b-2 border-teal-500 bg-fill-primary-weaker-50 pt-3 pb-4"
                         >
                           <span className="text-title-2-semibold leading-[1.4] tracking-[-0.2px] text-neutral-strong-800">
                             {col.label}

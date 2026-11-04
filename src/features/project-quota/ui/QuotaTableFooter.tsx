@@ -18,7 +18,7 @@ const QuotaTableFooter = ({ columns, partTotal, partQuota }: Props) => {
     <table className="w-auto min-w-full border-collapse">
       <tfoot>
         <tr className="flex">
-          <td className="flex w-[170px] shrink-0 cursor-pointer items-center justify-center border-r border-teal-grey-200 bg-teal-50 py-4">
+          <td className="flex w-[170px] shrink-0 cursor-pointer items-center justify-center border-r border-teal-grey-200 bg-fill-primary-weak-75 py-4">
             <span className="text-[18px] leading-[1.4] font-semibold tracking-[-0.18px] text-teal-grey-900">
               지부 총 인원
             </span>
@@ -26,7 +26,7 @@ const QuotaTableFooter = ({ columns, partTotal, partQuota }: Props) => {
           {columns.map((col) => (
             <td
               key={col.part}
-              className="flex w-[186.75px] shrink-0 cursor-pointer items-center justify-center gap-0.25 border-x border-teal-grey-200 bg-teal-50 py-4"
+              className="flex w-[186.75px] shrink-0 cursor-pointer items-center justify-center gap-0.25 border-x border-teal-grey-200 bg-fill-primary-weak-75 py-4"
             >
               <span className="text-[18px] leading-[1.4] font-semibold tracking-[-0.36px] text-teal-600">
                 {partTotal(col.part!)}
@@ -34,7 +34,7 @@ const QuotaTableFooter = ({ columns, partTotal, partQuota }: Props) => {
               <span className="text-title-3-medium text-teal-grey-500">명</span>
             </td>
           ))}
-          <td className="flex min-w-[150px] flex-1 cursor-pointer items-center justify-center border-l border-teal-grey-200 bg-teal-100 py-4">
+          <td className="flex min-w-[150px] flex-1 cursor-pointer items-center justify-center border-l border-teal-grey-200 bg-fill-primary-medium-100 py-4">
             <div className="flex items-start gap-0.5 text-[18px] leading-[1.4]">
               <span className="font-semibold tracking-[-0.36px] text-teal-600">
                 총 {columns.reduce((sum, col) => sum + partTotal(col.part!), 0)}
