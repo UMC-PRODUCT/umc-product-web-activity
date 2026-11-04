@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { useChapters } from '@/entities/chapter';
 import { useSessionStore } from '@/entities/session';
+import { ServerChapterSelect } from '@/features/chapter-select';
 import {
   ChapterMatchingRateCard,
   MatchingResultSheet,
@@ -22,7 +23,6 @@ import {
 import { useAppToast } from '@/widgets/toast';
 
 import { getBreadcrumbs } from '../-shared/constants';
-import ServerChapterSelect from '../-shared/ServerChapterSelect';
 import UpdatedAtCaption from '../-shared/UpdatedAtCaption';
 import ManualAssignModal from './ManualAssignModal';
 import MatchedApplicationModal, { type MatchedApplicationTarget } from './MatchedApplicationModal';

@@ -28,6 +28,7 @@ const PROJECT: Project = {
 
 const APPLY: ProjectPeriod = { track: 'PE', phase: 'APPLY', round: 1 };
 const MATCHING: ProjectPeriod = { track: 'PE', phase: 'MATCHING', round: 1 };
+const REGISTER: ProjectPeriod = { track: 'PE', phase: 'REGISTER', round: 1 };
 
 const VIEWER: ProjectViewer = {
   challengerPart: 'DESIGN',
@@ -52,6 +53,20 @@ describe('getProjectActions - 일반 챌린저', () => {
 
   it('매칭 기간이면 지원하기가 비활성이다', () => {
     expect(getProjectActions({ ...challenger, period: MATCHING }).primary).toMatchObject({
+      disabled: true,
+      notice: NOTICE_NOT_APPLY_PERIOD,
+    });
+  });
+
+  it('등록 기간이면 지원하기가 비활성이다', () => {
+    const action = getProjectActions({
+      ...base,
+      role: 'CHALLENGER',
+      view: 'CHALLENGER',
+      period: REGISTER,
+    }).primary;
+    expect(action).toMatchObject({
+      kind: 'APPLY',
       disabled: true,
       notice: NOTICE_NOT_APPLY_PERIOD,
     });
@@ -114,39 +129,44 @@ describe('getProjectActions - 일반 챌린저', () => {
   });
 });
 
-describe('getProjectActions - 운영진 · PM', () => {
-  it('지원 기간에는 모든 프로젝트에서 모집 문항 보기가 활성이다', () => {
-    const action = getProjectActions({ ...base, role: 'SUPER_ADMIN', view: 'ADMIN' }).primary;
-    expect(action).toMatchObject({ kind: 'RECRUIT_QUESTIONS', disabled: false });
-  });
+describe('getProjectActions - 운영진', () => {
+  it.each(['SUPER_ADMIN', 'HQ_LEAD', 'HQ_ADMIN', 'CHAPTER_ADMIN'] as const)(
+    '%s는 등록 · 지원 기간에 모집 문항 보기가 활성이다',
+    (role) => {
+      for (const period of [REGISTER, APPLY]) {
+        const action = getProjectActions({ ...base, role, view: 'ADMIN', period }).primary;
+        expect(action).toMatchObject({ kind: 'RECRUIT_QUESTIONS', disabled: false, notice: null });
+      }
+    },
+  );
 
-  it('매칭 기간에 마스터는 모든 프로젝트를 수정할 수 있다', () => {
+  it.each(['SUPER_ADMIN', 'HQ_LEAD', 'HQ_ADMIN', 'CHAPTER_ADMIN'] as const)(
+    '%s는 매칭 기간에 모집 문항 보기가 비활성이고 지원 기간 아님 안내가 나온다',
+    (role) => {
+      const action = getProjectActions({ ...base, role, view: 'ADMIN', period: MATCHING }).primary;
+      expect(action).toMatchObject({
+        kind: 'RECRUIT_QUESTIONS',
+        disabled: true,
+        notice: NOTICE_NOT_APPLY_PERIOD,
+      });
+    },
+  );
+
+  it('운영진에게는 프로젝트 수정하기가 나오지 않는다', () => {
     const action = getProjectActions({
       ...base,
-      role: 'HQ_LEAD',
+      role: 'SUPER_ADMIN',
       view: 'ADMIN',
-      chapterId: 'quokka',
-      period: MATCHING,
+      period: REGISTER,
     }).primary;
-    expect(action).toMatchObject({ kind: 'EDIT_PROJECT', disabled: false });
+    expect(action?.kind).not.toBe('EDIT_PROJECT');
   });
+});
 
-  it('매칭 기간에 지부장은 소속 지부 프로젝트만 수정할 수 있다', () => {
-    const chapterAdmin = { ...base, role: 'CHAPTER_ADMIN' as const, view: 'ADMIN' as const };
-    expect(getProjectActions({ ...chapterAdmin, period: MATCHING }).primary).toMatchObject({
-      kind: 'EDIT_PROJECT',
-    });
-    expect(
-      getProjectActions({ ...chapterAdmin, chapterId: 'quokka', period: MATCHING }).primary,
-    ).toMatchObject({
-      kind: 'RECRUIT_QUESTIONS',
-      disabled: true,
-      notice: NOTICE_NOT_APPLY_PERIOD,
-    });
-  });
+describe('getProjectActions - PM', () => {
+  const pm = { ...base, role: 'CHALLENGER_PM' as const, view: 'PM_CHALLENGER' as const };
 
   it('매칭 기간에 PM은 본인 프로젝트만 수정할 수 있다', () => {
-    const pm = { ...base, role: 'CHALLENGER_PM' as const, view: 'PM_CHALLENGER' as const };
     const viewer = { ...VIEWER, myProjectId: 'p1' };
     expect(getProjectActions({ ...pm, viewer, period: MATCHING }).primary).toMatchObject({
       kind: 'EDIT_PROJECT',
@@ -159,17 +179,10 @@ describe('getProjectActions - 운영진 · PM', () => {
 
   it('지원 기간에는 PM도 본인 프로젝트를 수정할 수 없다', () => {
     const viewer = { ...VIEWER, myProjectId: 'p1' };
-    const action = getProjectActions({
-      ...base,
-      role: 'CHALLENGER_PM',
-      view: 'PM_CHALLENGER',
-      viewer,
-    }).primary;
-    expect(action).toMatchObject({ kind: 'RECRUIT_QUESTIONS', disabled: false });
-  });
-
-  it('중앙운영진은 기획보기만 보인다', () => {
-    expect(getProjectActions({ ...base, role: 'HQ_ADMIN', view: 'ADMIN' }).primary).toBeNull();
+    expect(getProjectActions({ ...pm, viewer }).primary).toMatchObject({
+      kind: 'RECRUIT_QUESTIONS',
+      disabled: false,
+    });
   });
 });
 

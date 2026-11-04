@@ -24,13 +24,13 @@ import {
   toTotalApplicants,
   useApplicationStatistics,
 } from '@/features/application-stats';
+import { BLOCKED_CHAPTER_MESSAGE, ServerChapterSelect } from '@/features/chapter-select';
 import { useDebouncedValue } from '@/shared/lib/useDebouncedValue';
 import { FilterDropdownGroup } from '@/widgets/filterDropdownGroup';
 import { SearchBar } from '@/widgets/searchBar';
 import { useAppToast } from '@/widgets/toast';
 
 import { getBreadcrumbs } from '../-shared/constants';
-import ServerChapterSelect from '../-shared/ServerChapterSelect';
 import UpdatedAtCaption from '../-shared/UpdatedAtCaption';
 import ProjectApplicantsModal from './ProjectApplicantsModal';
 import { useApplicantStatusControl } from './useApplicantStatusControl';
@@ -42,8 +42,8 @@ const SEARCH_DEBOUNCE = { delay: 300, maxWait: 1000 };
 const AdminApplications = () => {
   const { role, gisuId, serverChapterId: ownChapterId } = useSessionStore((state) => state.session);
   const ownChapterOnly = getChapterScope(role) === 'OWN';
-  // 권한표: 학교회장단 · 학교운영진은 지원 통계만, 중앙운영진은 지원서 열람 불가
-  const { canReadApplicants, canReadApplication } = getApplicationsAccess(role);
+  // 권한표: 중앙운영진 · 학교회장단 · 학교운영진은 지원 시트까지만
+  const { canReadApplicants, canOpenProject, canReadApplication } = getApplicationsAccess(role);
   const {
     data: allChapters = [],
     isError: chaptersError,
@@ -158,9 +158,7 @@ const AdminApplications = () => {
           value={chapterId}
           onValueChange={handleChapterChange}
           selectableChapterId={ownChapterOnly ? ownChapterId : undefined}
-          onBlockedSelect={() =>
-            toast.show('소속 지부의 지원 현황만 볼 수 있어요', { color: 'error' })
-          }
+          onBlockedSelect={() => toast.show(BLOCKED_CHAPTER_MESSAGE, { color: 'error' })}
         />
 
         <div className="flex w-full flex-col gap-16">
@@ -200,7 +198,7 @@ const AdminApplications = () => {
             )}
           </section>
 
-          {/* 권한표: 학교회장단 · 학교운영진은 지원자 목록을 볼 수 없음 */}
+          {/* 지원자 목록을 볼 수 있는 역할만 (권한표: getApplicationsAccess) */}
           {canReadApplicants && (
             <section className="flex w-full flex-col gap-4">
               <SectionHeader
@@ -247,7 +245,12 @@ const AdminApplications = () => {
                     className="max-w-[calc(100cqw-64px)]"
                     contentClassName="min-w-[1060px]"
                     groups={groups}
-                    onProjectClick={({ project }) => setSelectedProjectId(project.projectId)}
+                    // 지원서 모달을 열 수 없는 역할은 프로젝트명이 링크가 아님
+                    onProjectClick={
+                      canOpenProject
+                        ? ({ project }) => setSelectedProjectId(project.projectId)
+                        : undefined
+                    }
                   />
                 )}
               </div>

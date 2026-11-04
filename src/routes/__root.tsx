@@ -28,7 +28,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     // 로그인 화면은 토큰 없이 들어와야 함
     if (PUBLIC_PATHS.includes(location.pathname)) return;
 
-    const toLogin = () => redirect({ to: '/login', search: { redirect: location.href } });
+    const toLogin = () => redirect({ to: '/login' });
     if (!getAccessToken() && !import.meta.env.VITE_DEV_ACCESS_TOKEN) throw toLogin();
 
     const myInfo = await context.queryClient

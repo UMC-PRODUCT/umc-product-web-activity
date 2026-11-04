@@ -64,7 +64,8 @@ const ApplicationTable = ({
               <Fragment key={project.projectId}>
                 <ApplicationTableRow
                   {...project}
-                  projectLinkable={projectLinkable}
+                  // 눌러서 열 곳이 없으면(지원서 모달 권한 없음) 프로젝트명을 링크로 보이지 않음
+                  projectLinkable={projectLinkable && onProjectClick !== undefined}
                   onProjectClick={onProjectClick && (() => onProjectClick(group))}
                   selected={selected}
                   // TODO: PM 뷰 화살표 버튼 동작 기획 확인

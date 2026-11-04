@@ -14,6 +14,7 @@ import {
 import { Dialog } from 'radix-ui';
 
 import { getApplicationForm } from '@/features/project-register/api/applicationForm';
+import { withFixedCommonQuestions } from '@/features/project-register/model/fixedQuestions';
 
 type RecruitmentFormPreviewModalProps = {
   open: boolean;
@@ -39,7 +40,7 @@ const RecruitmentFormPreviewModal = ({
     queryFn: () => getApplicationForm(Number(projectId)),
     enabled: open,
   });
-  const formSections = data?.sections ?? [];
+  const formSections = withFixedCommonQuestions(data?.sections ?? []);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>

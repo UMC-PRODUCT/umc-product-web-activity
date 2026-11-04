@@ -58,9 +58,10 @@ const ApplicantRow = ({
   );
 
   // 피그마 지원자 목록 Table: 기본(흰 배경) / hover(회색 배경)
+  // 챌린저 지원서 이동 버튼에 호버하면 행은 흰 배경으로 두고 버튼 영역만 강조
   // 열은 피그마 폭을 기본으로 화면 폭에 맞춰 같은 비율로 늘고 줄어듦
   return (
-    <li className="flex h-[68px] w-full items-center border-b border-teal-grey-100/60 bg-white pr-16 pl-[120px] hover:bg-teal-grey-75">
+    <li className="flex h-[68px] w-full items-center border-b border-teal-grey-100/60 bg-white pr-16 pl-[120px] hover:bg-teal-grey-75 has-[[data-hover-area]:hover]:bg-white">
       <p className="flex h-[50px] min-w-14 flex-[1_1_74px] items-center justify-center text-body-2-medium whitespace-nowrap text-teal-grey-800">
         {round}차
       </p>
@@ -70,6 +71,7 @@ const ApplicantRow = ({
       {onApplicantClick ? (
         <button
           type="button"
+          data-hover-area
           onClick={onApplicantClick}
           className="flex h-[50px] min-w-[140px] flex-[1_1_200px] flex-col items-start justify-center gap-0.5 rounded-lg px-3.5 text-left whitespace-nowrap hover:bg-teal-grey-75"
         >

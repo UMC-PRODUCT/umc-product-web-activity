@@ -11,12 +11,12 @@ import {
   useDeleteNotice,
   useUpdateNotice,
 } from '@/entities/notice';
+import { BLOCKED_NOTICE_CHAPTER_MESSAGE, ServerChapterSelect } from '@/features/chapter-select';
 import { NoticeList } from '@/features/notice-list';
 import { NoticeEditForm } from '@/features/notice-write';
 import { DeleteNoticeDialog } from '@/widgets/dialog';
 import { useAppToast } from '@/widgets/toast';
 
-import ServerChapterSelect from '../team-matching/-shared/ServerChapterSelect';
 import { NOTICE_PAGE_CONFIG, NOTICE_PAGE_LAYOUT_CLASS } from './config';
 import { useNoticeChapters } from './useNoticeChapters';
 
@@ -39,7 +39,8 @@ const NoticeListPage = ({
 }: NoticeListPageProps) => {
   const config = NOTICE_PAGE_CONFIG[kind];
   const toast = useAppToast();
-  const { gisuId, chapters, chaptersLoaded, chapterId, canManage } = useNoticeChapters(chapter);
+  const { gisuId, allChapters, selectableChapterId, chaptersLoaded, chapterId, canManage } =
+    useNoticeChapters(chapter);
   const { data: serverNotices = [], isError } = useChapterNotices(kind, gisuId, chapterId);
   const updateNotice = useUpdateNotice();
   const deleteNotice = useDeleteNotice();
@@ -79,12 +80,17 @@ const NoticeListPage = ({
           <div className="flex items-center gap-2">
             <div className="flex-1">
               <ServerChapterSelect
-                chapters={chapters}
+                chapters={allChapters}
                 value={chapterId}
                 onValueChange={(nextChapterId) => {
                   setEditingId(null);
                   onChapterChange(String(nextChapterId));
                 }}
+                selectableChapterId={selectableChapterId}
+                // 공지 화면 토스트는 기본이 상단이라, 다른 페이지의 지부 선택처럼 하단에 띄움
+                onBlockedSelect={() =>
+                  toast.showBottom(BLOCKED_NOTICE_CHAPTER_MESSAGE, { color: 'error' })
+                }
               />
             </div>
             {canManage && (

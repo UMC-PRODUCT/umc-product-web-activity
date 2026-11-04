@@ -46,6 +46,20 @@ export const createQuestion = (type: QuestionType): ProjectQuestion => {
   };
 };
 
+// 문항 복제: 내용은 그대로, 문항 · 선택지 ID만 새로 발급
+export const duplicateQuestion = (question: ProjectQuestion): ProjectQuestion => {
+  questionSeq += 1;
+  const id = `question-${questionSeq}`;
+  return {
+    ...question,
+    id,
+    choices: question.choices.map((choice, index) => ({
+      ...choice,
+      id: `choice-${questionSeq}-${index + 1}`,
+    })),
+  };
+};
+
 // 질문 유형만 바꿈. 질문·설명·필수 여부는 유지하고, 선택형으로 바뀌는데 선택지가 없으면 빈 선택지를 채움
 export const changeQuestionType = (
   question: ProjectQuestion,

@@ -108,16 +108,24 @@ describe('getMatchingScheduleAccess', () => {
 });
 
 describe('getApplicationsAccess', () => {
-  it.each<[Role, boolean, boolean]>([
-    ['SUPER_ADMIN', true, true],
-    ['HQ_LEAD', true, true],
-    ['CHAPTER_ADMIN', true, true],
-    ['HQ_ADMIN', true, false],
-    ['SCHOOL_ADMIN', false, false],
-    ['SCHOOL_STAFF', false, false],
-  ])('%s: 지원자 목록 %s, 지원서 열람 %s', (role, canReadApplicants, canReadApplication) => {
-    expect(getApplicationsAccess(role)).toEqual({ canReadApplicants, canReadApplication });
-  });
+  it.each<[Role, boolean, boolean, boolean]>([
+    ['SUPER_ADMIN', true, true, true],
+    ['HQ_LEAD', true, true, true],
+    ['CHAPTER_ADMIN', true, true, true],
+    ['HQ_ADMIN', true, false, false],
+    ['SCHOOL_ADMIN', true, false, false],
+    ['SCHOOL_STAFF', true, false, false],
+    ['CHALLENGER', false, false, false],
+  ])(
+    '%s: 지원 시트 %s, 지원서 모달 %s, 개인 지원서 %s',
+    (role, canReadApplicants, canOpenProject, canReadApplication) => {
+      expect(getApplicationsAccess(role)).toEqual({
+        canReadApplicants,
+        canOpenProject,
+        canReadApplication,
+      });
+    },
+  );
 });
 
 describe('getProjectSettingsAccess', () => {
@@ -164,25 +172,26 @@ describe('getViewOptions', () => {
 });
 
 describe('canManageNotice', () => {
-  it.each<Role>(['SUPER_ADMIN', 'HQ_LEAD', 'HQ_ADMIN'])(
-    '%s는 모든 지부의 공지를 관리한다',
-    (role) => {
-      expect(canManageNotice(role, 'axolotl', 'otter')).toBe(true);
-      expect(canManageNotice(role, null, 'otter')).toBe(true);
-    },
-  );
+  it('SUPER_ADMIN은 모든 지부의 공지를 관리한다', () => {
+    expect(canManageNotice('SUPER_ADMIN', 'axolotl', 'otter')).toBe(true);
+    expect(canManageNotice('SUPER_ADMIN', null, 'otter')).toBe(true);
+  });
 
   it('지부장은 본인 지부의 공지만 관리한다', () => {
     expect(canManageNotice('CHAPTER_ADMIN', 'axolotl', 'axolotl')).toBe(true);
     expect(canManageNotice('CHAPTER_ADMIN', 'axolotl', 'otter')).toBe(false);
   });
 
-  it.each<Role>(['SCHOOL_ADMIN', 'SCHOOL_STAFF', 'CHALLENGER_PM', 'CHALLENGER'])(
-    '%s는 공지를 관리할 수 없다',
-    (role) => {
-      expect(canManageNotice(role, 'axolotl', 'axolotl')).toBe(false);
-    },
-  );
+  it.each<Role>([
+    'HQ_LEAD',
+    'HQ_ADMIN',
+    'SCHOOL_ADMIN',
+    'SCHOOL_STAFF',
+    'CHALLENGER_PM',
+    'CHALLENGER',
+  ])('%s는 공지를 관리할 수 없다', (role) => {
+    expect(canManageNotice(role, 'axolotl', 'axolotl')).toBe(false);
+  });
 });
 
 describe('getProjectRegisterAccess', () => {

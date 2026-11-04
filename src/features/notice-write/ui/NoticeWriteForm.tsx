@@ -11,14 +11,15 @@ import NoticeTitleInput from './NoticeTitleInput';
 // 확인창 → 등록 요청(로딩) 순서로 바뀐다
 type SubmitStatus = 'idle' | 'confirming' | 'submitting';
 
-type ChapterOption = { id: string; name: string };
+type ChapterOption = { id: string; name: string; disabled?: boolean };
 
 type NoticeWriteFormProps = {
-  chapters: ChapterOption[]; // 고를 수 있는 지부 (지부장은 본인 지부 하나)
+  chapters: ChapterOption[]; // 전 지부. 고를 수 없는 지부는 disabled (지부장은 본인 지부만 선택 가능)
   initialChapterIds: string[];
   // 등록 요청이 끝날 때까지 로딩을 보여준다. 실패하면(throw) 로딩을 풀고 확인창을 닫는다
   onSubmit: (input: NoticeInput, chapterIds: string[]) => void | Promise<void>;
   onTitleExceed: () => void;
+  onBlockedChapterClick?: () => void; // 고를 수 없는 지부를 눌렀을 때 (안내 토스트)
 };
 
 // 피그마 '공지 작성': 위에 지부 선택·필독·작성 완료, 아래 카드에 제목과 본문
@@ -27,6 +28,7 @@ const NoticeWriteForm = ({
   initialChapterIds,
   onSubmit,
   onTitleExceed,
+  onBlockedChapterClick,
 }: NoticeWriteFormProps) => {
   const [chapterIds, setChapterIds] = useState(initialChapterIds);
   const [title, setTitle] = useState('');
@@ -51,14 +53,28 @@ const NoticeWriteForm = ({
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-6 px-3">
           <span className="text-[18px] leading-[1.4] text-teal-grey-800">지부 선택</span>
-          <OptionButtonGroup
-            type="multiple"
-            size="sm"
-            aria-label="지부 선택"
-            options={chapters.map((chapter) => ({ value: chapter.id, label: chapter.name }))}
-            value={chapterIds}
-            onValueChange={setChapterIds}
-          />
+          {/* 비활성 지부를 눌러도 클릭은 올라오므로 감싼 영역에서 받아 안내 */}
+          <div
+            onClick={(event) => {
+              const blockedOption = (event.target as HTMLElement).closest(
+                '[role="checkbox"][data-disabled]',
+              );
+              if (blockedOption) onBlockedChapterClick?.();
+            }}
+          >
+            <OptionButtonGroup
+              type="multiple"
+              size="sm"
+              aria-label="지부 선택"
+              options={chapters.map(({ id, name, disabled }) => ({
+                value: id,
+                label: name,
+                disabled,
+              }))}
+              value={chapterIds}
+              onValueChange={setChapterIds}
+            />
+          </div>
         </div>
         <div className="flex items-center gap-4">
           {/* 피그마: 체크 전 테두리는 Neutral, 체크하면 Brand로 채워진다. DS는 색을 둘이 묶어서 채움 색만 덮어씀 */}

@@ -1,18 +1,15 @@
 import { fromPartQuotas, toPartQuotaEntries } from './toPartQuotas';
 
 describe('toPartQuotaEntries', () => {
-  it('쓰지 않는 파트는 0으로 보내 이전 정원을 지운다', () => {
+  it('쓰지 않는 파트는 빼서 이전 정원을 지운다 (서버는 전체 교체, quota는 1 이상)', () => {
     expect(toPartQuotaEntries({ designCount: 0, peCount: 3, pePlatform: 'WEB' })).toEqual([
-      { part: 'DESIGN', quota: 0 },
       { part: 'WEB_PRODUCT_ENGINEER', quota: 3 },
-      { part: 'MOBILE_PRODUCT_ENGINEER', quota: 0 },
     ]);
   });
 
   it('Design과 플랫폼의 PE를 파트로 바꾼다', () => {
     expect(toPartQuotaEntries({ designCount: 2, peCount: 1, pePlatform: 'MOBILE' })).toEqual([
       { part: 'DESIGN', quota: 2 },
-      { part: 'WEB_PRODUCT_ENGINEER', quota: 0 },
       { part: 'MOBILE_PRODUCT_ENGINEER', quota: 1 },
     ]);
   });

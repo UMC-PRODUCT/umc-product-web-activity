@@ -46,11 +46,11 @@ const PartSlots = ({
   );
 
   return (
-    // 칸이 MAX_SLOTS(5)를 넘으면 5칸 너비(124 + 123 × 4)에서 가로 스크롤 (스크롤바는 숨김)
-    // 끝까지 스크롤해도 페이지로 넘기지 않음: 안 막으면 트랙패드 가로 스와이프가 브라우저 뒤로 가기 제스처가 돼 흰 화면이 밀려 나옴
+    // 칸이 MAX_SLOTS(5)를 넘으면 5칸 너비(124 + 123 × 4)에서 다음 줄로 넘김
+    // 줄끼리도 테두리가 겹치도록 칸마다 위로 -1px, 첫 줄이 잘리지 않게 목록 위 여백 1px
     <ul
       aria-label={`${part.partLabel} ${part.members.length}/${part.capacity}명 매칭`}
-      className={`flex max-w-[616px] min-w-0 [scrollbar-width:none] items-center overflow-x-auto overscroll-x-contain [&::-webkit-scrollbar]:hidden ${roundedClassName}`}
+      className={`flex max-w-[616px] min-w-0 flex-wrap items-center overflow-clip pt-px ${roundedClassName}`}
     >
       {part.members.map((member) => {
         const content = (
@@ -64,7 +64,7 @@ const PartSlots = ({
         );
 
         return (
-          <li key={member.memberId} className="flex shrink-0">
+          <li key={member.memberId} className="-mt-px flex shrink-0">
             {onMemberClick ? (
               <button
                 type="button"
@@ -82,7 +82,7 @@ const PartSlots = ({
         );
       })}
       {Array.from({ length: emptyCount }, (_, index) => (
-        <li key={`empty-${index}`} className="flex shrink-0">
+        <li key={`empty-${index}`} className="-mt-px flex shrink-0">
           {onEmptySlotClick ? (
             // 피그마 수동 배정: 빈칸에 마우스를 올리면 "수동 배정하기"
             <button
@@ -103,7 +103,7 @@ const PartSlots = ({
         </li>
       ))}
       {Array.from({ length: blockedCount }, (_, index) => (
-        <li key={`blocked-${index}`} aria-hidden className="-mr-px shrink-0 last:mr-0">
+        <li key={`blocked-${index}`} aria-hidden className="-mt-px -mr-px shrink-0 last:mr-0">
           <img src={blockedSlot} alt="" width={124} height={34} className="block" />
         </li>
       ))}

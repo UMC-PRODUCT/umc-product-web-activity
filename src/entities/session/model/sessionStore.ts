@@ -45,19 +45,27 @@ export const useProjectRegisterAccess = () =>
 export const useApplicationsView = () =>
   useSessionStore((state) => getApplicationsView(state.session.role, state.view));
 
+// 공지는 서버 지부 ID를 문자열로 다룸 (주소 · 공지 저장소 키)
+const toNoticeChapterId = (serverChapterId: number | null) =>
+  serverChapterId === null ? null : String(serverChapterId);
+
 // 운영진 뷰에서 해당 지부의 공지를 작성·수정·삭제할 수 있는지
 export const useCanManageNotice = (chapterId: string) =>
   useSessionStore(
     (state) =>
       getApplicationsView(state.session.role, state.view) === 'ADMIN' &&
-      canManageNotice(state.session.role, state.session.chapterId, chapterId),
+      canManageNotice(
+        state.session.role,
+        toNoticeChapterId(state.session.serverChapterId),
+        chapterId,
+      ),
   );
 
 export const getCanManageNoticeSnapshot = (chapterId: string) => {
   const { session, view } = useSessionStore.getState();
   return (
     getApplicationsView(session.role, view) === 'ADMIN' &&
-    canManageNotice(session.role, session.chapterId, chapterId)
+    canManageNotice(session.role, toNoticeChapterId(session.serverChapterId), chapterId)
   );
 };
 // 지원자 배정 상태를 바꿀 수 있는 역할인지 (매칭 기간은 따로 확인)
