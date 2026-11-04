@@ -12,8 +12,10 @@ const RECRUIT_STATUS_TAG: Record<RecruitStatus, { label: string; color: 'brand' 
 };
 
 // 피그마 행 상태: 기본(흰 배경) / hover(회색 배경) / 선택(연한 teal 배경, 구분선 없음)
+// 프로젝트 이동 버튼에 호버하면 행은 흰 배경으로 두고 버튼 영역만 강조
 const ROW_STATE_CLASS = {
-  default: 'border-b border-teal-grey-100/50 bg-white hover:bg-teal-grey-75',
+  default:
+    'border-b border-teal-grey-100/50 bg-white hover:bg-teal-grey-75 has-[[data-hover-area]:hover]:bg-white',
   selected: 'bg-teal-50',
 };
 
@@ -52,6 +54,7 @@ const ApplicationTableRow = ({
           {projectLinkable ? (
             <button
               type="button"
+              data-hover-area
               // 프로젝트 상세는 행 선택과 별개
               onClick={(event) => {
                 event.stopPropagation();
@@ -104,7 +107,9 @@ const ApplicationTableRow = ({
         }}
         // 피그마 Icon Button: 기본 흰 배경 / 행 hover 시 회색 / 선택 시 연한 teal
         className={`flex size-[26px] shrink-0 items-center justify-center rounded-lg text-teal-grey-700 ${
-          selected ? 'bg-teal-100' : 'group-hover:bg-teal-grey-100'
+          selected
+            ? 'bg-teal-100'
+            : 'group-hover:bg-teal-grey-100 group-has-[[data-hover-area]:hover]:bg-transparent'
         }`}
       >
         <ToggleIcon size={24} />

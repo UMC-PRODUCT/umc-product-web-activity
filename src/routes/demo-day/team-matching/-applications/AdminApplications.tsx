@@ -42,7 +42,7 @@ const SEARCH_DEBOUNCE = { delay: 300, maxWait: 1000 };
 const AdminApplications = () => {
   const { role, gisuId, serverChapterId: ownChapterId } = useSessionStore((state) => state.session);
   const ownChapterOnly = getChapterScope(role) === 'OWN';
-  // 권한표: 학교회장단 · 학교운영진은 지원 시트까지만, 중앙운영진은 개인 지원서 열람 불가
+  // 권한표: 중앙운영진 · 학교회장단 · 학교운영진은 지원 시트까지만
   const { canReadApplicants, canOpenProject, canReadApplication } = getApplicationsAccess(role);
   const {
     data: allChapters = [],
