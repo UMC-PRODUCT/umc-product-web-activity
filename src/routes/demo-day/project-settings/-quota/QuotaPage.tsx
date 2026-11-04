@@ -287,7 +287,7 @@ const QuotaPage = () => {
                       color="white"
                       size="sm"
                       onClick={() => setResetConfirmOpen(true)}
-                      className="[--umc-button-border-pressed:var(--umc-color-teal-grey-300)] [--umc-button-border:var(--umc-color-teal-grey-300)]"
+                      className="text-teal-grey-900 [--umc-button-border-pressed:var(--umc-color-teal-grey-300)] [--umc-button-border:var(--umc-color-teal-grey-300)]"
                     >
                       초기화
                     </Button>
