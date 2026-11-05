@@ -162,7 +162,7 @@ const ProjectManagementCard = ({
                   }
                   items={menuItems}
                   size="sm"
-                  className="[&.umc-dropdown-list]:right-0 [&.umc-dropdown-list]:left-auto"
+                  align="end"
                 />
               </div>
             )}

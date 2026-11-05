@@ -221,7 +221,7 @@ const ProjectRegisterPage = ({
   const busy = draftSaving || submitting || isEditLoading;
 
   return (
-    <main className="flex flex-col items-start gap-8 px-8 pt-12 pb-20">
+    <main className="flex min-w-[1222px] flex-col items-start gap-8 px-8 pt-12 pb-20">
       <PageHeader
         className="w-full max-w-[1158px]"
         breadcrumbs={BREADCRUMBS}

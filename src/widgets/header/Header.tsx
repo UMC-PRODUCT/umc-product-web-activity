@@ -1,13 +1,18 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { LinkProps } from '@tanstack/react-router';
-import { Link, useLocation, useNavigate } from '@tanstack/react-router';
-import { Button, HeaderActionButton, HeaderDesktop, HeaderProfileMenu } from '@umc-product/react';
+import { useLocation, useNavigate } from '@tanstack/react-router';
+import {
+  Button,
+  HeaderActionButton,
+  HeaderDesktop,
+  HeaderHomeLink,
+  HeaderProfileMenu,
+} from '@umc-product/react';
 
 import { myInfoQueryOptions, useSessionStore } from '@/entities/session';
 import { clearAuthTokens } from '@/shared/api/authToken';
 import { EXTERNAL_LINKS, openExternalLink } from '@/shared/config/externalLinks';
 
-import LogoActivity from './assets/logo-activity.svg?react';
 import { getGisus, toGisuYears } from './gisuYears';
 import { getProfileGisuIds, toProfileMenu } from './toProfileMenu';
 
@@ -58,11 +63,7 @@ const Header = () => {
 
   return (
     <HeaderDesktop
-      logo={
-        <Link to="/" aria-label="UMC Activity 홈" className="umc-header-home-link px-0">
-          <LogoActivity aria-hidden />
-        </Link>
-      }
+      logo={<HeaderHomeLink context="activity" generation={11} href="/" />}
       navItems={NAV_ITEMS}
       currentPath={pathname}
       actions={
