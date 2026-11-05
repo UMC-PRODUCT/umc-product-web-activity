@@ -74,6 +74,8 @@ const getProjectDetailActions = (
     </Button>
   );
 
+  const isPmChallenger = view === 'PM_CHALLENGER';
+
   if (isApplicationPeriod) {
     return (
       <>
@@ -84,17 +86,16 @@ const getProjectDetailActions = (
     );
   }
 
-  if (view === 'PM_CHALLENGER') {
-    return (
-      <>
-        {usersButton}
-        {planButton}
-        {editButton}
-      </>
-    );
-  }
-
   if (isMatchingPeriod) {
+    if (isPmChallenger) {
+      return (
+        <>
+          {usersButton}
+          {planButton}
+          {editButton}
+        </>
+      );
+    }
     return (
       <>
         {usersButton}
@@ -104,12 +105,31 @@ const getProjectDetailActions = (
     );
   }
 
-  if (role === 'CHAPTER_ADMIN') {
+  if (role === 'SUPER_ADMIN' || role === 'HQ_LEAD' || role === 'CHAPTER_ADMIN') {
     return (
       <>
         {usersButton}
         {planButton}
-        {recruitButton}
+        {editButton}
+      </>
+    );
+  }
+
+  if (role === 'HQ_ADMIN') {
+    return (
+      <>
+        {usersButton}
+        {planButton}
+      </>
+    );
+  }
+
+  if (isPmChallenger) {
+    return (
+      <>
+        {usersButton}
+        {planButton}
+        {editButton}
       </>
     );
   }

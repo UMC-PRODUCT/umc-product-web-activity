@@ -85,7 +85,11 @@ const ProjectManagementCard = ({
     if (isPmChallenger) {
       const items: MenuItemDef[] = [];
       if (status === 'APPROVED') {
-        items.push({ label: '지원 현황 확인하기', onClick: onViewApplications });
+        items.push({
+          label: '지원 현황 확인하기',
+          onClick: onViewApplications,
+          disabled: !isApplicationPeriod,
+        });
       }
       items.push({
         label: <span className={isMatchingPeriod ? undefined : 'text-error'}>삭제</span>,
@@ -95,10 +99,16 @@ const ProjectManagementCard = ({
       return items;
     }
     if (role === 'HQ_ADMIN') {
-      return [{ label: '지원 현황 확인하기', onClick: onViewApplications }];
+      return [
+        {
+          label: '지원 현황 확인하기',
+          onClick: onViewApplications,
+          disabled: !isApplicationPeriod,
+        },
+      ];
     }
     const items: MenuItemDef[] = [
-      { label: '지원 현황 확인하기', onClick: onViewApplications },
+      { label: '지원 현황 확인하기', onClick: onViewApplications, disabled: !isApplicationPeriod },
       { label: '프로젝트 승인 관리', onClick: onManageApproval },
     ];
     if (canDeleteProject(role)) {
@@ -113,7 +123,7 @@ const ProjectManagementCard = ({
 
   return (
     <article
-      className={`flex w-full items-center gap-7 rounded-2xl border border-teal-grey-100 bg-white py-2.5 pr-5 pl-2.5 shadow-drop-neutral-2${onCardClick ? 'cursor-pointer' : ''}`}
+      className={`flex w-full items-center gap-7 rounded-2xl border border-teal-grey-100 bg-white py-2.5 pr-5 pl-2.5 hover:bg-teal-grey-75 shadow-drop-neutral-2${onCardClick ? 'cursor-pointer' : ''}`}
       onClick={onCardClick}
     >
       <div className="h-40 w-80 shrink-0 overflow-hidden rounded-[10px] bg-teal-grey-100">
@@ -145,7 +155,7 @@ const ProjectManagementCard = ({
                     <button
                       type="button"
                       aria-label="더보기"
-                      className="shrink-0 rounded p-1 text-teal-grey-500 hover:bg-teal-grey-75"
+                      className="shrink-0 rounded p-1 text-teal-grey-500 hover:shadow-inner-neutral-2 active:bg-background-default active:shadow-inner-neutral-2"
                     >
                       <MoreVerticalIcon size={20} />
                     </button>
