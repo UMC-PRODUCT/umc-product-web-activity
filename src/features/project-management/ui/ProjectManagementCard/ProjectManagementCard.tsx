@@ -152,6 +152,7 @@ const ProjectManagementCard = ({
                   }
                   items={menuItems}
                   size="sm"
+                  align="end"
                 />
               </div>
             )}
