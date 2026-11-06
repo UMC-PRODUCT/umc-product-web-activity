@@ -8,13 +8,15 @@ import {
 import { toId } from '@/shared/api/toId';
 
 // 공지 화면의 서버 지부. 지부장 이하는 소속 지부만 보이고, 총괄단 이상은 전 지부가 보인다.
+// 단, 지부장은 조회(view)할 때는 타 지부 공지도 볼 수 있다 (작성(write)은 소속 지부만, 수정 · 삭제 권한은 canManage가 따로 판단)
 // 주소로 받은 지부가 보이는 지부면 그 지부, 아니면 소속 지부, 그것도 없으면 첫 지부
-export const useNoticeChapters = (requestedChapter?: string) => {
+export const useNoticeChapters = (requestedChapter?: string, mode: 'view' | 'write' = 'write') => {
   const { role, gisuId, serverChapterId } = useSessionStore((state) => state.session);
   const { data: allChapters = [], isSuccess: chaptersLoaded } = useChapters(gisuId);
   const isAdminView = useApplicationsView() === 'ADMIN';
 
-  const ownChapterOnly = getChapterScope(role) === 'OWN';
+  const ownChapterOnly =
+    getChapterScope(role) === 'OWN' && !(mode === 'view' && role === 'CHAPTER_ADMIN');
   const chapters = ownChapterOnly
     ? allChapters.filter(({ id }) => id === serverChapterId)
     : allChapters;

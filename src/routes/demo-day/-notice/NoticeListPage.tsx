@@ -40,7 +40,7 @@ const NoticeListPage = ({
   const config = NOTICE_PAGE_CONFIG[kind];
   const toast = useAppToast();
   const { gisuId, allChapters, selectableChapterId, chaptersLoaded, chapterId, canManage } =
-    useNoticeChapters(chapter);
+    useNoticeChapters(chapter, 'view');
   const { data: serverNotices = [], isError } = useChapterNotices(kind, gisuId, chapterId);
   const updateNotice = useUpdateNotice();
   const deleteNotice = useDeleteNotice();
