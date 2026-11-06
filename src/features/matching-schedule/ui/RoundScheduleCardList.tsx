@@ -30,6 +30,7 @@ const RoundScheduleCardList = ({ rounds, trackLabel, now }: RoundScheduleCardLis
     {rounds.map(({ round, period }) => (
       <li key={round}>
         <CalendarScheduleCard
+          className="ps-0"
           status={getPeriodStatus(period, now)}
           label={ROUND_LABEL[round]}
           title={round === 'RANDOM' ? '랜덤 매칭' : `${trackLabel} 지원기간`}
