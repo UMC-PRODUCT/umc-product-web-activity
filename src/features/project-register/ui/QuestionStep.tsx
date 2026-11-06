@@ -1,9 +1,12 @@
 import {
   closestCenter,
+  type CollisionDetection,
   DndContext,
   type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
+  pointerWithin,
+  useDroppable,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -63,6 +66,12 @@ const isQuestionType = (value: string): value is QuestionType =>
 
 // 공통 문항 1 · 2번(이름/닉네임, 포트폴리오)은 고정이라 추가 문항은 3번부터 매김
 const FIXED_COMMON_QUESTION_COUNT = 2;
+
+// 섹션 영역 자체의 드롭 ID. 문항이 없는 섹션에도 문항을 옮겨 넣을 수 있게 함
+const SECTION_DROP_PREFIX = 'section:';
+const SECTION_KEYS: QuestionSectionKey[] = ['COMMON', 'DESIGN', 'PE'];
+
+const toSectionDropId = (key: QuestionSectionKey) => `${SECTION_DROP_PREFIX}${key}`;
 
 const formatNumber = (index: number) => String(index).padStart(2, '0');
 
@@ -197,6 +206,7 @@ const QuestionEditor = ({
 };
 
 type QuestionListProps = {
+  sectionKey: QuestionSectionKey;
   questions: ProjectQuestion[];
   startNumber: number;
   showEmpty?: boolean; // 문항이 없을 때 빈 안내를 보여줄지 (선택 섹션)
@@ -205,6 +215,7 @@ type QuestionListProps = {
 };
 
 const QuestionList = ({
+  sectionKey,
   questions,
   startNumber,
   showEmpty,
@@ -220,10 +231,7 @@ const QuestionList = ({
     latest.current = { questions, onChange };
   });
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
+  const { setNodeRef } = useDroppable({ id: toSectionDropId(sectionKey) });
 
   // 새로 추가한 문항은 바로 질문을 쓸 수 있게 포커스
   useEffect(() => {
@@ -232,14 +240,6 @@ const QuestionList = ({
     focusIdRef.current = null;
     document.querySelector<HTMLElement>(`[data-question-id="${id}"] input`)?.focus();
   }, [questions]);
-
-  const handleDragEnd = ({ active, over }: DragEndEvent) => {
-    if (!over || active.id === over.id) return;
-    const from = questions.findIndex((item) => item.id === active.id);
-    const to = questions.findIndex((item) => item.id === over.id);
-    if (from < 0 || to < 0) return;
-    onChange(arrayMove(questions, from, to));
-  };
 
   // 붙여넣은 문항은 선택한 문항 바로 아래에 붙고, 바로 질문을 고칠 수 있게 포커스
   const handlePasteQuestion = (copied: ProjectQuestion, index: number) => {
@@ -263,48 +263,50 @@ const QuestionList = ({
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      {showEmpty && questions.length === 0 && <FormSectionEmpty />}
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext
-          items={questions.map(({ id }) => id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {questions.map((question, index) => (
-            <QuestionEditor
-              key={question.id}
-              question={question}
-              number={formatNumber(startNumber + index)}
-              active={activeId === question.id}
-              onActiveChange={(active) =>
-                setActiveId((current) =>
-                  active ? question.id : current === question.id ? null : current,
-                )
-              }
-              onChange={(next) =>
-                onChange(questions.map((item) => (item.id === next.id ? next : item)))
-              }
-              onPasteQuestion={(copied) => handlePasteQuestion(copied, index)}
-              onDelete={() => handleDelete(question, index)}
-            />
-          ))}
-        </SortableContext>
-      </DndContext>
+    <div ref={setNodeRef} className="flex flex-col">
+      {showEmpty && questions.length === 0 && (
+        <div className="mb-6">
+          <FormSectionEmpty />
+        </div>
+      )}
+      <SortableContext items={questions.map(({ id }) => id)} strategy={verticalListSortingStrategy}>
+        {questions.map((question, index) => (
+          <QuestionEditor
+            key={question.id}
+            question={question}
+            number={formatNumber(startNumber + index)}
+            active={activeId === question.id}
+            onActiveChange={(active) =>
+              setActiveId((current) =>
+                active ? question.id : current === question.id ? null : current,
+              )
+            }
+            onChange={(next) =>
+              onChange(questions.map((item) => (item.id === next.id ? next : item)))
+            }
+            onPasteQuestion={(copied) => handlePasteQuestion(copied, index)}
+            onDelete={() => handleDelete(question, index)}
+          />
+        ))}
+      </SortableContext>
       {/* 피그마: 문항을 편집 중일 때는 그 문항의 유형 선택만 보이고, 아니면 + 버튼 */}
+      {/* 문항 카드끼리는 붙고, 유형 선택(+)만 위와 간격을 둠 */}
       {activeId === null && (
-        <FormQuestionToolbar
-          items={QUESTION_TYPE_ITEMS}
-          open={toolbarOpen}
-          onOpenChange={setToolbarOpen}
-          onTypeSelect={(value) => {
-            if (!isQuestionType(value)) return;
-            const created = createQuestion(value);
-            onChange([...questions, created]);
-            setToolbarOpen(false);
-            setActiveId(created.id);
-            focusIdRef.current = created.id;
-          }}
-        />
+        <div className="mt-6 first:mt-0">
+          <FormQuestionToolbar
+            items={QUESTION_TYPE_ITEMS}
+            open={toolbarOpen}
+            onOpenChange={setToolbarOpen}
+            onTypeSelect={(value) => {
+              if (!isQuestionType(value)) return;
+              const created = createQuestion(value);
+              onChange([...questions, created]);
+              setToolbarOpen(false);
+              setActiveId(created.id);
+              focusIdRef.current = created.id;
+            }}
+          />
+        </div>
       )}
     </div>
   );
@@ -327,80 +329,145 @@ const QuestionStep = ({
   const setQuestions = (key: QuestionSectionKey, questions: ProjectQuestion[]) =>
     onChange({ questions: { ...draft.questions, [key]: questions } });
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const findSection = (id: string | number) =>
+    SECTION_KEYS.find((key) => draft.questions[key].some((question) => question.id === id));
+
+  // 포인터가 있는 섹션을 먼저 찾고, 그 섹션 안에서 가장 가까운 문항을 고름 (비어 있으면 섹션 자체)
+  const collisionDetection: CollisionDetection = (args) => {
+    const isSection = (id: string | number) => String(id).startsWith(SECTION_DROP_PREFIX);
+    const [sectionHit] = pointerWithin({
+      ...args,
+      droppableContainers: args.droppableContainers.filter(({ id }) => isSection(id)),
+    });
+    if (!sectionHit) return closestCenter(args);
+    const key = String(sectionHit.id).slice(SECTION_DROP_PREFIX.length) as QuestionSectionKey;
+    const inSection = args.droppableContainers.filter(
+      ({ id }) => !isSection(id) && draft.questions[key].some((question) => question.id === id),
+    );
+    return inSection.length === 0
+      ? [sectionHit]
+      : closestCenter({ ...args, droppableContainers: inSection });
+  };
+
+  // 같은 섹션 안에서는 순서만, 다른 섹션으로 놓으면 그 섹션으로 문항을 옮김
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return;
+    const from = findSection(active.id);
+    if (!from) return;
+    const overId = String(over.id);
+    const to = overId.startsWith(SECTION_DROP_PREFIX)
+      ? (overId.slice(SECTION_DROP_PREFIX.length) as QuestionSectionKey)
+      : findSection(over.id);
+    if (!to) return;
+    // 꺼 둔 선택 섹션으로는 옮길 수 없음
+    if (to !== 'COMMON' && !draft.sectionEnabled[to]) return;
+
+    const fromIndex = draft.questions[from].findIndex(({ id }) => id === active.id);
+    const overIndex = draft.questions[to].findIndex(({ id }) => id === over.id);
+    if (from === to) {
+      if (overIndex < 0) return;
+      setQuestions(from, arrayMove(draft.questions[from], fromIndex, overIndex));
+      return;
+    }
+    const target = [...draft.questions[to]];
+    target.splice(overIndex < 0 ? target.length : overIndex, 0, draft.questions[from][fromIndex]);
+    onChange({
+      questions: {
+        ...draft.questions,
+        [from]: draft.questions[from].filter(({ id }) => id !== active.id),
+        [to]: target,
+      },
+    });
+  };
+
   const setEnabled = (key: 'DESIGN' | 'PE', enabled: boolean) =>
     onChange({ sectionEnabled: { ...draft.sectionEnabled, [key]: enabled } });
 
   return (
-    <div className="flex flex-col gap-6">
-      <SectionHeader
-        number="05"
-        title="프로젝트 지원 문항 설정"
-        description="챌린저들이 프로젝트 지원 시 작성할 폼을 설정해주세요. 합격 결과를 전달할 수단도 포함 할 수 있어요."
-      />
+    <DndContext sensors={sensors} collisionDetection={collisionDetection} onDragEnd={handleDragEnd}>
       <div className="flex flex-col gap-6">
-        <FormSection title="공통 문항">
-          <div className="flex flex-col gap-10 px-5 pt-8 pb-6">
-            <FormQuestion number="01" title={FIXED_NAME_TITLE} required>
-              <FormTextAnswer
-                disabled
-                placeholder="작성하세요"
-                maxLength={SHORT_ANSWER_MAX_LENGTH}
+        <SectionHeader
+          number="05"
+          title="프로젝트 지원 문항 설정"
+          description="챌린저들이 프로젝트 지원 시 작성할 폼을 설정해주세요. 합격 결과를 전달할 수단도 포함 할 수 있어요."
+        />
+        <div className="flex flex-col gap-6">
+          <FormSection title="공통 문항">
+            <div className="flex flex-col gap-10 px-5 pt-8 pb-6">
+              <FormQuestion number="01" title={FIXED_NAME_TITLE} required>
+                <FormTextAnswer
+                  disabled
+                  placeholder="작성하세요"
+                  maxLength={SHORT_ANSWER_MAX_LENGTH}
+                />
+              </FormQuestion>
+              <FormQuestion number="02" title={FIXED_PORTFOLIO_TITLE} required>
+                <FormAttachmentField disabled />
+              </FormQuestion>
+              <QuestionList
+                sectionKey="COMMON"
+                onQuestionDeleted={onQuestionDeleted}
+                questions={draft.questions.COMMON}
+                startNumber={FIXED_COMMON_QUESTION_COUNT + 1}
+                onChange={(questions) => setQuestions('COMMON', questions)}
               />
-            </FormQuestion>
-            <FormQuestion number="02" title={FIXED_PORTFOLIO_TITLE} required>
-              <FormAttachmentField disabled />
-            </FormQuestion>
-            <QuestionList
-              onQuestionDeleted={onQuestionDeleted}
-              questions={draft.questions.COMMON}
-              startNumber={FIXED_COMMON_QUESTION_COUNT + 1}
-              onChange={(questions) => setQuestions('COMMON', questions)}
-            />
-          </div>
-        </FormSection>
+            </div>
+          </FormSection>
 
-        <FormSection
-          variant="toggle"
-          title="Design"
-          optionalLabel="(선택 사항)"
-          enabledLabel="섹션 사용"
-          enabled={draft.sectionEnabled.DESIGN}
-          onEnabledChange={(enabled) => setEnabled('DESIGN', enabled)}
-        >
-          <div className="px-5 pt-8 pb-6">
-            <QuestionList
-              onQuestionDeleted={onQuestionDeleted}
-              questions={draft.questions.DESIGN}
-              startNumber={1}
-              onChange={(questions) => setQuestions('DESIGN', questions)}
-            />
-          </div>
-        </FormSection>
+          <FormSection
+            variant="toggle"
+            title="Design"
+            optionalLabel="(선택 사항)"
+            enabledLabel="섹션 사용"
+            enabled={draft.sectionEnabled.DESIGN}
+            onEnabledChange={(enabled) => setEnabled('DESIGN', enabled)}
+          >
+            {/* 문항이 있으면 섹션 제목 바로 아래에 첫 문항 카드가 붙음 */}
+            <div className={`px-5 pb-6 ${draft.questions.DESIGN.length > 0 ? '' : 'pt-8'}`}>
+              <QuestionList
+                sectionKey="DESIGN"
+                onQuestionDeleted={onQuestionDeleted}
+                questions={draft.questions.DESIGN}
+                startNumber={1}
+                onChange={(questions) => setQuestions('DESIGN', questions)}
+              />
+            </div>
+          </FormSection>
 
-        <FormSection
-          variant="toggle"
-          title={`${pePlatformLabel} Product Engineering`}
-          optionalLabel="(선택 사항)"
-          enabledLabel="섹션 사용"
-          enabled={draft.sectionEnabled.PE}
-          onEnabledChange={(enabled) => setEnabled('PE', enabled)}
-        >
-          <div className="px-5 pt-8 pb-6">
-            <QuestionList
-              onQuestionDeleted={onQuestionDeleted}
-              questions={draft.questions.PE}
-              startNumber={1}
-              onChange={(questions) => setQuestions('PE', questions)}
-            />
-          </div>
-        </FormSection>
+          <FormSection
+            variant="toggle"
+            title={`${pePlatformLabel} Product Engineering`}
+            optionalLabel="(선택 사항)"
+            enabledLabel="섹션 사용"
+            enabled={draft.sectionEnabled.PE}
+            onEnabledChange={(enabled) => setEnabled('PE', enabled)}
+          >
+            {/* 문항이 있으면 섹션 제목 바로 아래에 첫 문항 카드가 붙음 */}
+            <div className={`px-5 pb-6 ${draft.questions.PE.length > 0 ? '' : 'pt-8'}`}>
+              <QuestionList
+                sectionKey="PE"
+                onQuestionDeleted={onQuestionDeleted}
+                questions={draft.questions.PE}
+                startNumber={1}
+                onChange={(questions) => setQuestions('PE', questions)}
+              />
+            </div>
+          </FormSection>
 
-        <ul className="flex flex-col text-caption-2-regular text-teal-grey-500">
-          <li>* 지원자의 파트에 따라 해당하는 섹션의 질문만 노출돼요.</li>
-          <li>* 개발(Web PE/Mobile PE) 섹션의 문항은 기획-개발자 매칭 전 다시 수정할 수 있어요.</li>
-        </ul>
+          <ul className="flex flex-col text-caption-2-regular text-teal-grey-500">
+            <li>* 지원자의 파트에 따라 해당하는 섹션의 질문만 노출돼요.</li>
+            <li>
+              * 개발(Web PE/Mobile PE) 섹션의 문항은 기획-개발자 매칭 전 다시 수정할 수 있어요.
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </DndContext>
   );
 };
 

@@ -1,4 +1,5 @@
 import { toId } from '@/shared/api/toId';
+import { formatPersonName } from '@/shared/lib/formatPersonName';
 import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 
 import type { ProjectDetailResponse } from '../api/getProjectDetail';
@@ -38,7 +39,7 @@ const toRecruitStatus = (status: string | undefined): RecruitStatus =>
 
 // 닉네임/이름 표기. 둘 중 하나만 있으면 있는 것만
 export const toPersonLabel = (person: { nickname?: string; name?: string } | undefined) =>
-  [person?.nickname, person?.name].filter(Boolean).join('/');
+  formatPersonName(person);
 
 // 목록 응답 → 화면 프로젝트. 로고 · 기획 링크 · 팀원은 목록에 없어서 상세 모달에서 채움
 // 프로젝트 지부는 서버 응답에 없어서, 지부로 거른 조회일 때만 그 지부를 넣음

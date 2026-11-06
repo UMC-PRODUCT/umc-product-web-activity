@@ -40,7 +40,7 @@ const NoticeListPage = ({
   const config = NOTICE_PAGE_CONFIG[kind];
   const toast = useAppToast();
   const { gisuId, allChapters, selectableChapterId, chaptersLoaded, chapterId, canManage } =
-    useNoticeChapters(chapter);
+    useNoticeChapters(chapter, 'view');
   const { data: serverNotices = [], isError } = useChapterNotices(kind, gisuId, chapterId);
   const updateNotice = useUpdateNotice();
   const deleteNotice = useDeleteNotice();
@@ -54,7 +54,9 @@ const NoticeListPage = ({
   ];
 
   const handleTitleExceed = () =>
-    toast.show(`제목은 ${NOTICE_TITLE_MAX_LENGTH}자까지 작성할 수 있어요`, { color: 'error' });
+    toast.showBottom(`제목은 ${NOTICE_TITLE_MAX_LENGTH}자까지 작성할 수 있어요`, {
+      color: 'error',
+    });
 
   return (
     <div className={NOTICE_PAGE_LAYOUT_CLASS}>
