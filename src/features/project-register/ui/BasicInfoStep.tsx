@@ -5,6 +5,7 @@ import {
   TextArea,
   TextFieldBox,
 } from '@umc-product/react';
+import { useState } from 'react';
 
 import {
   LOGO_MAX_SIZE,
@@ -35,6 +36,7 @@ const BasicInfoStep = ({
   onThumbnailReject,
   onLogoReject,
 }: BasicInfoStepProps) => {
+  const [nameFocused, setNameFocused] = useState(false); // 타이핑(포커스) 중에만 글자 수 노출
   const mainPm = pmCandidates?.find(({ id }) => id === draft.pmIds[0]);
   const pmLabel = pmCandidates
     ? mainPm
@@ -97,7 +99,9 @@ const BasicInfoStep = ({
               maxLength={PROJECT_NAME_MAX_LENGTH}
               value={draft.name}
               onChange={(event) => onChange({ name: event.target.value })}
-              unit={`${draft.name.length}/${PROJECT_NAME_MAX_LENGTH}`}
+              onFocus={() => setNameFocused(true)}
+              onBlur={() => setNameFocused(false)}
+              unit={nameFocused ? `${draft.name.length}/${PROJECT_NAME_MAX_LENGTH}` : undefined}
             />
             <TextArea
               aria-label="프로젝트 설명"

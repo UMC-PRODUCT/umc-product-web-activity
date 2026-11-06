@@ -1,4 +1,5 @@
 import { toCount, toId } from '@/shared/api/toId';
+import { compactName } from '@/shared/lib/compactName';
 
 import type { MatchingOverviewResponse } from '../api/getMatchingOverview';
 import type {
@@ -31,7 +32,7 @@ const ROUND_KEY: Record<Phase, RoundMatchingKey> = {
 };
 
 const toName = ({ nickname, name }: { nickname?: string; name?: string } = {}) =>
-  [nickname, name].filter(Boolean).join('/');
+  [compactName(nickname), compactName(name)].filter(Boolean).join('/');
 
 const toMember = (member: OverviewMember): MatchedMember | null => {
   // ID가 문자열로 와서 숫자로 맞춤

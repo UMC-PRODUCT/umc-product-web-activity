@@ -24,6 +24,7 @@ import {
 } from '@/features/project-register';
 import { ApiError } from '@/shared/api/client';
 import { toId } from '@/shared/api/toId';
+import { compactName } from '@/shared/lib/compactName';
 import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 import { useAppToast } from '@/widgets/toast';
 
@@ -84,7 +85,7 @@ const ProjectRegisterPage = ({
     chapterId: role === 'CHAPTER_ADMIN' ? serverChapterId : (initialChapterId ?? null),
     enabled: isAdmin,
   });
-  const myPmLabel = `${myInfo?.nickname ?? ''}/${myInfo?.name ?? ''} · ${formatSchoolName(myInfo?.schoolName)}`;
+  const myPmLabel = `${compactName(myInfo?.nickname)}/${compactName(myInfo?.name)} · ${formatSchoolName(myInfo?.schoolName)}`;
 
   // 서버에 이미 반영된 내용. 저장이 중간에 실패해도 이어서 저장하도록 화면이 들고 있음
   const serverState = useRef(createServerProjectState());
@@ -140,6 +141,8 @@ const ProjectRegisterPage = ({
         publish,
       });
       setDirty(false);
+      // 저장하면 서버에 내 초안이 생겨 초안 조회가 다시 잡히는데, 이건 "이어 쓰기" 질문 대상이 아님 (이미 작성 중인 화면)
+      setResumeAnswered(true);
       return true;
     } catch (error) {
       toast.show(error instanceof ApiError ? error.message : TOAST_MESSAGE.failed, {

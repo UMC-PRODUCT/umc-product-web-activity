@@ -1,4 +1,5 @@
 import { toCount, toId } from '@/shared/api/toId';
+import { compactName } from '@/shared/lib/compactName';
 import type { MatchingResult } from '@/shared/ui/MatchingResultTag';
 
 import type { MyApplicationsResponse } from '../api/getMyApplications';
@@ -91,7 +92,7 @@ export const toAppliedRoundGroups = (
       projectId: id,
       projectName: project?.name ?? '',
       thumbnailUrl: project?.thumbnailImageUrl || null,
-      pmName: [owner?.nickname, owner?.name].filter(Boolean).join('/'),
+      pmName: [compactName(owner?.nickname), compactName(owner?.name)].filter(Boolean).join('/'),
       schoolName: owner?.schoolName ?? '',
       platform: toPlatform(recruitments),
       recruitments,

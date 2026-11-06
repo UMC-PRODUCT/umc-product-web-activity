@@ -43,7 +43,9 @@ const NoticeWritePage = ({ kind, chapter, onComplete }: NoticeWritePageProps) =>
           toast.showBottom(BLOCKED_NOTICE_WRITE_CHAPTER_MESSAGE, { color: 'error' })
         }
         onTitleExceed={() =>
-          toast.show(`제목은 ${NOTICE_TITLE_MAX_LENGTH}자까지 작성할 수 있어요`, { color: 'error' })
+          toast.showBottom(`제목은 ${NOTICE_TITLE_MAX_LENGTH}자까지 작성할 수 있어요`, {
+            color: 'error',
+          })
         }
         onSubmit={async (input, chapterIds) => {
           try {

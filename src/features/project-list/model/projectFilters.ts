@@ -20,7 +20,7 @@ export type ProjectFilter = {
   multiple?: boolean;
 };
 
-// 피그마 "메뉴 드롭다운 케이스 정리" 기준: 지부 · 모집 상태는 단일, PM 학교 · 파트는 다중 선택
+// 피그마 "메뉴 드롭다운 케이스 정리" 기준: 지부 · 파트 · 모집 상태는 단일, PM 학교는 다중 선택
 // 지부 · 학교는 서버 ID를 값으로 씀 (쿼리로 그대로 보냄)
 export const getProjectFilters = (
   chapters: ChapterSummary[],
@@ -37,7 +37,6 @@ export const getProjectFilters = (
   {
     key: 'part',
     label: '파트',
-    multiple: true,
     options: ['Web', 'Mobile'].map((label) => ({ value: label, label })),
   },
   {
