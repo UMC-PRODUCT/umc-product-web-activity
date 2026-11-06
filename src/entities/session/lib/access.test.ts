@@ -149,25 +149,22 @@ describe('getProjectSettingsAccess', () => {
 });
 
 describe('getViewOptions', () => {
-  it('슈퍼 어드민은 세 가지 뷰를 모두 전환할 수 있다', () => {
-    const options = getViewOptions({ role: 'SUPER_ADMIN', challengerType: null });
-    expect(options.map((option) => option.value)).toEqual(['ADMIN', 'PM_CHALLENGER', 'CHALLENGER']);
-  });
-
   it('PM을 겸하는 운영진은 PM 챌린저 뷰로 전환한다', () => {
-    const options = getViewOptions({ role: 'SCHOOL_STAFF', challengerType: 'PM' });
-    expect(options.map((option) => option.value)).toEqual(['ADMIN', 'PM_CHALLENGER']);
+    expect(getViewOptions({ challengerType: 'PM' })).toEqual([
+      { value: 'ADMIN', label: 'Admin View' },
+      { value: 'PM_CHALLENGER', label: 'PM Challenger View' },
+    ]);
   });
 
   it('일반 챌린저를 겸하는 운영진은 챌린저 뷰로 전환한다', () => {
-    const options = getViewOptions({ role: 'CHAPTER_ADMIN', challengerType: 'GENERAL' });
-    expect(options.map((option) => option.value)).toEqual(['ADMIN', 'CHALLENGER']);
+    expect(getViewOptions({ challengerType: 'GENERAL' })).toEqual([
+      { value: 'ADMIN', label: 'Admin View' },
+      { value: 'CHALLENGER', label: 'Challenger View' },
+    ]);
   });
 
-  it('챌린저를 겸하지 않거나 전환 대상이 아닌 권한은 뷰 전환이 없다', () => {
-    expect(getViewOptions({ role: 'HQ_ADMIN', challengerType: null })).toEqual([]);
-    expect(getViewOptions({ role: 'HQ_LEAD', challengerType: 'PM' })).toEqual([]);
-    expect(getViewOptions({ role: 'CHALLENGER', challengerType: 'GENERAL' })).toEqual([]);
+  it('어드민 권한만 있으면 뷰 전환이 없다', () => {
+    expect(getViewOptions({ challengerType: null })).toEqual([]);
   });
 });
 
