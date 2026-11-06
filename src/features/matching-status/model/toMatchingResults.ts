@@ -1,4 +1,5 @@
 import { toCount, toId } from '@/shared/api/toId';
+import { formatPersonName } from '@/shared/lib/formatPersonName';
 
 import type { MatchingOverviewResponse } from '../api/getMatchingOverview';
 import type {
@@ -30,9 +31,6 @@ const ROUND_KEY: Record<Phase, RoundMatchingKey> = {
   RANDOM_MATCHING: 'RANDOM',
 };
 
-const toName = ({ nickname, name }: { nickname?: string; name?: string } = {}) =>
-  [nickname, name].filter(Boolean).join('/');
-
 const toMember = (member: OverviewMember): MatchedMember | null => {
   // ID가 문자열로 와서 숫자로 맞춤
   const memberId = toId(member.memberId);
@@ -40,7 +38,7 @@ const toMember = (member: OverviewMember): MatchedMember | null => {
   const phase = member.matchedRoundInfo?.phase;
   return {
     memberId,
-    challengerName: toName(member),
+    challengerName: formatPersonName(member),
     schoolName: member.schoolName ?? '',
     // 지원 없이 수동 배정되면 매칭 차수가 없음 → 랜덤 매칭과 같이 R로 표시
     round: phase ? ROUND_KEY[phase] : 'RANDOM',
@@ -62,7 +60,7 @@ const toProjectResult = ({
   return {
     projectId: id,
     projectName: projectName ?? '',
-    pmName: toName(productOwner),
+    pmName: formatPersonName(productOwner),
     pmSchoolName: productOwner?.schoolName ?? '',
     recruiting: partQuotaStatus === 'RECRUITING',
     parts: parts.flatMap(({ part, quota, members = [] }): PartMatching[] => {
