@@ -11,35 +11,22 @@ const FULL_ACCESS_ROLES: Role[] = ['SUPER_ADMIN', 'HQ_LEAD', 'HQ_ADMIN', 'CHAPTE
 // 11기 권한표: 학교회장단 · 학교운영진은 프로젝트 설정 접근 불가, PM은 본인 프로젝트 관리만
 const BASIC_ACCESS_ROLES: Role[] = ['CHALLENGER_PM'];
 
-// 챌린저를 겸할 수 있는 운영진. challengerType이 있으면 뷰 전환이 생긴다.
-const VIEW_SWITCHABLE_ROLES: Role[] = ['HQ_ADMIN', 'CHAPTER_ADMIN', 'SCHOOL_ADMIN', 'SCHOOL_STAFF'];
-
 export type ViewOption = { value: View; label: string };
 
+// 어드민이 챌린저를 겸직할 때만 뷰 전환을 준다. 어드민 권한만 있으면 Admin View만 본다.
+// - 어드민 + PM(PLAN) → Admin View ↔ PM Challenger View
+// - 어드민 + 일반 챌린저(WEB · MOBILE · DESIGN 등) → Admin View ↔ Challenger View
 export const getViewOptions = ({
-  role,
   challengerType,
-}: Pick<Session, 'role' | 'challengerType'>): ViewOption[] => {
-  // 슈퍼 어드민은 QA를 위해 모든 뷰에 접근 가능
-  if (role === 'SUPER_ADMIN') {
-    return [
-      { value: 'ADMIN', label: 'Admin View' },
-      { value: 'PM_CHALLENGER', label: 'PM Challenger View' },
-      { value: 'CHALLENGER', label: 'Challenger View' },
-    ];
-  }
+}: Pick<Session, 'challengerType'>): ViewOption[] => {
+  if (!challengerType) return [];
 
-  if (VIEW_SWITCHABLE_ROLES.includes(role) && challengerType) {
-    return [
-      { value: 'ADMIN', label: 'Admin View' },
-      {
-        value: challengerType === 'PM' ? 'PM_CHALLENGER' : 'CHALLENGER',
-        label: 'Challenger View',
-      },
-    ];
-  }
-
-  return [];
+  return [
+    { value: 'ADMIN', label: 'Admin View' },
+    challengerType === 'PM'
+      ? { value: 'PM_CHALLENGER', label: 'PM Challenger View' }
+      : { value: 'CHALLENGER', label: 'Challenger View' },
+  ];
 };
 
 const CHALLENGER_ROLES: Role[] = ['CHALLENGER_PM', 'CHALLENGER'];

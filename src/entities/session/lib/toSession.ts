@@ -18,6 +18,7 @@ const ROLE_PRIORITY: [RoleType[], Role][] = [
 
 // 챌린저로도 활동하는 운영진 역할 (이 역할일 때만 챌린저 유형을 둠)
 const STAFF_ROLES: Role[] = [
+  'SUPER_ADMIN',
   'HQ_LEAD',
   'HQ_ADMIN',
   'CHAPTER_ADMIN',
@@ -46,9 +47,11 @@ export const toSession = ({
     ? 'SUPER_ADMIN'
     : (staffRole ?? (part === 'PLAN' ? 'CHALLENGER_PM' : 'CHALLENGER'));
 
-  // 운영진 파트(ADMIN)로만 등록된 경우는 챌린저 활동이 없음
+  // 어드민(운영진 역할 · 슈퍼어드민)이 챌린저 파트로도 등록돼 있으면 뷰 전환 대상
+  // - 파트 PLAN → PM 챌린저 / WEB · MOBILE · DESIGN 등 → 일반 챌린저
+  // - 파트가 없거나(서버는 null로 줌) 운영진 파트(ADMIN)면 어드민 권한만 있는 것이라 Admin View만
   const challengerType: ChallengerType | null =
-    STAFF_ROLES.includes(role) && part !== undefined && part !== 'ADMIN'
+    STAFF_ROLES.includes(role) && part != null && part !== 'ADMIN'
       ? part === 'PLAN'
         ? 'PM'
         : 'GENERAL'
