@@ -8,7 +8,6 @@ import { myInfoQueryOptions, type Session, toSession, useSessionStore } from '@/
 import { clearAuthTokens, getAccessToken } from '@/shared/api/authToken';
 import { ApiError } from '@/shared/api/client';
 import { RouterLink } from '@/shared/ui/RouterLink';
-import { Footer } from '@/widgets/footer';
 import { Header } from '@/widgets/header';
 import { ToastProvider } from '@/widgets/toast';
 
@@ -55,13 +54,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   component: () => (
     <LinkProvider component={RouterLink}>
       <ToastProvider>
-        {/* 내용이 짧아도 푸터가 화면 맨 아래에 붙도록 내용 영역이 남는 높이를 채움 */}
+        {/* TODO: 푸터 잠시 숨김. 다시 넣을 때 <Footer />(@/widgets/footer)를 내용 영역 아래에 추가 */}
         <div className="flex min-h-dvh flex-col">
           <Header />
           <div className="flex flex-1 flex-col">
             <Outlet />
           </div>
-          <Footer />
         </div>
       </ToastProvider>
       <TanStackRouterDevtools />
