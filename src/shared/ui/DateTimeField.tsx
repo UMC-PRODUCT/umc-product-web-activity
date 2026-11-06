@@ -7,6 +7,11 @@ const DEFAULT_PLACEHOLDER: Record<DateTimeFieldType, string> = {
   time: '00:00',
 };
 
+const FIELD_WIDTH: Record<DateTimeFieldType, string> = {
+  date: 'w-[156px]',
+  time: 'w-[74px]',
+};
+
 type DateTimeFieldProps = {
   type: DateTimeFieldType;
   value: string;
@@ -42,26 +47,30 @@ const DateTimeField = ({
       disabled={disabled}
       invalid={invalid}
       onClick={disabled ? onDisabledClick : undefined}
-      // 피그마: 날짜 칸 156px, 시각 칸은 글자 폭만큼 (74px)
-      className={`w-fit shrink-0 gap-1.5 ${className}`}
+      className={`${FIELD_WIDTH[type]} shrink-0 justify-center gap-1.5 px-[15px] ${className}`}
     >
       {prefix && (
         <span className={`shrink-0 ${disabled ? 'text-teal-grey-400' : 'text-teal-grey-900'}`}>
           {prefix}
         </span>
       )}
-      <input
-        // 비활성 입력은 클릭 이벤트가 생기지 않아서, 클릭이 상자로 가도록 함
-        className="umc-text-field-box-field__input [field-sizing:content] disabled:pointer-events-none"
-        inputMode="numeric"
-        aria-label={ariaLabel}
-        aria-invalid={invalid || undefined}
-        placeholder={placeholder}
-        value={value}
-        disabled={disabled}
-        maxLength={type === 'date' ? 10 : 5}
-        onChange={(event) => onValueChange?.(formatValue(event.target.value))}
-      />
+      <span className="inline-grid min-w-0">
+        <span aria-hidden className="invisible col-start-1 row-start-1 whitespace-pre">
+          {placeholder}
+        </span>
+        <input
+          // 비활성 입력은 클릭 이벤트가 생기지 않아서, 클릭이 상자로 가도록 함
+          className="umc-text-field-box-field__input col-start-1 row-start-1 w-full disabled:pointer-events-none"
+          inputMode="numeric"
+          aria-label={ariaLabel}
+          aria-invalid={invalid || undefined}
+          placeholder={placeholder}
+          value={value}
+          disabled={disabled}
+          maxLength={type === 'date' ? 10 : 5}
+          onChange={(event) => onValueChange?.(formatValue(event.target.value))}
+        />
+      </span>
     </TextFieldBoxField>
   );
 };
