@@ -1,6 +1,7 @@
 import type { PartTagPart } from '@umc-product/react';
 
 import { toId } from '@/shared/api/toId';
+import { formatPersonName } from '@/shared/lib/formatPersonName';
 
 import type { ProjectApplicantsResponse } from '../api/getProjectApplicants';
 import type { Applicant, ApplicantStatus } from './types';
@@ -47,7 +48,7 @@ export const toApplicants = (applicants: ProjectApplicantsResponse): Applicant[]
         memberId: toId(applicant?.memberId),
         round,
         part: (applicant?.part && PART_TAG[applicant.part]) ?? 'pm',
-        challengerName: [applicant?.nickname, applicant?.name].filter(Boolean).join('/'),
+        challengerName: formatPersonName(applicant),
         schoolName: applicant?.schoolName ?? '',
         status: status ? STATUS[status] : 'WAITING',
         appliedAt: times.submittedAt ?? '',
