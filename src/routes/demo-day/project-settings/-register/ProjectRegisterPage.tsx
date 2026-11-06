@@ -24,7 +24,7 @@ import {
 } from '@/features/project-register';
 import { ApiError } from '@/shared/api/client';
 import { toId } from '@/shared/api/toId';
-import { compactName } from '@/shared/lib/compactName';
+import { formatPersonName } from '@/shared/lib/formatPersonName';
 import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 import { useAppToast } from '@/widgets/toast';
 
@@ -85,7 +85,7 @@ const ProjectRegisterPage = ({
     chapterId: role === 'CHAPTER_ADMIN' ? serverChapterId : (initialChapterId ?? null),
     enabled: isAdmin,
   });
-  const myPmLabel = `${compactName(myInfo?.nickname)}/${compactName(myInfo?.name)} · ${formatSchoolName(myInfo?.schoolName)}`;
+  const myPmLabel = `${formatPersonName(myInfo)} · ${formatSchoolName(myInfo?.schoolName)}`;
 
   // 서버에 이미 반영된 내용. 저장이 중간에 실패해도 이어서 저장하도록 화면이 들고 있음
   const serverState = useRef(createServerProjectState());

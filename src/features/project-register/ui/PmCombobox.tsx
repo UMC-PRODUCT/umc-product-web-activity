@@ -1,7 +1,7 @@
 import { TextFieldBox } from '@umc-product/react';
 import { useId, useState } from 'react';
 
-import { compactName } from '@/shared/lib/compactName';
+import { formatPersonName } from '@/shared/lib/formatPersonName';
 
 import type { PmCandidate } from '../model/types';
 
@@ -14,8 +14,7 @@ type PmComboboxProps = {
   onChange: (id: string) => void;
 };
 
-const getPmName = ({ nickname, name }: PmCandidate) =>
-  `${compactName(nickname)}/${compactName(name)}`;
+const getPmName = ({ nickname, name }: PmCandidate) => formatPersonName({ nickname, name });
 
 // 피그마 Text Field/Input Box + PM 정보 등록 List: 입력창에 바로 검색어를 쓰면 목록이 걸러지고, 항목을 고르면 닉네임/이름이 입력창에 채워짐
 const PmCombobox = ({
