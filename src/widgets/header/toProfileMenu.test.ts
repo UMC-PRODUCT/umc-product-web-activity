@@ -46,6 +46,24 @@ describe('toProfileMenu', () => {
     expect(toProfileMenu(myInfo, role).profile.role).toEqual({ label, color });
   });
 
+  it.each(['SUPER_ADMIN', 'CHAPTER_ADMIN', 'CHALLENGER'] as const)(
+    'UMC PRODUCT 멤버는 %s여도 Product 태그를 보여 준다',
+    (role) => {
+      const myInfo = { ...MY_INFO, isUmcProduct: true } as MyInfoResponse;
+
+      expect(toProfileMenu(myInfo, role).profile.role).toEqual({
+        label: '⚙️ Product',
+        color: 'product',
+      });
+    },
+  );
+
+  it('UMC PRODUCT 멤버가 아니면 역할 태그를 그대로 보여 준다', () => {
+    const myInfo = { ...MY_INFO, isUmcProduct: false } as MyInfoResponse;
+
+    expect(toProfileMenu(myInfo, 'SUPER_ADMIN').profile.role?.label).toBe('Admin');
+  });
+
   it('기수를 최신순으로 두고 현재 기수만 고를 수 있다', () => {
     const { generations, generation } = toProfileMenu(MY_INFO, 'CHALLENGER');
 

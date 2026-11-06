@@ -20,7 +20,10 @@ const ROLE_TAG: Record<Role, HeaderProfileMenuRole> = {
 };
 
 // 화면 역할은 회장 · 부회장을 묶어서 다루므로, 부회장 태그는 서버 역할로 구분
+// UMC PRODUCT 멤버는 다른 역할이 있어도 Product 태그를 보여 줌
 const getRoleTag = (myInfo: MyInfoResponse, role: Role): HeaderProfileMenuRole => {
+  // U+FE0F가 없으면 톱니가 흑백 글리프로 나와서, 시안처럼 컬러 이모지로 고정
+  if (myInfo.isUmcProduct) return { label: '⚙️ Product', color: 'product' };
   const roleTypes = myInfo.currentGisuMemberInfo?.roleTypes ?? [];
   if (role === 'HQ_LEAD' && !roleTypes.includes('CENTRAL_PRESIDENT')) {
     return { label: '부총괄', color: 'central' };

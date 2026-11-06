@@ -66,11 +66,50 @@ describe('toSession', () => {
     expect(toSession(me({ roleTypes: ['CHAPTER_PRESIDENT'], part: 'WEB' })).challengerType).toBe(
       'GENERAL',
     );
-    // 운영진 파트로만 등록된 운영진 · 일반 챌린저는 없음
+    expect(toSession(me({ roleTypes: ['SCHOOL_PRESIDENT'], part: 'DESIGN' })).challengerType).toBe(
+      'GENERAL',
+    );
+    // 운영진 파트로만 등록된 운영진 · 운영진이 아닌 챌린저는 없음
     expect(
       toSession(me({ roleTypes: ['CHAPTER_PRESIDENT'], part: 'ADMIN' })).challengerType,
     ).toBeNull();
     expect(toSession(me({ part: 'PLAN' })).challengerType).toBeNull();
+  });
+
+  // 실제 서버는 파트가 없으면 null로 내려줌 (생성 타입에 null이 없어서 캐스팅)
+  it('파트가 null인 운영진은 챌린저 유형이 없다 (Admin View만)', () => {
+    const response = {
+      isSuperAdmin: false,
+      currentGisuMemberInfo: {
+        gisuId: '6',
+        challenger: { challengerId: '3', part: null },
+        roleTypes: ['CHAPTER_PRESIDENT', 'SCHOOL_PRESIDENT'],
+      },
+      challengerHistory: [{ gisuId: '6', chapterId: '33', chapterName: '캥거루', part: null }],
+    } as unknown as MyInfoResponse;
+
+    expect(toSession(response)).toMatchObject({ role: 'CHAPTER_ADMIN', challengerType: null });
+  });
+
+  it('운영진 역할만 여러 개면 챌린저 유형이 없다 (Admin View만)', () => {
+    const roleTypes: RoleTypes = ['SCHOOL_PRESIDENT', 'CHAPTER_PRESIDENT'];
+
+    expect(toSession(me({ roleTypes }))).toMatchObject({
+      role: 'CHAPTER_ADMIN',
+      challengerType: null,
+    });
+    expect(toSession(me({ roleTypes, part: 'ADMIN' })).challengerType).toBeNull();
+  });
+
+  it('운영진 역할이 여러 개여도 PM으로 활동하면 PM 챌린저 뷰로 전환한다', () => {
+    expect(
+      toSession(me({ roleTypes: ['SCHOOL_PRESIDENT', 'CHAPTER_PRESIDENT'], part: 'PLAN' })),
+    ).toMatchObject({ role: 'CHAPTER_ADMIN', challengerType: 'PM' });
+  });
+
+  it('슈퍼어드민도 챌린저로 활동하면 챌린저 유형이 있다', () => {
+    expect(toSession(me({ isSuperAdmin: true, part: 'PLAN' })).challengerType).toBe('PM');
+    expect(toSession(me({ isSuperAdmin: true })).challengerType).toBeNull();
   });
 
   it('소속 지부는 현재 기수 기록의 지부', () => {

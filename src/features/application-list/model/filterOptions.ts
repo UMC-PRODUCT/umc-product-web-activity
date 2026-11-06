@@ -13,7 +13,7 @@ export const INITIAL_APPLICATION_FILTERS: ApplicationFilterValues = {
   recruitStatus: [],
 };
 
-// 피그마 "메뉴 드롭다운 케이스 정리" 기준
+// 학교만 다중 선택, 나머지(파트 · 모집 상태 · 차수)는 단일 선택
 // 학교 보기는 화면마다 달라서(어드민: 고른 지부 소속 학교, PM: 지원자들의 학교) 화면에서 채움
 export const APPLICATION_FILTERS: {
   key: ApplicationFilterKey;
@@ -30,7 +30,6 @@ export const APPLICATION_FILTERS: {
   {
     key: 'part',
     label: '파트',
-    multiple: true,
     options: toOptions(['Web', 'Mobile']),
   },
   {
@@ -44,7 +43,6 @@ export const APPLICATION_FILTERS: {
   {
     key: 'round',
     label: '차수',
-    multiple: true,
     options: [
       { value: '1', label: '1차' },
       { value: '2', label: '2차' },

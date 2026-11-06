@@ -8,7 +8,7 @@ export type Role =
   | 'CHALLENGER_PM'
   | 'CHALLENGER'; // 일반 챌린저
 
-// 운영진이면서 이번 기수 챌린저로도 활동하는 경우의 챌린저 유형
+// 운영진이면서 이번 기수 챌린저로도 활동하는 경우의 챌린저 유형 (뷰 전환 대상)
 export type ChallengerType = 'PM' | 'GENERAL';
 
 export type Session = {
