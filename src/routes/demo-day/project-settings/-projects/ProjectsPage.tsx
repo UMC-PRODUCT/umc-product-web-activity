@@ -6,11 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useChapters } from '@/entities/chapter';
 import { getApplicationsView, type Role, useSessionStore, type View } from '@/entities/session';
-import {
-  getCurrentMatchingStep,
-  toScheduleByTrack,
-  useMatchingRounds,
-} from '@/features/matching-schedule';
+import { getMatchingStepFromRounds, useMatchingRounds } from '@/features/matching-schedule';
 import { type ManagedProject, ProjectManagementCard } from '@/features/project-management';
 import { deleteProject } from '@/features/project-management/api/deleteProject';
 import { managedProjectsInfiniteQueryOptions } from '@/features/project-management/api/managedProjectsQuery';
@@ -96,11 +92,26 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
   const toast = useAppToast();
   const queryClient = useQueryClient();
 
+  const resolvedView = getApplicationsView(role, view);
+  const isPmChallenger = resolvedView === 'PM_CHALLENGER';
+  const navigate = useNavigate();
+
   const [now] = useState(() => new Date());
-  const { data: rounds } = useMatchingRounds(chapterId ?? undefined);
-  const schedules = rounds ? toScheduleByTrack(rounds) : null;
-  const designStep = schedules ? getCurrentMatchingStep(schedules.PLAN_DESIGN.setting, now) : null;
-  const peStep = schedules ? getCurrentMatchingStep(schedules.PLAN_PE.setting, now) : null;
+  const { data: rounds } = useMatchingRounds(
+    isPmChallenger ? (ownChapterId ?? undefined) : (chapterId ?? undefined),
+  );
+  const designStep = rounds
+    ? getMatchingStepFromRounds(
+        rounds.filter((r) => r.type === 'PLAN_DESIGN'),
+        now,
+      )
+    : null;
+  const peStep = rounds
+    ? getMatchingStepFromRounds(
+        rounds.filter((r) => r.type === 'PLAN_DEVELOPER'),
+        now,
+      )
+    : null;
   const isBeforeStart =
     (designStep === null || designStep.status === 'BEFORE_START') &&
     (peStep === null || peStep.status === 'BEFORE_START');
@@ -112,10 +123,6 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
   const isMatchingPeriod =
     (designStep?.status === 'ONGOING' && designStep.phase === 'MATCHING') ||
     (peStep?.status === 'ONGOING' && peStep.phase === 'MATCHING');
-
-  const resolvedView = getApplicationsView(role, view);
-  const isPmChallenger = resolvedView === 'PM_CHALLENGER';
-  const navigate = useNavigate();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     ...managedProjectsInfiniteQueryOptions({
