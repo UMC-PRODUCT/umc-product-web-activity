@@ -92,7 +92,7 @@ const QuotaPage = () => {
   const toast = useAppToast();
   const queryClient = useQueryClient();
 
-  const { mutate: saveMutate, isPending: isSaving } = useMutation({
+  const { mutate: saveMutate, isPending } = useMutation({
     mutationFn: ({
       isUnder: _,
       skipToast: __,
@@ -291,16 +291,23 @@ const QuotaPage = () => {
                       color="white"
                       size="sm"
                       onClick={() => setResetConfirmOpen(true)}
+                      isLoading={isPending}
                       className={
-                        isSaving || allColumnsLocked
-                          ? ''
-                          : 'text-teal-grey-900 [--umc-button-border-pressed:var(--umc-color-teal-grey-300)] [--umc-button-border:var(--umc-color-teal-grey-300)]'
+                        isPending || allColumnsLocked
+                          ? 'h-11'
+                          : 'h-11 text-teal-grey-900 [--umc-button-border-pressed:var(--umc-color-teal-grey-300)] [--umc-button-border:var(--umc-color-teal-grey-300)]'
                       }
-                      disabled={isSaving || allColumnsLocked}
+                      disabled={allColumnsLocked}
                     >
                       초기화
                     </Button>
-                    <Button size="sm" disabled={isSaving || allColumnsLocked} onClick={handleSave}>
+                    <Button
+                      size="sm"
+                      className="h-11"
+                      disabled={allColumnsLocked}
+                      isLoading={isPending}
+                      onClick={handleSave}
+                    >
                       저장
                     </Button>
                   </>
