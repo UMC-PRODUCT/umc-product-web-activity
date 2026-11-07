@@ -252,7 +252,10 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
                   isBeforeStart={isBeforeStart}
                   onCardClick={() => setSelectedProject(project)}
                   onViewApplications={() =>
-                    navigate({ to: '/demo-day/team-matching/applications' })
+                    navigate({
+                      to: '/demo-day/team-matching/applications',
+                      search: { chapterId: chapterId ?? undefined },
+                    })
                   }
                   onDelete={() => setDeleteTarget(project)}
                 />
@@ -279,7 +282,10 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
                               isApplicationPeriod={isApplicationPeriod}
                               onCardClick={() => setSelectedProject(project)}
                               onViewApplications={() =>
-                                navigate({ to: '/demo-day/team-matching/applications' })
+                                navigate({
+                                  to: '/demo-day/team-matching/applications',
+                                  search: { chapterId: chapterId ?? undefined },
+                                })
                               }
                               onManageApproval={() =>
                                 navigate({
@@ -308,7 +314,10 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
                               isApplicationPeriod={isApplicationPeriod}
                               onCardClick={() => setSelectedProject(project)}
                               onViewApplications={() =>
-                                navigate({ to: '/demo-day/team-matching/applications' })
+                                navigate({
+                                  to: '/demo-day/team-matching/applications',
+                                  search: { chapterId: chapterId ?? undefined },
+                                })
                               }
                               onManageApproval={() =>
                                 navigate({

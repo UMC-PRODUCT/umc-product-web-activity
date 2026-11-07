@@ -39,7 +39,7 @@ import { useCurrentMatchingRound } from './useCurrentMatchingRound';
 const SEARCH_DEBOUNCE = { delay: 300, maxWait: 1000 };
 
 // 어드민 뷰: 지부별 지원 통계 + 전체 프로젝트 지원 목록
-const AdminApplications = () => {
+const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) => {
   const { role, gisuId, serverChapterId: ownChapterId } = useSessionStore((state) => state.session);
   const ownChapterOnly = getChapterScope(role) === 'OWN';
   // 권한표: 중앙운영진 · 학교회장단 · 학교운영진은 지원 시트까지만
@@ -52,8 +52,10 @@ const AdminApplications = () => {
   // 지부 탭에는 전 지부를 보여 주고, 지부장 · 학교 운영진은 소속 지부만 고를 수 있음
   const chapters = allChapters;
   const toast = useAppToast();
-  // 고르기 전에는 소속 지부, 없으면 첫 지부
-  const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
+  // 고르기 전에는 initialChapterId → 소속 지부 → 첫 지부
+  const [selectedChapterId, setSelectedChapterId] = useState<number | null>(
+    initialChapterId ?? null,
+  );
   const chapterId =
     selectedChapterId ??
     (ownChapterOnly
