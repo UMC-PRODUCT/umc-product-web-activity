@@ -119,7 +119,10 @@ const QuotaPage = () => {
 
   const schoolOptions: SelectOption[] = (data?.schools ?? []).map((s) => ({
     value: String(s.schoolId!),
-    label: s.schoolName ?? '',
+    label: (s.schoolName ?? '')
+      .replace('여자대학교', '여대')
+      .replace('외국어대학교', '외대')
+      .replace('학교', ''),
   }));
 
   // 집계
