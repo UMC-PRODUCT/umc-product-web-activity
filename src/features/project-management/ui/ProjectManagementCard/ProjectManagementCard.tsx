@@ -58,8 +58,8 @@ type ProjectManagementCardProps = {
   project: ManagedProject;
   role: Role;
   isPmChallenger?: boolean;
+  isBeforeStart?: boolean;
   isApplicationPeriod?: boolean;
-  isMatchingPeriod?: boolean;
   onCardClick?: () => void;
   onViewApplications?: () => void;
   onManageApproval?: () => void;
@@ -70,8 +70,8 @@ const ProjectManagementCard = ({
   project,
   role,
   isPmChallenger = false,
+  isBeforeStart = false,
   isApplicationPeriod = false,
-  isMatchingPeriod = true,
   onCardClick,
   onViewApplications,
   onManageApproval,
@@ -84,33 +84,31 @@ const ProjectManagementCard = ({
   const menuItems = (() => {
     if (isPmChallenger) {
       const items: MenuItemDef[] = [];
-      if (status === 'APPROVED') {
+      if (status === 'APPROVED' && !isBeforeStart) {
         items.push({
           label: '지원 현황 확인하기',
           onClick: onViewApplications,
-          disabled: !isApplicationPeriod,
+          disabled: false,
         });
       }
       items.push({
-        label: <span className={isMatchingPeriod ? undefined : 'text-error'}>삭제</span>,
+        label: <span className={isApplicationPeriod ? undefined : 'text-error'}>삭제</span>,
         onClick: onDelete,
-        disabled: isMatchingPeriod,
+        disabled: isApplicationPeriod,
       });
       return items;
     }
+    // 중앙운영진은 전지부 조회만 가능
     if (role === 'HQ_ADMIN') {
-      return [
-        {
-          label: '지원 현황 확인하기',
-          onClick: onViewApplications,
-          disabled: !isApplicationPeriod,
-        },
-      ];
+      if (isBeforeStart) return [];
+      return [{ label: '지원 현황 확인하기', onClick: onViewApplications, disabled: false }];
     }
-    const items: MenuItemDef[] = [
-      { label: '지원 현황 확인하기', onClick: onViewApplications, disabled: !isApplicationPeriod },
-      { label: '프로젝트 승인 관리', onClick: onManageApproval },
-    ];
+
+    const items: MenuItemDef[] = [];
+    if (!isBeforeStart) {
+      items.push({ label: '지원 현황 확인하기', onClick: onViewApplications, disabled: false });
+    }
+    items.push({ label: '프로젝트 승인 관리', onClick: onManageApproval });
     if (canDeleteProject(role)) {
       items.push({
         label: <span className={isApplicationPeriod ? undefined : 'text-error'}>삭제</span>,
