@@ -264,6 +264,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
             onValueChange={(v) => {
               const nextId = Number(v);
               setSelectedChapterId(nextId);
+              setSchoolIds([]);
               onChapterChange?.(nextId);
             }}
             className="[&_[role=radio]:not([data-checked])]:text-teal-600"
