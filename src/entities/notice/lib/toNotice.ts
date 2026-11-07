@@ -1,3 +1,5 @@
+import { toId } from '@/shared/api/toId';
+
 import type { NoticeSummaryResponse } from '../api/getNotices';
 import type { Notice, NoticeKind } from '../model/types';
 
@@ -30,5 +32,6 @@ export const toNotice = (
   content: response.content ?? '',
   createdAt: toDate(response.createdAt),
   required: response.mustRead ?? false,
+  authorMemberId: toId(response.author?.memberId ?? response.authorMemberId),
   authorLabel: toAuthorLabel(response),
 });

@@ -1,5 +1,6 @@
 import { ExpandLessIcon, ExpandMoreIcon } from '@umc-product/icons';
 import { Button, Divider } from '@umc-product/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useId } from 'react';
 
 import { formatNoticeDate, type Notice } from '@/entities/notice';
@@ -42,7 +43,7 @@ const NoticeItem = ({
         aria-controls={contentId}
         onClick={onToggle}
         className={cn(
-          'group flex w-full cursor-pointer items-end gap-2.5 rounded-xl px-10 py-6 text-left',
+          'group flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-10 py-6 text-left',
           !open && 'hover:bg-teal-grey-50',
         )}
       >
@@ -78,27 +79,40 @@ const NoticeItem = ({
           <Icon size={24} />
         </span>
       </button>
-      {open && (
-        <div id={contentId} className="px-8">
-          <div className="flex flex-col gap-8 rounded-xl bg-teal-grey-50 px-6 py-5 shadow-inner-neutral-2">
-            <NoticeContent content={notice.content} />
-            {showActions && (
-              <div className="flex items-center justify-end gap-2">
-                {onEdit && (
-                  <Button variant="weak" color="neutral" size="xs" onClick={onEdit}>
-                    수정
-                  </Button>
-                )}
-                {onDelete && (
-                  <Button variant="weak" color="red" size="xs" onClick={onDelete}>
-                    삭제
-                  </Button>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {open && (
+          // 본문이 펼쳐질 때 0.3초 동안 높이가 늘어나며 페이드인, 닫힐 때도 같은 속도로 반대로 진행
+          <motion.div
+            id={contentId}
+            className="overflow-hidden px-8"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: [0, 1], height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{
+              opacity: { duration: 0.3, times: [0, 1], ease: 'easeOut' },
+              height: { duration: 0.3, ease: 'easeOut' },
+            }}
+          >
+            <div className="flex flex-col gap-8 rounded-xl bg-teal-grey-50 px-6 py-5 shadow-inner-neutral-2">
+              <NoticeContent content={notice.content} />
+              {showActions && (
+                <div className="flex items-center justify-end gap-2">
+                  {onEdit && (
+                    <Button variant="weak" color="neutral" size="xs" onClick={onEdit}>
+                      수정
+                    </Button>
+                  )}
+                  {onDelete && (
+                    <Button variant="weak" color="red" size="xs" onClick={onDelete}>
+                      삭제
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </li>
   );
 };

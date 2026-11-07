@@ -81,17 +81,15 @@ describe('getProjectActions - 일반 챌린저', () => {
     expect(getProjectActions({ ...challenger, viewer }).primary).toBeNull();
   });
 
-  it('지원한 프로젝트는 내 지원서 보기가 지원 기간에만 활성이다', () => {
+  it('지원한 프로젝트는 매칭 기간에도 내 지원서 보기가 활성이다', () => {
     const viewer = { ...VIEWER, appliedProjectId: 'p1' };
-    expect(getProjectActions({ ...challenger, viewer }).primary).toMatchObject({
-      kind: 'MY_APPLICATION',
-      disabled: false,
-    });
-    expect(getProjectActions({ ...challenger, viewer, period: MATCHING }).primary).toMatchObject({
-      kind: 'MY_APPLICATION',
-      disabled: true,
-      notice: NOTICE_NOT_APPLY_PERIOD,
-    });
+    for (const period of [APPLY, MATCHING]) {
+      expect(getProjectActions({ ...challenger, viewer, period }).primary).toMatchObject({
+        kind: 'MY_APPLICATION',
+        disabled: false,
+        notice: null,
+      });
+    }
   });
 
   it('다른 프로젝트에 이미 지원했으면 지원하기가 비활성이다', () => {

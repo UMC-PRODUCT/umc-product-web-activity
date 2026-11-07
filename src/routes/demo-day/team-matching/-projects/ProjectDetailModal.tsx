@@ -1,21 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { UsersPictogram } from '@umc-product/icons';
-import {
-  Button,
-  Dimmed,
-  FormAttachmentField,
-  FormChoiceList,
-  FormHeader,
-  FormQuestion,
-  FormSection,
-  FormSheet,
-  FormTextAnswer,
-  ImageThumbnail,
-} from '@umc-product/react';
+import { Button, Dimmed } from '@umc-product/react';
 import { Dialog } from 'radix-ui';
 import { useState } from 'react';
 
+import { ProjectRecruitmentSummary } from '@/features/applications';
 import {
   getRecruitmentRows,
   type Project,
@@ -23,6 +13,7 @@ import {
   type ProjectPeriod,
   TeamCompositionPanel,
 } from '@/features/project-list';
+import { RecruitmentFormPreviewSheet } from '@/features/project-register';
 import { getApplicationForm } from '@/features/project-register/api/applicationForm';
 import { withFixedCommonQuestions } from '@/features/project-register/model/fixedQuestions';
 import { ProjectCard } from '@/widgets/card';
@@ -65,6 +56,11 @@ const ProjectDetailModal = ({ project, period, actions, onClose }: ProjectDetail
     }
     if (actions?.primary?.kind === 'RECRUIT_QUESTIONS') {
       setRecruitmentFormOpen(true);
+      return;
+    }
+    if (actions?.primary?.kind === 'MY_APPLICATION') {
+      // 내 지원 현황에서 지원서를 열람 (수정은 지원 기간에만 가능)
+      navigate({ to: '/demo-day/team-matching/applications' });
       return;
     }
     if (actions?.primary?.kind === 'APPLY' && project) {
@@ -144,74 +140,23 @@ const ProjectDetailModal = ({ project, period, actions, onClose }: ProjectDetail
                 <Dialog.Content
                   aria-describedby={undefined}
                   onOpenAutoFocus={(e) => e.preventDefault()}
-                  className="fixed top-1/2 left-1/2 z-(--umc-z-dimmed) max-h-[calc(100vh-40px)] w-[928px] max-w-[calc(100vw-40px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[20px] outline-none"
+                  className="fixed top-1/2 left-1/2 z-(--umc-z-dimmed) max-h-[calc(100vh-40px)] w-[1000px] max-w-[calc(100vw-40px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[20px] outline-none"
                 >
                   <Dialog.Title className="sr-only">모집 문항 미리보기</Dialog.Title>
-                  <FormSheet
-                    header={
-                      <FormHeader
-                        thumbnail={
-                          <ImageThumbnail
-                            src={project.logoUrl}
-                            alt={`${project.projectName} 로고`}
-                            size={50}
-                          />
-                        }
-                        title={project.projectName}
-                        subtitle={`${project.pmName} · ${project.schoolName}`}
+                  <RecruitmentFormPreviewSheet
+                    sections={formSections}
+                    projectName={project.projectName}
+                    pmName={project.pmName}
+                    schoolName={project.schoolName}
+                    logoUrl={project.logoUrl}
+                    description={
+                      <ProjectRecruitmentSummary
+                        description={project.description}
+                        platform={project.platform}
+                        recruitments={project.recruitments}
                       />
                     }
-                    control={
-                      <Button size="lg" disabled>
-                        다음
-                      </Button>
-                    }
-                  >
-                    <div className="flex flex-col gap-6">
-                      {formSections.map((section, si) => (
-                        <FormSection key={section.sectionId ?? si} title={section.title}>
-                          <div className="flex flex-col gap-10 px-5 pt-8 pb-6">
-                            {section.questions.map((q, qi) => (
-                              <FormQuestion
-                                key={q.questionId ?? qi}
-                                number={String(qi + 1).padStart(2, '0')}
-                                title={q.title}
-                                description={q.description}
-                                required={q.isRequired}
-                              >
-                                {(q.type === 'SHORT_TEXT' || q.type === 'LONG_TEXT') && (
-                                  <FormTextAnswer disabled placeholder="작성하세요" />
-                                )}
-                                {(q.type === 'RADIO' || q.type === 'DROPDOWN') && (
-                                  <FormChoiceList
-                                    type="single"
-                                    disabled
-                                    options={q.options.map((o) => ({
-                                      value: o.content,
-                                      label: o.content,
-                                    }))}
-                                  />
-                                )}
-                                {q.type === 'CHECKBOX' && (
-                                  <FormChoiceList
-                                    type="multiple"
-                                    disabled
-                                    options={q.options.map((o) => ({
-                                      value: o.content,
-                                      label: o.content,
-                                    }))}
-                                  />
-                                )}
-                                {(q.type === 'FILE' || q.type === 'PORTFOLIO') && (
-                                  <FormAttachmentField disabled />
-                                )}
-                              </FormQuestion>
-                            ))}
-                          </div>
-                        </FormSection>
-                      ))}
-                    </div>
-                  </FormSheet>
+                  />
                 </Dialog.Content>
               </Dialog.Portal>
             </Dialog.Root>

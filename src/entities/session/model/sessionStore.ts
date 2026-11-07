@@ -18,6 +18,7 @@ const INITIAL_SESSION: Session = {
   challengerType: null,
   chapterId: null,
   serverChapterId: null,
+  memberId: null,
   gisuId: null,
 };
 

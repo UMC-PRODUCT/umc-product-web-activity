@@ -11,6 +11,7 @@ describe('toNotice', () => {
           mustRead: true,
           createdAt: '2026-11-02T01:00:00Z',
           author: {
+            memberId: 7,
             nickname: '윰씨',
             name: '김유앤',
             organizationName: '수달',
@@ -28,6 +29,7 @@ describe('toNotice', () => {
       content: '내용',
       createdAt: '2026-11-02',
       required: true,
+      authorMemberId: 7,
       authorLabel: '수달 지부장 윰씨/김유앤',
     });
   });

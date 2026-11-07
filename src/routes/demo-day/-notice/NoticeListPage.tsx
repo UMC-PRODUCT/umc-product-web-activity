@@ -11,6 +11,7 @@ import {
   useDeleteNotice,
   useUpdateNotice,
 } from '@/entities/notice';
+import { canModifyNotice, useSessionStore } from '@/entities/session';
 import { BLOCKED_NOTICE_CHAPTER_MESSAGE, ServerChapterSelect } from '@/features/chapter-select';
 import { NoticeList } from '@/features/notice-list';
 import { NoticeEditForm } from '@/features/notice-write';
@@ -42,6 +43,7 @@ const NoticeListPage = ({
   const { gisuId, allChapters, selectableChapterId, chaptersLoaded, chapterId, canManage } =
     useNoticeChapters(chapter, 'view');
   const { data: serverNotices = [], isError } = useChapterNotices(kind, gisuId, chapterId);
+  const { role, memberId } = useSessionStore((state) => state.session);
   const updateNotice = useUpdateNotice();
   const deleteNotice = useDeleteNotice();
 
@@ -113,6 +115,8 @@ const NoticeListPage = ({
           notices={notices}
           onEdit={canManage ? (notice) => setEditingId(notice.id) : undefined}
           onDelete={canManage ? setDeleteTarget : undefined}
+          // 지부장은 다른 지부장이나 최고 관리자가 쓴 공지를 수정·삭제할 수 없어서 버튼을 숨김
+          canModify={(notice) => canModifyNotice(role, memberId, notice.authorMemberId)}
           editingId={editingId}
           onCancelEdit={() => setEditingId(null)}
           renderEditor={(notice) => (

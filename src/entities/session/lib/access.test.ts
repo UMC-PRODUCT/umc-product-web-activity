@@ -3,6 +3,7 @@ import {
   canEditApplicantStatus,
   canManageMatching,
   canManageNotice,
+  canModifyNotice,
   getApplicationsAccess,
   getApplicationsView,
   getChapterScope,
@@ -165,6 +166,24 @@ describe('getViewOptions', () => {
 
   it('어드민 권한만 있으면 뷰 전환이 없다', () => {
     expect(getViewOptions({ challengerType: null })).toEqual([]);
+  });
+});
+
+describe('canModifyNotice', () => {
+  it('최고 관리자는 누가 쓴 공지든 수정 · 삭제할 수 있다', () => {
+    expect(canModifyNotice('SUPER_ADMIN', 1, 2)).toBe(true);
+    expect(canModifyNotice('SUPER_ADMIN', null, undefined)).toBe(true);
+  });
+
+  it('지부장은 본인이 쓴 공지만 수정 · 삭제할 수 있다', () => {
+    expect(canModifyNotice('CHAPTER_ADMIN', 1, 1)).toBe(true);
+    expect(canModifyNotice('CHAPTER_ADMIN', 1, 2)).toBe(false);
+  });
+
+  it('작성자를 알 수 없는 공지는 지부장이 수정 · 삭제할 수 없다', () => {
+    expect(canModifyNotice('CHAPTER_ADMIN', 1, undefined)).toBe(false);
+    expect(canModifyNotice('CHAPTER_ADMIN', 1, null)).toBe(false);
+    expect(canModifyNotice('CHAPTER_ADMIN', null, null)).toBe(false);
   });
 });
 

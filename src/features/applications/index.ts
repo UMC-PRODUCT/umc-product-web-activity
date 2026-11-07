@@ -32,4 +32,5 @@ export type {
 } from './model/types';
 export { default as ApplicationListCard } from './ui/ApplicationListCard';
 export { default as ProjectCard } from './ui/ProjectCard/ProjectCard';
+export { default as ProjectRecruitmentSummary } from './ui/ProjectRecruitmentSummary/ProjectRecruitmentSummary';
 export { default as RecruitmentList } from './ui/RecruitmentList/RecruitmentList';

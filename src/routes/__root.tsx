@@ -19,6 +19,7 @@ const isSameSession = (left: Session, right: Session) =>
   left.challengerType === right.challengerType &&
   left.chapterId === right.chapterId &&
   left.serverChapterId === right.serverChapterId &&
+  left.memberId === right.memberId &&
   left.gisuId === right.gisuId;
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({

@@ -243,6 +243,9 @@ const ProjectCardDialog = ({
               pmName={project.pmName}
               schoolName={project.schoolName}
               logoUrl={projectDetail?.logoUrl ?? null}
+              description={project.description}
+              platform={project.platform}
+              recruitments={project.recruitments}
             />
           </Dialog.Content>
         )}

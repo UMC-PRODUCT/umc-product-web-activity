@@ -24,8 +24,8 @@ const ProjectListCard = ({ project, period, onClick }: ProjectListCardProps) => 
   return (
     // 피그마 Project Card/Animation: hover하면 카드가 4px 위로 올라가며 teal 테두리 + 그림자 (0.3s)
     // 카드가 움직여도 hover 영역이 흔들리지 않게 안 움직이는 바깥 래퍼에서 hover를 받음
-    <div className="group pt-1">
-      <article className="relative flex flex-col overflow-hidden rounded-xl bg-white shadow-drop-neutral-2 transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.5,0,0.5,1)] group-focus-within:-translate-y-1 group-focus-within:shadow-[0_0_16px_0_#b3e5e180] group-focus-within:ring-2 group-focus-within:ring-teal-200 group-hover:-translate-y-1 group-hover:shadow-[0_0_16px_0_#b3e5e180] group-hover:ring-2 group-hover:ring-teal-200 motion-reduce:transition-none">
+    <div className="group flex flex-col pt-1">
+      <article className="relative flex flex-1 flex-col overflow-hidden rounded-xl bg-white shadow-drop-neutral-2 transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.5,0,0.5,1)] group-focus-within:-translate-y-1 group-focus-within:shadow-[0_0_16px_0_#b3e5e180] group-focus-within:ring-2 group-focus-within:ring-teal-200 group-hover:-translate-y-1 group-hover:shadow-[0_0_16px_0_#b3e5e180] group-hover:ring-2 group-hover:ring-teal-200 motion-reduce:transition-none">
         {/* 카드 안에 목록 · 제목이 있어 button으로 감쌀 수 없어서 카드 전체를 덮는 버튼을 둠 */}
         <button
           type="button"
