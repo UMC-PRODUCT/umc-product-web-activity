@@ -102,9 +102,14 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
     ? getCurrentMatchingStep(schedules.PLAN_DESIGN.setting, new Date())
     : null;
   const peStep = schedules ? getCurrentMatchingStep(schedules.PLAN_PE.setting, new Date()) : null;
+  const isBeforeStart =
+    (designStep === null || designStep.status === 'BEFORE_START') &&
+    (peStep === null || peStep.status === 'BEFORE_START');
+
   const isApplicationPeriod =
     (designStep?.status === 'ONGOING' && designStep.phase === 'APPLY') ||
     (peStep?.status === 'ONGOING' && peStep.phase === 'APPLY');
+
   const isMatchingPeriod =
     (designStep?.status === 'ONGOING' && designStep.phase === 'MATCHING') ||
     (peStep?.status === 'ONGOING' && peStep.phase === 'MATCHING');
@@ -238,7 +243,7 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
                   project={project}
                   role={role}
                   isPmChallenger
-                  isMatchingPeriod={isMatchingPeriod}
+                  isBeforeStart={isBeforeStart}
                   onCardClick={() => setSelectedProject(project)}
                   onViewApplications={() =>
                     navigate({ to: '/demo-day/team-matching/applications' })
@@ -264,8 +269,8 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
                             <ProjectManagementCard
                               project={project}
                               role={role}
+                              isBeforeStart={isBeforeStart}
                               isApplicationPeriod={isApplicationPeriod}
-                              isMatchingPeriod={isMatchingPeriod}
                               onCardClick={() => setSelectedProject(project)}
                               onViewApplications={() =>
                                 navigate({ to: '/demo-day/team-matching/applications' })
@@ -293,8 +298,8 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
                             <ProjectManagementCard
                               project={project}
                               role={role}
+                              isBeforeStart={isBeforeStart}
                               isApplicationPeriod={isApplicationPeriod}
-                              isMatchingPeriod={isMatchingPeriod}
                               onCardClick={() => setSelectedProject(project)}
                               onViewApplications={() =>
                                 navigate({ to: '/demo-day/team-matching/applications' })
