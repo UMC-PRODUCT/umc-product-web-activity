@@ -250,6 +250,7 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
                   role={role}
                   isPmChallenger
                   isBeforeStart={isBeforeStart}
+                  isApplicationPeriod={isApplicationPeriod}
                   onCardClick={() => setSelectedProject(project)}
                   onViewApplications={() =>
                     navigate({
