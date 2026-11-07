@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { InfoIcon } from '@umc-product/icons';
 import {
   Button,
   Dialog,
@@ -7,7 +8,7 @@ import {
   SegmentedControl,
   type SelectOption,
 } from '@umc-product/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
 import { useChapters } from '@/entities/chapter';
@@ -42,7 +43,12 @@ const initDraftFromProjects = (projects: ProjectRow[]): DraftValues =>
     ]),
   );
 
-const QuotaPage = () => {
+type QuotaPageProps = {
+  initialChapterId?: number;
+  onChapterChange?: (chapterId: number) => void;
+};
+
+const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
   const hasFullAccess = useProjectSettingsAccess() === 'FULL';
   const gisuId = useSessionStore((s) => s.session.gisuId);
   const role = useSessionStore((s) => s.session.role);
@@ -51,11 +57,18 @@ const QuotaPage = () => {
 
   // 지부 선택
   const [selectedChapterId, setSelectedChapterId] = useState<number | undefined>(
-    isChapterLeader ? (serverChapterId ?? undefined) : undefined,
+    initialChapterId ?? (isChapterLeader ? (serverChapterId ?? undefined) : undefined),
   );
 
   const { data: chaptersData } = useChapters(gisuId ?? null);
   const chapterId = selectedChapterId ?? chaptersData?.[0]?.id;
+
+  const hasSetDefault = useRef(false);
+  useEffect(() => {
+    if (initialChapterId !== undefined || hasSetDefault.current || chapterId === undefined) return;
+    hasSetDefault.current = true;
+    onChapterChange?.(chapterId);
+  }, [chapterId, initialChapterId, onChapterChange]);
 
   // 지부장은 본인 지부만 수정 가능, 타 지부는 조회만 가능
   const canEdit = hasFullAccess && (!isChapterLeader || chapterId === serverChapterId);
@@ -91,7 +104,7 @@ const QuotaPage = () => {
   const toast = useAppToast();
   const queryClient = useQueryClient();
 
-  const { mutate: saveMutate, isPending: isSaving } = useMutation({
+  const { mutate: saveMutate, isPending } = useMutation({
     mutationFn: ({
       isUnder: _,
       skipToast: __,
@@ -118,7 +131,10 @@ const QuotaPage = () => {
 
   const schoolOptions: SelectOption[] = (data?.schools ?? []).map((s) => ({
     value: String(s.schoolId!),
-    label: s.schoolName ?? '',
+    label: (s.schoolName ?? '')
+      .replace('여자대학교', '여대')
+      .replace('외국어대학교', '외대')
+      .replace('학교', ''),
   }));
 
   // 집계
@@ -239,7 +255,11 @@ const QuotaPage = () => {
             aria-label="지부 선택"
             items={chapterItems}
             value={String(chapterId ?? '')}
-            onValueChange={(v) => setSelectedChapterId(Number(v))}
+            onValueChange={(v) => {
+              const nextId = Number(v);
+              setSelectedChapterId(nextId);
+              onChapterChange?.(nextId);
+            }}
             className="[&_[role=radio]:not([data-checked])]:text-teal-600"
           />
 
@@ -287,11 +307,23 @@ const QuotaPage = () => {
                       color="white"
                       size="sm"
                       onClick={() => setResetConfirmOpen(true)}
-                      className="text-teal-grey-900 [--umc-button-border-pressed:var(--umc-color-teal-grey-300)] [--umc-button-border:var(--umc-color-teal-grey-300)]"
+                      isLoading={isPending}
+                      className={
+                        isPending || allColumnsLocked
+                          ? 'h-11'
+                          : 'h-11 text-teal-grey-900 [--umc-button-border-pressed:var(--umc-color-teal-grey-300)] [--umc-button-border:var(--umc-color-teal-grey-300)]'
+                      }
+                      disabled={allColumnsLocked}
                     >
                       초기화
                     </Button>
-                    <Button size="sm" disabled={isSaving || allColumnsLocked} onClick={handleSave}>
+                    <Button
+                      size="sm"
+                      className="h-11"
+                      disabled={allColumnsLocked}
+                      isLoading={isPending}
+                      onClick={handleSave}
+                    >
                       저장
                     </Button>
                   </>
@@ -377,6 +409,13 @@ const QuotaPage = () => {
               </div>
             </div>
           </section>
+        </div>
+        <div className="flex items-center gap-1">
+          <InfoIcon size={20} color="gray" />
+          <p className="text-neutral-weak-500">
+            TO 합계는 각 프로젝트에 입력한 TO를 파트별로 더한 값이에요. 표 상단의{' '}
+            <span className="underline">파트별 인원과 TO 합계가 같도록</span> TO를 입력해 주세요.
+          </p>
         </div>
       </main>
 
