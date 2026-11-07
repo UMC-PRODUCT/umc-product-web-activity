@@ -213,7 +213,7 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
             <Button
               size="sm"
               className="ml-auto h-11 shrink-0"
-              disabled={role === 'HQ_ADMIN'}
+              disabled={role === 'HQ_ADMIN' || !isBeforeStart}
               onClick={() =>
                 navigate({
                   to: '/demo-day/project-settings/projects/new',
