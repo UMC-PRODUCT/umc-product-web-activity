@@ -65,7 +65,12 @@ const EmptyState = ({
   </div>
 );
 
-const ProjectsPage = () => {
+type ProjectsPageProps = {
+  initialChapterId?: number;
+  onChapterChange?: (chapterId: number) => void;
+};
+
+const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) => {
   const role = useSessionStore((state) => state.session.role);
   const view = useSessionStore((state) => state.view);
   const ownChapterId = useSessionStore((state) => state.session.serverChapterId);
@@ -73,9 +78,18 @@ const ProjectsPage = () => {
   const { data: allChapters = [] } = useChapters(gisuId);
   const isChapterLeader = role === 'CHAPTER_ADMIN';
   const [selectedChapterId, setSelectedChapterId] = useState<number | null>(
-    isChapterLeader ? ownChapterId : null,
+    initialChapterId ?? (isChapterLeader ? ownChapterId : null),
   );
   const chapterId = selectedChapterId ?? allChapters[0]?.id ?? null;
+
+  // URL에 chapterId가 없을 때 chapters가 로드되면 첫 번째 지부 ID를 URL에 반영
+  const hasSetDefault = useRef(false);
+  useEffect(() => {
+    if (initialChapterId !== undefined || hasSetDefault.current || chapterId === null) return;
+    hasSetDefault.current = true;
+    onChapterChange?.(chapterId);
+  }, [chapterId, initialChapterId, onChapterChange]);
+
   const [selectedProject, setSelectedProject] = useState<ManagedProject | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ManagedProject | null>(null);
   const [deletedProjectIds, setDeletedProjectIds] = useState<string[]>([]);
@@ -177,7 +191,9 @@ const ProjectsPage = () => {
                   toast.show('소속 지부의 프로젝트만 볼 수 있어요', { color: 'error' });
                   return;
                 }
-                setSelectedChapterId(Number(v));
+                const nextId = Number(v);
+                setSelectedChapterId(nextId);
+                onChapterChange?.(nextId);
               }}
               className="[&_[role=radio]:not([data-checked])]:text-teal-600"
             />
