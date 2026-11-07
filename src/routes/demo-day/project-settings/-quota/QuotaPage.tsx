@@ -239,15 +239,21 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
       })
       .filter((p): p is NonNullable<typeof p> => p !== null);
 
-    if (changedProjects.length === 0) return;
+    if (changedProjects.length === 0) {
+      toast.show('프로젝트 전체 TO가 초기화되었어요.', { color: 'neutral' });
+      return;
+    }
 
-    saveMutate({
-      isUnder: false,
-      skipToast: true,
-      gisuId: gisuId ?? 0,
-      chapterId: Number(data.chapterId),
-      projects: changedProjects,
-    });
+    saveMutate(
+      {
+        isUnder: false,
+        skipToast: true,
+        gisuId: gisuId ?? 0,
+        chapterId: Number(data.chapterId),
+        projects: changedProjects,
+      },
+      { onSuccess: () => toast.show('프로젝트 전체 TO가 초기화되었어요.', { color: 'neutral' }) },
+    );
   };
 
   return (
