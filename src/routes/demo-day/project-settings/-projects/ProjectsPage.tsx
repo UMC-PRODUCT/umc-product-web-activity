@@ -96,12 +96,11 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
   const toast = useAppToast();
   const queryClient = useQueryClient();
 
+  const [now] = useState(() => new Date());
   const { data: rounds } = useMatchingRounds(chapterId ?? undefined);
   const schedules = rounds ? toScheduleByTrack(rounds) : null;
-  const designStep = schedules
-    ? getCurrentMatchingStep(schedules.PLAN_DESIGN.setting, new Date())
-    : null;
-  const peStep = schedules ? getCurrentMatchingStep(schedules.PLAN_PE.setting, new Date()) : null;
+  const designStep = schedules ? getCurrentMatchingStep(schedules.PLAN_DESIGN.setting, now) : null;
+  const peStep = schedules ? getCurrentMatchingStep(schedules.PLAN_PE.setting, now) : null;
   const isBeforeStart =
     (designStep === null || designStep.status === 'BEFORE_START') &&
     (peStep === null || peStep.status === 'BEFORE_START');
