@@ -146,7 +146,7 @@ const ProjectManagementCard = ({
                 {statusTag.label}
               </Tag>
             </div>
-            {menuItems && (
+            {menuItems.length > 0 && (
               <div onClick={(e) => e.stopPropagation()}>
                 <Menu
                   trigger={
