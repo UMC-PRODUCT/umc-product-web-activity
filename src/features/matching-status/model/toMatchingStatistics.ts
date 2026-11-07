@@ -1,4 +1,5 @@
 import { toCount } from '@/shared/api/toId';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 
 import type { ChapterMatchingStatisticsResponse } from '../api/getChapterMatchingStatistics';
 import type {
@@ -86,7 +87,13 @@ export const toSchoolMatchings = ({
 }: ChapterMatchingStatisticsResponse): SchoolMatching[] =>
   schoolMatchingStatistics.flatMap(({ schoolName, matchedMemberCount, totalMemberCount }) =>
     schoolName
-      ? [{ schoolName, matched: toCount(matchedMemberCount), total: toCount(totalMemberCount) }]
+      ? [
+          {
+            schoolName: formatSchoolName(schoolName),
+            matched: toCount(matchedMemberCount),
+            total: toCount(totalMemberCount),
+          },
+        ]
       : [],
   );
 

@@ -131,6 +131,10 @@ const ProjectDetailModal = ({ project, period, actions, onClose }: ProjectDetail
               open={teamPanelOpen}
               onOpenChange={setTeamPanelOpen}
               recruitments={project.recruitments}
+              // 1차 매칭 기간 이후: 매칭 기간이거나 2차 이상의 지원 기간
+              hasMatchingStarted={
+                period.phase === 'MATCHING' || (period.phase === 'APPLY' && period.round >= 2)
+              }
             />
             <Dialog.Root open={recruitmentFormOpen} onOpenChange={setRecruitmentFormOpen}>
               <Dialog.Portal>

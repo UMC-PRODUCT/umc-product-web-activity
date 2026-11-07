@@ -232,14 +232,14 @@ const ProjectRegisterPage = ({
         description="내 프로젝트에 대한 정보를 등록하고 모집 폼을 작성해요."
       />
       <div className="flex w-full max-w-[1158px] flex-col gap-8">
-        {/* 지나온 단계는 탭을 눌러 돌아갈 수 있음. PM은 기본 정보에서도 모집 정보 · 지원 문항 탭으로 바로 이동할 수 있음 */}
+        {/* 기본 정보 · 모집 정보 · 지원 문항 탭을 눌러 바로 이동할 수 있음 */}
         <div
           onClick={(event) => {
             const item = (event.target as HTMLElement).closest('li');
             if (!item || busy) return;
             const target = Array.from(item.parentElement?.children ?? []).indexOf(item) + 1;
-            // PM은 모집 정보 · 지원 문항 탭으로 바로 이동 가능 (제출 시 필수 항목은 다시 검증함)
-            if (target < step || !isAdmin) setStep(target);
+            // 모든 탭으로 바로 이동 가능 (제출 시 필수 항목은 다시 검증함)
+            setStep(target);
           }}
         >
           <StepNavigation

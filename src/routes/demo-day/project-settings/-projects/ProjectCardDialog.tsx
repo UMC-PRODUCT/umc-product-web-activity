@@ -149,6 +149,7 @@ type ProjectCardDialogProps = {
   view: View;
   isApplicationPeriod: boolean;
   isMatchingPeriod: boolean;
+  hasMatchingStarted: boolean; // 1차 매칭 기간 이후 (매칭 기간이거나 2차 이상의 지원 기간)
   onClose: () => void;
 };
 
@@ -158,6 +159,7 @@ const ProjectCardDialog = ({
   view,
   isApplicationPeriod,
   isMatchingPeriod,
+  hasMatchingStarted,
   onClose,
 }: ProjectCardDialogProps) => {
   const [teamPanelOpen, setTeamPanelOpen] = useState(false);
@@ -234,6 +236,7 @@ const ProjectCardDialog = ({
               open={teamPanelOpen}
               onOpenChange={setTeamPanelOpen}
               recruitments={teamRecruitments}
+              hasMatchingStarted={hasMatchingStarted}
             />
             <RecruitmentFormPreviewModal
               open={recruitmentFormOpen}

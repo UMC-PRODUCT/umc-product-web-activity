@@ -25,6 +25,7 @@ import {
   savePartQuotas,
   type SavePartQuotasRequest,
 } from '@/features/project-quota/api/savePartQuotas';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 import SelectDropdown from '@/widgets/filterDropdownGroup/SelectDropdown';
 import SearchBar from '@/widgets/searchBar/SearchBar';
 import { useAppToast } from '@/widgets/toast';
@@ -141,10 +142,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
 
   const schoolOptions: SelectOption[] = (data?.schools ?? []).map((s) => ({
     value: String(s.schoolId!),
-    label: (s.schoolName ?? '')
-      .replace('여자대학교', '여대')
-      .replace('외국어대학교', '외대')
-      .replace('학교', ''),
+    label: formatSchoolName(s.schoolName),
   }));
 
   // 집계

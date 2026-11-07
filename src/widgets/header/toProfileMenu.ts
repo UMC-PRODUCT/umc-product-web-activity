@@ -6,6 +6,7 @@ import type {
 
 import { type MyInfoResponse, type Role } from '@/entities/session';
 import { toId } from '@/shared/api/toId';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 
 // 피그마 Web/Header/Profile Menu의 역할 태그
 const ROLE_TAG: Record<Role, HeaderProfileMenuRole> = {
@@ -87,7 +88,7 @@ export const toProfileMenu = (
     profile: {
       nickname: myInfo.nickname ?? '-',
       name: myInfo.name ?? '-',
-      school: myInfo.schoolName ?? '',
+      school: formatSchoolName(myInfo.schoolName),
       role: getRoleTag(myInfo, role),
       imageSrc: myInfo.profileImageLink || undefined,
     },

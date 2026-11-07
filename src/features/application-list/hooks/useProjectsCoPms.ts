@@ -3,6 +3,7 @@ import { keepPreviousData, skipToken, useQuery } from '@tanstack/react-query';
 import { getProjectsMembers } from '@/entities/project';
 import { toId } from '@/shared/api/toId';
 import { formatPersonName } from '@/shared/lib/formatPersonName';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 
 import type { ProjectCoPm } from '../model/types';
 
@@ -23,7 +24,7 @@ export const useProjectsCoPms = (projectIds: number[]) =>
           projectId,
           coProductOwners.map(({ nickname, name, schoolName }) => ({
             challengerName: formatPersonName({ nickname, name }),
-            schoolName: schoolName ?? '',
+            schoolName: formatSchoolName(schoolName),
           })),
         );
       }

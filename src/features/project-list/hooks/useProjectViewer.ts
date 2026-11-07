@@ -32,7 +32,10 @@ export const useProjectViewer = (session: Pick<Session, 'gisuId'>, view: View): 
   });
 
   const part = myInfo?.currentGisuMemberInfo?.challenger?.part;
-  const appliedId = applications?.find(({ status }) => status === 'SUBMITTED')?.projectId;
+  // 서버가 지원 상태(status)를 null로 주는 경우가 있어, 내 지원 현황처럼 제출됨(SUBMITTED)과 상태 없음을 지원한 것으로 봄
+  const appliedId = applications?.find(
+    ({ status }) => !status || status === 'SUBMITTED',
+  )?.projectId;
   const myProjectId = toId(managed?.content?.[0]?.id);
 
   return {

@@ -2,6 +2,7 @@ import { skipToken, useQuery } from '@tanstack/react-query';
 
 import { toId } from '@/shared/api/toId';
 import { formatPersonName } from '@/shared/lib/formatPersonName';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 
 import { getMatchingCandidates } from '../api/getMatchingCandidates';
 import { SERVER_PART } from '../model/serverPart';
@@ -37,7 +38,7 @@ export const useMatchingCandidates = (target: CandidatesTarget | null, keyword: 
           {
             memberId: id,
             challengerName: formatPersonName({ nickname, name }),
-            schoolName: schoolName ?? '',
+            schoolName: formatSchoolName(schoolName),
             part: target.part,
           },
         ];

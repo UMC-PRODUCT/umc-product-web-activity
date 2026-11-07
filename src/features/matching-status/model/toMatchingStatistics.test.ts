@@ -14,7 +14,7 @@ const statistics = {
     { phase: 'SECOND', matchedMemberCount: '2', availableMemberCount: '22' },
   ],
   schoolMatchingStatistics: [
-    { schoolId: '2', schoolName: '가톨릭대학교', matchedMemberCount: '6', totalMemberCount: '20' },
+    { schoolId: '2', schoolName: '가톨릭대', matchedMemberCount: '6', totalMemberCount: '20' },
     { schoolId: '999', matchedMemberCount: '1', totalMemberCount: '1' },
   ],
   projectMatchingStatistics: [
@@ -77,7 +77,7 @@ describe('toChapterMatchingRate', () => {
 describe('toSchoolMatchings', () => {
   it('학교 이름이 없는 학교는 뺀다', () => {
     expect(toSchoolMatchings(statistics)).toEqual([
-      { schoolName: '가톨릭대학교', matched: 6, total: 20 },
+      { schoolName: '가톨릭대', matched: 6, total: 20 },
     ]);
   });
 });

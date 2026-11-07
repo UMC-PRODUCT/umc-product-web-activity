@@ -1,5 +1,6 @@
 import { toCount, toId } from '@/shared/api/toId';
 import { formatPersonName } from '@/shared/lib/formatPersonName';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 
 import type { MatchingOverviewResponse } from '../api/getMatchingOverview';
 import type {
@@ -39,7 +40,7 @@ const toMember = (member: OverviewMember): MatchedMember | null => {
   return {
     memberId,
     challengerName: formatPersonName(member),
-    schoolName: member.schoolName ?? '',
+    schoolName: formatSchoolName(member.schoolName),
     // 지원 없이 수동 배정되면 매칭 차수가 없음 → 랜덤 매칭과 같이 R로 표시
     round: phase ? ROUND_KEY[phase] : 'RANDOM',
     matchedAt: null,
@@ -61,7 +62,7 @@ const toProjectResult = ({
     projectId: id,
     projectName: projectName ?? '',
     pmName: formatPersonName(productOwner),
-    pmSchoolName: productOwner?.schoolName ?? '',
+    pmSchoolName: formatSchoolName(productOwner?.schoolName),
     recruiting: partQuotaStatus === 'RECRUITING',
     parts: parts.flatMap(({ part, quota, members = [] }): PartMatching[] => {
       const matching = part && MATCHING_PART[part];

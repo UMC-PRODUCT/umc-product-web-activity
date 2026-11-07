@@ -1,4 +1,5 @@
 import { toCount } from '@/shared/api/toId';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 
 import type { ApplicationStatisticsResponse } from '../api/getApplicationStatistics';
 import type {
@@ -107,7 +108,7 @@ export const toTotalApplicants = (
     ({ schoolName, totalMemberCount, rounds }) => {
       const counts = countByRound(rounds);
       return {
-        schoolName: schoolName ?? '',
+        schoolName: formatSchoolName(schoolName),
         eligibleCount: toCount(totalMemberCount),
         rounds: ROUNDS.map((round) => ({
           round,

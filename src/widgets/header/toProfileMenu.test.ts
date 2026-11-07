@@ -20,7 +20,7 @@ describe('toProfileMenu', () => {
     expect(toProfileMenu(MY_INFO, 'CHAPTER_ADMIN').profile).toEqual({
       nickname: '솔',
       name: '박은솔',
-      school: '가천대학교',
+      school: '가천대',
       role: { label: '지부장', color: 'chapter' },
       imageSrc: undefined,
     });
