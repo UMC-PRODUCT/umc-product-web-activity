@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { InfoIcon } from '@umc-product/icons';
 import {
   Button,
   Dialog,
@@ -377,6 +378,13 @@ const QuotaPage = () => {
               </div>
             </div>
           </section>
+        </div>
+        <div className="flex items-center gap-1">
+          <InfoIcon size={20} color="gray" />
+          <p className="text-neutral-weak-500">
+            TO 합계는 각 프로젝트에 입력한 TO를 파트별로 더한 값이에요. 표 상단의{' '}
+            <span className="underline">파트별 인원과 TO 합계가 같도록</span> TO를 입력해 주세요.
+          </p>
         </div>
       </main>
 
