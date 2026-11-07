@@ -4,6 +4,7 @@ export { calculateSchedule, isScheduleLocked } from './model/calculateSchedule';
 export { findApplyRoundId } from './model/findApplyRoundId';
 export { getCurrentMatchingStep, type MatchingStep } from './model/getCurrentMatchingStep';
 export { getDecisionOpenRoundIds } from './model/getDecisionOpenRoundIds';
+export { getMatchingStepFromRounds } from './model/getMatchingStepFromRounds';
 export { getOpenRoundIds } from './model/getOpenRoundIds';
 export { isValidTime, parseDate } from './model/scheduleFormat';
 export {

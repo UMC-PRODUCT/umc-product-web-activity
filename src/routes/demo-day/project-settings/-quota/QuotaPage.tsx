@@ -113,7 +113,11 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
     onSuccess: (_, { isUnder, skipToast }) => {
       setSaved(draft);
       setEditingCell(null);
-      if (!skipToast) toast.show(isUnder ? '정해진 인원보다 적게 배정되었어요' : '저장되었어요');
+      if (!skipToast)
+        toast.show(
+          isUnder ? '임시 저장 됐어요. 현재 파트 인원보다 TO가 적어요.' : '저장되었어요',
+          isUnder ? { color: 'neutral' } : undefined,
+        );
       queryClient.invalidateQueries({ queryKey: ['part-quotas'] });
       // 프로젝트 수정/상세 화면에 TO 변경이 반영되도록 관련 캐시도 무효화
       queryClient.invalidateQueries({ queryKey: ['project'] });
@@ -173,7 +177,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
 
     const isPartOver = columns.some((col) => partTotal(col.part!) > partQuota(col.part!));
     if (isPartOver) {
-      toast.show('정해진 인원보다 많이 배정되었어요', { color: 'error' });
+      toast.show('파트 인원보다 TO가 많아요. 초과한 파트의 TO를 줄여 주세요.', { color: 'error' });
       return;
     }
 
@@ -235,15 +239,21 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
       })
       .filter((p): p is NonNullable<typeof p> => p !== null);
 
-    if (changedProjects.length === 0) return;
+    if (changedProjects.length === 0) {
+      toast.show('프로젝트 전체 TO가 초기화되었어요.', { color: 'neutral' });
+      return;
+    }
 
-    saveMutate({
-      isUnder: false,
-      skipToast: true,
-      gisuId: gisuId ?? 0,
-      chapterId: Number(data.chapterId),
-      projects: changedProjects,
-    });
+    saveMutate(
+      {
+        isUnder: false,
+        skipToast: true,
+        gisuId: gisuId ?? 0,
+        chapterId: Number(data.chapterId),
+        projects: changedProjects,
+      },
+      { onSuccess: () => toast.show('프로젝트 전체 TO가 초기화되었어요.', { color: 'neutral' }) },
+    );
   };
 
   return (
@@ -264,6 +274,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
             onValueChange={(v) => {
               const nextId = Number(v);
               setSelectedChapterId(nextId);
+              setSchoolIds([]);
               onChapterChange?.(nextId);
             }}
             className="[&_[role=radio]:not([data-checked])]:text-teal-600"
