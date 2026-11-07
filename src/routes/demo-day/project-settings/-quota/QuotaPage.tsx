@@ -8,7 +8,7 @@ import {
   SegmentedControl,
   type SelectOption,
 } from '@umc-product/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
 import { useChapters } from '@/entities/chapter';
@@ -43,7 +43,12 @@ const initDraftFromProjects = (projects: ProjectRow[]): DraftValues =>
     ]),
   );
 
-const QuotaPage = () => {
+type QuotaPageProps = {
+  initialChapterId?: number;
+  onChapterChange?: (chapterId: number) => void;
+};
+
+const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
   const hasFullAccess = useProjectSettingsAccess() === 'FULL';
   const gisuId = useSessionStore((s) => s.session.gisuId);
   const role = useSessionStore((s) => s.session.role);
@@ -52,11 +57,18 @@ const QuotaPage = () => {
 
   // 지부 선택
   const [selectedChapterId, setSelectedChapterId] = useState<number | undefined>(
-    isChapterLeader ? (serverChapterId ?? undefined) : undefined,
+    initialChapterId ?? (isChapterLeader ? (serverChapterId ?? undefined) : undefined),
   );
 
   const { data: chaptersData } = useChapters(gisuId ?? null);
   const chapterId = selectedChapterId ?? chaptersData?.[0]?.id;
+
+  const hasSetDefault = useRef(false);
+  useEffect(() => {
+    if (initialChapterId !== undefined || hasSetDefault.current || chapterId === undefined) return;
+    hasSetDefault.current = true;
+    onChapterChange?.(chapterId);
+  }, [chapterId, initialChapterId, onChapterChange]);
 
   // 지부장은 본인 지부만 수정 가능, 타 지부는 조회만 가능
   const canEdit = hasFullAccess && (!isChapterLeader || chapterId === serverChapterId);
@@ -243,7 +255,11 @@ const QuotaPage = () => {
             aria-label="지부 선택"
             items={chapterItems}
             value={String(chapterId ?? '')}
-            onValueChange={(v) => setSelectedChapterId(Number(v))}
+            onValueChange={(v) => {
+              const nextId = Number(v);
+              setSelectedChapterId(nextId);
+              onChapterChange?.(nextId);
+            }}
             className="[&_[role=radio]:not([data-checked])]:text-teal-600"
           />
 
