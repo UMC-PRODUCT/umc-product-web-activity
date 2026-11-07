@@ -13,6 +13,8 @@ type NoticeListProps = {
   // 넘기면 펼친 공지 아래에 수정·삭제 버튼이 나타난다 (권한이 있는 운영진)
   onEdit?: (notice: Notice) => void;
   onDelete?: (notice: Notice) => void;
+  // 공지마다 수정·삭제 버튼을 보일지 (기본은 모두 보임). 예: 지부장은 본인이 쓴 공지만
+  canModify?: (notice: Notice) => boolean;
   // 수정 중인 공지는 목록 안에서 편집 화면으로 바뀌고, 카드 맨 위에 돌아가기 버튼이 붙는다
   editingId?: string | null;
   renderEditor?: (notice: Notice) => ReactNode;
@@ -24,6 +26,7 @@ const NoticeList = ({
   notices,
   onEdit,
   onDelete,
+  canModify = () => true,
   editingId = null,
   renderEditor,
   onCancelEdit,
@@ -76,8 +79,8 @@ const NoticeList = ({
                   weak={activeId !== null && activeId !== notice.id}
                   showDivider={index > 0}
                   onToggle={() => setOpenId(activeId === notice.id ? null : notice.id)}
-                  onEdit={onEdit && (() => onEdit(notice))}
-                  onDelete={onDelete && (() => onDelete(notice))}
+                  onEdit={onEdit && canModify(notice) ? () => onEdit(notice) : undefined}
+                  onDelete={onDelete && canModify(notice) ? () => onDelete(notice) : undefined}
                 />
               )}
             </Fragment>

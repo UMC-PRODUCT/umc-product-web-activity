@@ -14,6 +14,7 @@ export const useSaveProject = () => {
       void queryClient.invalidateQueries({ queryKey: ['project'] });
       void queryClient.invalidateQueries({ queryKey: ['application-form'] });
       void queryClient.invalidateQueries({ queryKey: ['managed-projects'] });
+      void queryClient.invalidateQueries({ queryKey: ['part-quotas'] });
       void queryClient.invalidateQueries({ queryKey: ['project-edit', projectId] });
     },
   });

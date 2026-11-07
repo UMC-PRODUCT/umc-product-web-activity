@@ -78,10 +78,9 @@ const getChallengerPrimaryAction = ({
   }
   if (viewer.isMatched) return null;
 
+  // 지원한 프로젝트의 지원서는 매칭 기간에도 열람 가능 (수정은 지원 기간에만, 내 지원 현황에서 막음)
   if (viewer.appliedProjectId === project.projectId) {
-    return period.phase === 'APPLY'
-      ? enabled('MY_APPLICATION', '내 지원서 보기')
-      : disabled('MY_APPLICATION', '내 지원서 보기', NOTICE_NOT_APPLY_PERIOD);
+    return enabled('MY_APPLICATION', '내 지원서 보기');
   }
 
   const myPart = project.recruitments.find(({ part }) => part === viewer.challengerPart);

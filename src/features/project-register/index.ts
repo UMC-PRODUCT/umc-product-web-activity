@@ -14,3 +14,4 @@ export type { PePlatform, ProjectDraft, RecruitInfo } from './model/types';
 export { default as BasicInfoStep } from './ui/BasicInfoStep';
 export { default as QuestionStep } from './ui/QuestionStep';
 export { default as RecruitInfoStep } from './ui/RecruitInfoStep';
+export { default as RecruitmentFormPreviewSheet } from './ui/RecruitmentFormPreviewSheet';

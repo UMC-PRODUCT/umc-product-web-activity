@@ -115,6 +115,12 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
       setEditingCell(null);
       if (!skipToast) toast.show(isUnder ? '정해진 인원보다 적게 배정되었어요' : '저장되었어요');
       queryClient.invalidateQueries({ queryKey: ['part-quotas'] });
+      // 프로젝트 수정/상세 화면에 TO 변경이 반영되도록 관련 캐시도 무효화
+      queryClient.invalidateQueries({ queryKey: ['project'] });
+      queryClient.invalidateQueries({ queryKey: ['project-edit'] });
+      queryClient.invalidateQueries({ queryKey: ['project-draft'] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['managed-projects'] });
     },
     onError: (error: Error) => {
       toast.show(error.message, { color: 'error' });

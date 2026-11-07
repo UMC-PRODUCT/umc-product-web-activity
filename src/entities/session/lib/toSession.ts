@@ -33,6 +33,7 @@ export type ServerSession = Omit<Session, 'chapterId'> & { chapterName: string |
 // - 소속 지부: challengerHistory 중 현재 기수(currentGisuMemberInfo.gisuId) 기록의 지부
 // - PM: 파트가 PLAN인 챌린저
 export const toSession = ({
+  id,
   isSuperAdmin,
   currentGisuMemberInfo,
   challengerHistory,
@@ -67,6 +68,7 @@ export const toSession = ({
     role,
     challengerType,
     serverChapterId: toId(currentRecord?.chapterId),
+    memberId: toId(id),
     gisuId,
     chapterName: currentRecord?.chapterName ?? null,
   };

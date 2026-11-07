@@ -9,6 +9,7 @@ export type Notice = {
   content: string;
   createdAt: string; // YYYY-MM-DD
   required: boolean; // 필독 공지
+  authorMemberId?: number | null; // 작성자 회원 ID (서버 공지만. 지부장은 본인이 쓴 공지만 수정·삭제)
   authorLabel: string; // 목록에 보이는 작성자 (예: '수달 지부장 윰씨/김유앤', 'UMC PRODUCT')
   hardcoded?: boolean; // 프로덕트 팀이 코드로 넣는 공지라 수정·삭제할 수 없다
 };

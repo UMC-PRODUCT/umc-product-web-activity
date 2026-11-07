@@ -132,6 +132,17 @@ export const getProjectRegisterAccess = (role: Role, view: View): ProjectRegiste
   return 'NONE';
 };
 
+// 이미 쓰인 공지를 수정·삭제할 수 있는지. 최고 관리자는 모든 공지, 지부장은 본인이 쓴 공지만
+// (다른 지부장이나 최고 관리자가 쓴 공지는 건드릴 수 없음). 권한 자체는 canManageNotice로 따로 확인
+export const canModifyNotice = (
+  role: Role,
+  ownMemberId: number | null,
+  authorMemberId: number | null | undefined,
+): boolean => {
+  if (role === 'SUPER_ADMIN') return true;
+  return ownMemberId !== null && authorMemberId === ownMemberId;
+};
+
 // 공지 작성·수정·삭제 권한. 최고 관리자는 전 지부, 지부장은 본인 지부만, 총괄단·중앙운영·학교 운영진 등은 불가.
 // 총괄단·중앙운영은 전 지부 공지를 조회만 함 (getChapterScope)
 export const canManageNotice = (
