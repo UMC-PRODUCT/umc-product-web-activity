@@ -12,7 +12,7 @@ const Section06 = () => {
 
   return (
     <section className="min-w-[1440px] bg-[#F6FAF9]">
-      <div className="flex flex-col items-center gap-6 pt-15">
+      <div className="flex flex-col items-center gap-6 pt-[90px]">
         <h3 className="text-[22px] text-brand-default-600">FAQ</h3>
         <h1 className="text-display-2-semibold text-brand-strong-800">자주 묻는 질문</h1>
         <div className="mt-5 flex gap-3.5">
