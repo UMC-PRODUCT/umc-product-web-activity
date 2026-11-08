@@ -1,7 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { AddIcon, WarningTriangleIcon } from '@umc-product/icons';
-import { Button, Dialog, PageHeader, Pagination, SegmentedControl } from '@umc-product/react';
+import {
+  Button,
+  Dialog,
+  PageHeader,
+  Pagination,
+  SegmentedControl,
+  Skeleton,
+} from '@umc-product/react';
 import { useEffect, useRef, useState } from 'react';
 
 import { useChapters } from '@/entities/chapter';
@@ -65,6 +72,26 @@ type ProjectsPageProps = {
   initialChapterId?: number;
   onChapterChange?: (chapterId: number) => void;
 };
+
+const ProjectCardSkeleton = () => (
+  <article className="flex w-full items-center gap-7 rounded-2xl border border-teal-grey-100 bg-white py-2.5 pr-5 pl-2.5 shadow-drop-neutral-2">
+    <Skeleton width={320} height={160} className="shrink-0 rounded-[10px]" />
+    <div className="flex flex-1 flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <Skeleton width={30} height={30} className="shrink-0 rounded-[8px]" />
+          <Skeleton width={180} height={20} className="rounded" />
+          <Skeleton width={60} height={22} className="rounded-full" />
+        </div>
+        <Skeleton width={140} height={16} className="rounded" />
+      </div>
+      <div className="flex flex-col gap-[5px]">
+        <Skeleton width="100%" height={20} className="rounded" />
+        <Skeleton width="100%" height={20} className="rounded" />
+      </div>
+    </div>
+  </article>
+);
 
 const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) => {
   const role = useSessionStore((state) => state.session.role);
@@ -131,7 +158,7 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
     (designStep?.status === 'ONGOING' && designStep.phase === 'MATCHING') ||
     (peStep?.status === 'ONGOING' && peStep.phase === 'MATCHING');
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     ...managedProjectsQueryOptions({
       gisuId: gisuId ?? 0,
       chapterId: isPmChallenger ? (ownChapterId ?? undefined) : (chapterId ?? undefined),
@@ -225,7 +252,15 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
           )}
         </div>
 
-        {projects.length === 0 ? (
+        {isLoading ? (
+          <ul className="flex flex-col gap-[10px]">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <li key={i}>
+                <ProjectCardSkeleton />
+              </li>
+            ))}
+          </ul>
+        ) : projects.length === 0 ? (
           <div className="flex min-h-[400px] w-full items-center justify-center rounded-xl border border-teal-grey-100 bg-white shadow-drop-neutral-3">
             <EmptyState
               showRegisterButton={isPmChallenger}
