@@ -1,3 +1,4 @@
+import { Tooltip } from '@umc-product/react';
 import type { RefObject } from 'react';
 
 import type { components } from '@/types/api';
@@ -36,12 +37,9 @@ const QuotaTableRow = ({
   return (
     <tr className="flex">
       <td className="flex h-[60px] w-[170px] shrink-0 cursor-pointer items-center justify-center overflow-hidden border border-l-0 border-teal-grey-200 bg-fill-neutral-weaker-50 px-3">
-        <span
-          className="truncate text-[18px] leading-[1.4] font-semibold tracking-[-0.18px] text-teal-grey-700"
-          title={project.projectName ?? ''}
-        >
-          {project.projectName}
-        </span>
+        <Tooltip content={project.projectName ?? ''} size="sm" side="bottom" mode="light">
+          <span>{project.projectName}</span>
+        </Tooltip>
       </td>
 
       {columns.map((col) => {
