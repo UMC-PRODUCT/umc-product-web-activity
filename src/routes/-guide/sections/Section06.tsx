@@ -1,18 +1,21 @@
-import { Chip } from '@umc-product/react';
+import { Accordion, AccordionItem, Chip } from '@umc-product/react';
 import { useState } from 'react';
-// import { Accordion, AccordionItem } from "@umc-product/react"
+
+import { FAQ_DATA } from '../data/section06';
 
 const ITEMS = ['PM', 'Challenger', 'Admin'];
 
 const Section06 = () => {
-  const [selected, setSelected] = useState<string | null>(ITEMS[0]);
+  const [selected, setSelected] = useState<string>(ITEMS[0]);
+
+  const faqs = FAQ_DATA[selected] ?? [];
 
   return (
-    <section>
+    <section className="min-w-[1440px] bg-[#F6FAF9]">
       <div className="flex flex-col items-center gap-6 pt-15">
         <h3 className="text-[22px] text-[#02746C]">FAQ</h3>
         <h1 className="text-[40px] font-bold text-brand-strong-800">자주 묻는 질문</h1>
-        <div className="mt-5 flex gap-[14px]">
+        <div className="mt-5 flex gap-3.5">
           {ITEMS.map((item) => (
             <div key={item} className="mb-4">
               <Chip
@@ -28,14 +31,12 @@ const Section06 = () => {
           ))}
         </div>
       </div>
-      <div className="mt-8">
-        {/* <Accordion>
-        <AccordionItem
-            value="about"
-            title="UMC는 어떤 동아리이고, 어떤 활동을 하나요?"
-            body="UMC는 기획, 디자인, 개발 분야의 대학생들이 함께 공부하고 실제 서비스를 만들어보는 전국 단위 IT 연합 동아리예요."
-          />
-      </Accordion> */}
+      <div className="mt-8 mb-30 px-34 3xl:px-90">
+        <Accordion>
+          {faqs.map((faq, index) => (
+            <AccordionItem key={index} value={String(index)} title={faq.title} body={faq.body} />
+          ))}
+        </Accordion>
       </div>
     </section>
   );
