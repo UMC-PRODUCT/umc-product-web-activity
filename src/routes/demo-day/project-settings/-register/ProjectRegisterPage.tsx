@@ -84,6 +84,8 @@ const ProjectRegisterPage = ({
     gisuId,
     chapterId: role === 'CHAPTER_ADMIN' ? serverChapterId : (initialChapterId ?? null),
     enabled: isAdmin,
+    // 마스터는 챌린저 기록이 없을 수 있어 회원 검색이 막힘
+    useChallengerSearch: role === 'SUPER_ADMIN',
   });
   const myPmLabel = `${formatPersonName(myInfo)} · ${formatSchoolName(myInfo?.schoolName)}`;
 
