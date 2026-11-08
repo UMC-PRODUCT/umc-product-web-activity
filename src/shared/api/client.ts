@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 
-import { getAccessToken } from './authToken';
+import { DEV_ACCESS_TOKEN, getAccessToken } from './authToken';
 
 export interface ApiResponse<T> {
   success?: boolean;
@@ -30,7 +30,7 @@ export const apiClient = axios.create({
 
 // 로그인으로 받은 토큰을 붙이고, 없으면 개발용 토큰을 씀
 apiClient.interceptors.request.use((config) => {
-  const token = getAccessToken() ?? import.meta.env.VITE_DEV_ACCESS_TOKEN;
+  const token = getAccessToken() ?? DEV_ACCESS_TOKEN;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });

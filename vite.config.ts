@@ -25,6 +25,9 @@ export default defineConfig({
   resolve: {
     alias: { '@': path.resolve(import.meta.dirname, 'src') },
   },
+  build: {
+    sourcemap: false,
+  },
   test: {
     environment: 'jsdom',
     globals: true,
