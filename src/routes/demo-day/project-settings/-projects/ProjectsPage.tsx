@@ -1,7 +1,14 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { AddIcon, WarningTriangleIcon } from '@umc-product/icons';
-import { Button, Dialog, PageHeader, SegmentedControl } from '@umc-product/react';
+import {
+  Button,
+  Dialog,
+  PageHeader,
+  Pagination,
+  SegmentedControl,
+  Skeleton,
+} from '@umc-product/react';
 import { useEffect, useRef, useState } from 'react';
 
 import { useChapters } from '@/entities/chapter';
@@ -9,7 +16,7 @@ import { getApplicationsView, type Role, useSessionStore, type View } from '@/en
 import { getMatchingStepFromRounds, useMatchingRounds } from '@/features/matching-schedule';
 import { type ManagedProject, ProjectManagementCard } from '@/features/project-management';
 import { deleteProject } from '@/features/project-management/api/deleteProject';
-import { managedProjectsInfiniteQueryOptions } from '@/features/project-management/api/managedProjectsQuery';
+import { managedProjectsQueryOptions } from '@/features/project-management/api/managedProjectsQuery';
 import { cn } from '@/shared/lib/cn';
 import { useAppToast } from '@/widgets/toast';
 
@@ -66,6 +73,26 @@ type ProjectsPageProps = {
   onChapterChange?: (chapterId: number) => void;
 };
 
+const ProjectCardSkeleton = () => (
+  <article className="flex w-full items-center gap-7 rounded-2xl border border-teal-grey-100 bg-white py-2.5 pr-5 pl-2.5 shadow-drop-neutral-2">
+    <Skeleton width={320} height={160} className="shrink-0 rounded-[10px]" />
+    <div className="flex flex-1 flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <Skeleton width={30} height={30} className="shrink-0 rounded-[8px]" />
+          <Skeleton width={180} height={20} className="rounded" />
+          <Skeleton width={60} height={22} className="rounded-full" />
+        </div>
+        <Skeleton width={140} height={16} className="rounded" />
+      </div>
+      <div className="flex flex-col gap-[5px]">
+        <Skeleton width="100%" height={20} className="rounded" />
+        <Skeleton width="100%" height={20} className="rounded" />
+      </div>
+    </div>
+  </article>
+);
+
 const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) => {
   const role = useSessionStore((state) => state.session.role);
   const view = useSessionStore((state) => state.view);
@@ -86,9 +113,9 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
     onChapterChange?.(chapterId);
   }, [chapterId, initialChapterId, onChapterChange]);
 
+  const [page, setPage] = useState(1);
   const [selectedProject, setSelectedProject] = useState<ManagedProject | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ManagedProject | null>(null);
-  const [deletedProjectIds, setDeletedProjectIds] = useState<string[]>([]);
   const toast = useAppToast();
   const queryClient = useQueryClient();
 
@@ -131,35 +158,23 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
     (designStep?.status === 'ONGOING' && designStep.phase === 'MATCHING') ||
     (peStep?.status === 'ONGOING' && peStep.phase === 'MATCHING');
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
-    ...managedProjectsInfiniteQueryOptions({
+  const { data, isLoading } = useQuery({
+    ...managedProjectsQueryOptions({
       gisuId: gisuId ?? 0,
       chapterId: isPmChallenger ? (ownChapterId ?? undefined) : (chapterId ?? undefined),
+      page: page - 1,
+      size: 10,
     }),
     enabled: !!gisuId && (isPmChallenger || chapterId !== null),
   });
-  const allProjects = data?.pages.flatMap((p) => p.projects) ?? [];
-  const projects = allProjects.filter((p) => !deletedProjectIds.includes(p.projectId));
-
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage();
-      },
-      { threshold: 0.1 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  const projects = data?.projects ?? [];
+  const totalPages = data?.totalPages ?? 1;
 
   const { mutate: deleteMutate } = useMutation({
     mutationFn: (projectId: string) => deleteProject(projectId),
-    onSuccess: (_data, projectId) => {
-      setDeletedProjectIds((prev) => [...prev, projectId]);
+    onSuccess: () => {
       setDeleteTarget(null);
+      setPage(1);
       toast.show('프로젝트가 삭제됐어요.', { color: 'error' });
       queryClient.invalidateQueries({ queryKey: ['managed-projects'] });
     },
@@ -211,6 +226,7 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
                 }
                 const nextId = Number(v);
                 setSelectedChapterId(nextId);
+                setPage(1);
                 onChapterChange?.(nextId);
               }}
               className="[&_[role=radio]:not([data-checked])]:text-teal-600"
@@ -236,7 +252,15 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
           )}
         </div>
 
-        {projects.length === 0 ? (
+        {isLoading ? (
+          <ul className="flex flex-col gap-[10px]">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <li key={i}>
+                <ProjectCardSkeleton />
+              </li>
+            ))}
+          </ul>
+        ) : projects.length === 0 ? (
           <div className="flex min-h-[400px] w-full items-center justify-center rounded-xl border border-teal-grey-100 bg-white shadow-drop-neutral-3">
             <EmptyState
               showRegisterButton={isPmChallenger}
@@ -346,7 +370,14 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
             })()}
           </div>
         )}
-        <div ref={sentinelRef} className="h-1" />
+        {totalPages > 1 && (
+          <Pagination
+            className="mt-10 self-center"
+            totalPages={totalPages}
+            page={page}
+            onPageChange={setPage}
+          />
+        )}
       </div>
 
       <ProjectCardDialog

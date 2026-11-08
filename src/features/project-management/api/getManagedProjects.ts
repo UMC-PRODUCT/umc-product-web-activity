@@ -69,6 +69,7 @@ const toManagedProject = (p: ApiProject): ManagedProject => {
 export type ManagedProjectsPage = {
   projects: ManagedProject[];
   nextPage: number | null;
+  totalPages: number;
 };
 
 export const getManagedProjects = async (
@@ -78,5 +79,6 @@ export const getManagedProjects = async (
   return {
     projects: (data.content ?? []).map(toManagedProject),
     nextPage: data.hasNext ? (params.page ?? 0) + 1 : null,
+    totalPages: Number(data.totalPages ?? 1),
   };
 };

@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { InfoIcon } from '@umc-product/icons';
+import { InfoIcon, WarningTriangleIcon } from '@umc-product/icons';
 import {
   Button,
   Dialog,
   PageHeader,
+  SearchField,
   SectionHeader,
   SegmentedControl,
   type SelectOption,
@@ -27,7 +28,6 @@ import {
 } from '@/features/project-quota/api/savePartQuotas';
 import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 import SelectDropdown from '@/widgets/filterDropdownGroup/SelectDropdown';
-import SearchBar from '@/widgets/searchBar/SearchBar';
 import { useAppToast } from '@/widgets/toast';
 
 const BREADCRUMBS = [
@@ -300,9 +300,9 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
             </div>
 
             <div className="flex items-center justify-between">
-              <SearchBar
+              <SearchField
                 value={search}
-                onValueChange={setSearch}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="프로젝트 명으로 검색하세요"
                 className="w-114"
               />
@@ -438,6 +438,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
         open={resetConfirmOpen}
         onOpenChange={(open) => !open && setResetConfirmOpen(false)}
         color="error"
+        icon={<WarningTriangleIcon weight="fill" />}
         title="프로젝트별 TO를 초기화할까요?"
         description="초기화하면 PM을 제외한 Design, Web PE, Mobile PE의 프로젝트 TO가 모두 0으로 변경돼요."
         cancelLabel="취소"

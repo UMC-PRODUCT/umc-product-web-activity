@@ -1,4 +1,4 @@
-import { infiniteQueryOptions } from '@tanstack/react-query';
+import { queryOptions } from '@tanstack/react-query';
 
 import { getManagedProjects } from './getManagedProjects';
 
@@ -10,11 +10,9 @@ type BaseParams = {
   sort?: string[];
 };
 
-export const managedProjectsInfiniteQueryOptions = (params: BaseParams) =>
-  infiniteQueryOptions({
+export const managedProjectsQueryOptions = (params: BaseParams & { page: number }) =>
+  queryOptions({
     queryKey: ['managed-projects', params],
-    queryFn: ({ pageParam }) => getManagedProjects({ ...params, page: pageParam }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
+    queryFn: () => getManagedProjects(params),
     enabled: params.gisuId > 0,
   });
