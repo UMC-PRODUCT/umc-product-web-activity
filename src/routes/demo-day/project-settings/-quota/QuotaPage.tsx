@@ -127,8 +127,8 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['managed-projects'] });
     },
-    onError: (error: Error) => {
-      toast.show(error.message, { color: 'error' });
+    onError: () => {
+      toast.show('TO는 배정 인원(발표 대기 포함) 이상으로 설정해 주세요.', { color: 'error' });
     },
   });
 
