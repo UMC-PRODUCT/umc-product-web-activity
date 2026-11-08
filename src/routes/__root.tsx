@@ -5,7 +5,7 @@ import { LinkProvider } from '@umc-product/react';
 
 import { MOCK_CHAPTERS } from '@/entities/chapter';
 import { myInfoQueryOptions, type Session, toSession, useSessionStore } from '@/entities/session';
-import { clearAuthTokens, getAccessToken } from '@/shared/api/authToken';
+import { clearAuthTokens, DEV_ACCESS_TOKEN, getAccessToken } from '@/shared/api/authToken';
 import { ApiError } from '@/shared/api/client';
 import { RouterLink } from '@/shared/ui/RouterLink';
 import { Header } from '@/widgets/header';
@@ -29,7 +29,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     if (PUBLIC_PATHS.includes(location.pathname)) return;
 
     const toLogin = () => redirect({ to: '/login' });
-    if (!getAccessToken() && !import.meta.env.VITE_DEV_ACCESS_TOKEN) throw toLogin();
+    if (!getAccessToken() && !DEV_ACCESS_TOKEN) throw toLogin();
 
     const myInfo = await context.queryClient
       .ensureQueryData(myInfoQueryOptions)

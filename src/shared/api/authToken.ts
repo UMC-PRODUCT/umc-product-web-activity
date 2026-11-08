@@ -13,6 +13,10 @@ const read = (key: string) => {
 
 export const getAccessToken = () => read(ACCESS_TOKEN_KEY);
 
+export const DEV_ACCESS_TOKEN = import.meta.env.DEV
+  ? import.meta.env.VITE_DEV_ACCESS_TOKEN
+  : undefined;
+
 export const setAuthTokens = ({
   accessToken,
   refreshToken,

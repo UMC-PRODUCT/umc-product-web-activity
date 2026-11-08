@@ -8,6 +8,7 @@ import { createRoot } from 'react-dom/client';
 
 import { routeTree } from '@/routes/routeTree.gen';
 import { ApiError } from '@/shared/api/client';
+import { initAnalytics, trackPageView } from '@/shared/lib/analytics';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +30,9 @@ const queryClient = new QueryClient({
 
 // 루트 라우트 beforeLoad에서 내 정보를 미리 불러올 수 있도록 queryClient를 넘김
 const router = createRouter({ routeTree, context: { queryClient } });
+
+initAnalytics();
+router.subscribe('onResolved', ({ toLocation }) => trackPageView(toLocation.href));
 
 declare module '@tanstack/react-router' {
   interface Register {
