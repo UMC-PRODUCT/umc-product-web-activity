@@ -1,6 +1,7 @@
 import { skipToken, useQuery } from '@tanstack/react-query';
 
 import { formatPersonName } from '@/shared/lib/formatPersonName';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 
 import { getProjectDetail } from '../api/getProjectDetail';
 import { projectKeys } from '../api/queryKeys';
@@ -17,7 +18,7 @@ export const useProjectDetail = (projectId: number | null) =>
       planUrl: externalLink || null, // 기획 보기 링크 (없으면 null)
       coPms: coProductOwners.map(({ nickname, name, schoolName }) => ({
         challengerName: formatPersonName({ nickname, name }),
-        schoolName: schoolName ?? '',
+        schoolName: formatSchoolName(schoolName),
       })),
     }),
   });

@@ -36,7 +36,10 @@ const RecruitmentFormPreviewSheet = ({
   const [step, setStep] = useState<'COMMON' | 'PART'>('COMMON');
 
   const commonSections = sections.filter(({ type }) => type !== 'PART');
-  const partSections = sections.filter(({ type }) => type === 'PART');
+  // 질문이 하나도 없는 파트 섹션은 없는 것으로 봄
+  const partSections = sections.filter(
+    ({ type, questions }) => type === 'PART' && questions.length > 0,
+  );
   const visibleSections = step === 'COMMON' ? commonSections : partSections;
 
   return (
@@ -48,30 +51,30 @@ const RecruitmentFormPreviewSheet = ({
           subtitle={`${pmName} · ${schoolName}`}
         />
       }
+      // 피그마: 본문 위에 비어 있는 24px 액션 줄이 있음
+      action={null}
       description={description}
+      // 공통 문항만 있으면 넘어갈 곳이 없어서 다음 버튼을 두지 않음
       control={
-        <div className="flex flex-1 items-center justify-center gap-3">
-          {step === 'PART' ? (
-            <Button
-              variant="weak"
-              color="neutral"
-              size="lg"
-              className="w-[140px]"
-              onClick={() => setStep('COMMON')}
-            >
-              돌아가기
-            </Button>
-          ) : (
-            <Button
-              size="md"
-              className="ml-auto"
-              disabled={partSections.length === 0}
-              onClick={() => setStep('PART')}
-            >
-              다음
-            </Button>
-          )}
-        </div>
+        partSections.length === 0 ? undefined : (
+          <div className="flex flex-1 items-center justify-center gap-3">
+            {step === 'PART' ? (
+              <Button
+                variant="weak"
+                color="neutral"
+                size="lg"
+                className="w-[140px]"
+                onClick={() => setStep('COMMON')}
+              >
+                돌아가기
+              </Button>
+            ) : (
+              <Button size="md" className="ml-auto" onClick={() => setStep('PART')}>
+                다음
+              </Button>
+            )}
+          </div>
+        )
       }
     >
       <div className="flex flex-col gap-6">
@@ -83,42 +86,43 @@ const RecruitmentFormPreviewSheet = ({
             title={section.title}
             className="[&_.umc-form-section\_\_switch]:hidden"
           >
-            <div className="flex flex-col gap-10 px-5 pt-8 pb-6">
+            <div className="flex flex-col">
               {section.questions.map((q, qi) => (
-                <FormQuestion
-                  key={q.questionId ?? qi}
-                  number={String(qi + 1).padStart(2, '0')}
-                  title={q.title}
-                  description={q.description}
-                  required={q.isRequired}
-                >
-                  {(q.type === 'SHORT_TEXT' || q.type === 'LONG_TEXT') && (
-                    <FormTextAnswer
-                      disabled
-                      placeholder="작성하세요"
-                      maxLength={
-                        q.type === 'SHORT_TEXT' ? SHORT_ANSWER_MAX_LENGTH : LONG_ANSWER_MAX_LENGTH
-                      }
-                    />
-                  )}
-                  {(q.type === 'RADIO' || q.type === 'DROPDOWN') && (
-                    <FormChoiceList
-                      type="single"
-                      disabled
-                      options={q.options.map((o) => ({ value: o.content, label: o.content }))}
-                    />
-                  )}
-                  {q.type === 'CHECKBOX' && (
-                    <FormChoiceList
-                      type="multiple"
-                      disabled
-                      options={q.options.map((o) => ({ value: o.content, label: o.content }))}
-                    />
-                  )}
-                  {(q.type === 'FILE' || q.type === 'PORTFOLIO') && (
-                    <FormAttachmentField disabled />
-                  )}
-                </FormQuestion>
+                <div key={q.questionId ?? qi} className="pt-8 pr-6 pb-[38px] pl-5">
+                  <FormQuestion
+                    number={String(qi + 1).padStart(2, '0')}
+                    title={q.title}
+                    description={q.description}
+                    required={q.isRequired}
+                  >
+                    {(q.type === 'SHORT_TEXT' || q.type === 'LONG_TEXT') && (
+                      <FormTextAnswer
+                        disabled
+                        placeholder="작성하세요"
+                        maxLength={
+                          q.type === 'SHORT_TEXT' ? SHORT_ANSWER_MAX_LENGTH : LONG_ANSWER_MAX_LENGTH
+                        }
+                      />
+                    )}
+                    {(q.type === 'RADIO' || q.type === 'DROPDOWN') && (
+                      <FormChoiceList
+                        type="single"
+                        disabled
+                        options={q.options.map((o) => ({ value: o.content, label: o.content }))}
+                      />
+                    )}
+                    {q.type === 'CHECKBOX' && (
+                      <FormChoiceList
+                        type="multiple"
+                        disabled
+                        options={q.options.map((o) => ({ value: o.content, label: o.content }))}
+                      />
+                    )}
+                    {(q.type === 'FILE' || q.type === 'PORTFOLIO') && (
+                      <FormAttachmentField disabled />
+                    )}
+                  </FormQuestion>
+                </div>
               ))}
             </div>
           </FormSection>

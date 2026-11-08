@@ -122,6 +122,8 @@ export const applyProjectDetail = (
     ...project,
     logoUrl: detail?.logoImageUrl || project.logoUrl,
     planUrl: detail?.externalLink || project.planUrl,
+    // 목록 · 상세 응답에는 PM 학교가 비어 있는 경우가 있어 팀원 응답의 PM 학교로 채움
+    schoolName: project.schoolName || formatSchoolName(teamMembers?.productOwner?.schoolName),
     recruitments: project.recruitments.map((recruitment) => {
       const serverPart = RECRUIT_PARTS.find(([, part]) => part === recruitment.part)?.[0];
       return { ...recruitment, members: membersByPart.get(serverPart) ?? recruitment.members };

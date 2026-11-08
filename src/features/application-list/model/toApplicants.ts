@@ -2,6 +2,7 @@ import type { PartTagPart } from '@umc-product/react';
 
 import { toId } from '@/shared/api/toId';
 import { formatPersonName } from '@/shared/lib/formatPersonName';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 
 import type { ProjectApplicantsResponse } from '../api/getProjectApplicants';
 import type { Applicant, ApplicantStatus } from './types';
@@ -49,7 +50,7 @@ export const toApplicants = (applicants: ProjectApplicantsResponse): Applicant[]
         round,
         part: (applicant?.part && PART_TAG[applicant.part]) ?? 'pm',
         challengerName: formatPersonName(applicant),
-        schoolName: applicant?.schoolName ?? '',
+        schoolName: formatSchoolName(applicant?.schoolName),
         status: status ? STATUS[status] : 'WAITING',
         appliedAt: times.submittedAt ?? '',
         // 한 번도 처리하지 않은 대기는 상태 변경 시각이 제출 시각과 같아서 "-"로 표시

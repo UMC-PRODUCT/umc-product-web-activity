@@ -2,6 +2,7 @@ import { Outlet, useMatchRoute } from '@tanstack/react-router';
 import { PageHeader, Pagination } from '@umc-product/react';
 import { useEffect, useState } from 'react';
 
+import { useChapters } from '@/entities/chapter';
 import { useApplicationsView, useSessionStore } from '@/entities/session';
 import {
   getProjectActions,
@@ -17,6 +18,7 @@ import {
   useProjectViewer,
   useProjectWithDetail,
 } from '@/features/project-list';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 import { FilterDropdownGroup } from '@/widgets/filterDropdownGroup';
 import { SearchBar } from '@/widgets/searchBar';
 
@@ -33,7 +35,7 @@ const ProjectListPage = () => {
   const session = useSessionStore((state) => state.session);
   const view = useApplicationsView();
   const viewer = useProjectViewer(session, view);
-  const period = useProjectPeriod(session, view, viewer);
+  const { data: chapters = [] } = useChapters(session.gisuId);
   const [keyword, setKeyword] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filters, setFilters] = useState(INITIAL_PROJECT_FILTERS);
@@ -60,6 +62,14 @@ const ProjectListPage = () => {
   const selectedProject = useProjectWithDetail(
     projects.find(({ projectId }) => projectId === selectedProjectId) ?? null,
   );
+  // 프로젝트 지부는 응답에 없어서 PM의 학교로 찾음. 운영진은 다른 지부 프로젝트도 보므로 그 지부 일정으로 기간을 판단
+  const projectChapterId =
+    view === 'ADMIN' && selectedProject
+      ? chapters.find(({ schools }) =>
+          schools.some(({ name }) => formatSchoolName(name) === selectedProject.schoolName),
+        )?.id
+      : undefined;
+  const period = useProjectPeriod(session, view, viewer, projectChapterId);
   const filterDropdowns = useProjectFilters(session.gisuId);
   // 지원서 시트가 떠 있는 동안 상세 카드는 숨김 (선택은 유지해서 시트를 닫으면 다시 보임)
   const matchRoute = useMatchRoute();

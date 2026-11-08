@@ -120,6 +120,13 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
     (designStep?.status === 'ONGOING' && designStep.phase === 'APPLY') ||
     (peStep?.status === 'ONGOING' && peStep.phase === 'APPLY');
 
+  // 1차 매칭 기간 이후: 매칭 기간이거나 2차 이상의 지원 기간 (팀원 구성 패널 안내용)
+  const hasMatchingStarted = [designStep, peStep].some(
+    (step) =>
+      step?.status === 'ENDED' ||
+      (step?.status === 'ONGOING' && (step.phase === 'MATCHING' || step.round >= 2)),
+  );
+
   const isMatchingPeriod =
     (designStep?.status === 'ONGOING' && designStep.phase === 'MATCHING') ||
     (peStep?.status === 'ONGOING' && peStep.phase === 'MATCHING');
@@ -348,6 +355,7 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
         view={resolvedView}
         isApplicationPeriod={isApplicationPeriod}
         isMatchingPeriod={isMatchingPeriod}
+        hasMatchingStarted={hasMatchingStarted}
         onClose={() => setSelectedProject(null)}
       />
 

@@ -1,5 +1,4 @@
-import { OpenNewIcon } from '@umc-product/icons';
-import { Button, FormHeader, FormSheet, IconButton, ImageThumbnail } from '@umc-product/react';
+import { Button, FormHeader, FormSheet, ImageThumbnail } from '@umc-product/react';
 
 import {
   type AppliedProject,
@@ -47,16 +46,8 @@ const MyApplicationView = ({
           subtitle={`${project.pmName} · ${project.schoolName}`}
         />
       }
-      // TODO: 새 창으로 열 대상(프로젝트 상세 등)이 정해지면 연결
-      action={
-        <IconButton
-          variant="weak"
-          color="white"
-          size="sm"
-          icon={<OpenNewIcon size={20} />}
-          aria-label="새 창으로 열기"
-        />
-      }
+      // 피그마: 본문 위에 비어 있는 24px 액션 줄이 있음
+      action={null}
       description={
         <div className="flex items-start gap-5">
           <p className="flex-1 text-body-1-regular text-teal-grey-600">{description}</p>

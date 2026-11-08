@@ -1,6 +1,7 @@
 import type { ManagedProject, PartRecruitment, RecruitPart } from '@/features/project-management';
 import { api } from '@/shared/api/client';
 import { formatPersonName } from '@/shared/lib/formatPersonName';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 import type { components } from '@/types/api';
 
 type ApiProject = components['schemas']['ManagedProjectSummaryResponse'];
@@ -57,7 +58,7 @@ const toManagedProject = (p: ApiProject): ManagedProject => {
     logoUrl: p.logoImageUrl ?? null,
     thumbnailUrl: p.thumbnailImageUrl ?? null,
     pmName: formatPersonName({ name: p.productOwner?.name }),
-    schoolName: p.productOwner?.schoolName ?? '',
+    schoolName: formatSchoolName(p.productOwner?.schoolName),
     description: p.description ?? '',
     status: STATUS_MAP[p.status ?? ''] ?? 'DRAFT',
     platform,

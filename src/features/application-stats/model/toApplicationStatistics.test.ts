@@ -84,7 +84,7 @@ describe('toTotalApplicants', () => {
   it('학교별 현재 차수 지원 인원 / 지원 가능 인원', () => {
     expect(getSchoolApplicantStats(toTotalApplicants(statistics, 1))).toEqual({
       totalCount: 3,
-      schools: [{ schoolName: '단국대학교', applied: 3, eligible: 3 }],
+      schools: [{ schoolName: '단국대', applied: 3, eligible: 3 }],
       hasApplicants: true,
     });
   });

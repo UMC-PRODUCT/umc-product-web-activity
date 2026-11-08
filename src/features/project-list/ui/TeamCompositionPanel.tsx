@@ -30,14 +30,20 @@ type TeamCompositionPanelProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   recruitments: PartRecruitment[];
+  hasMatchingStarted?: boolean; // 1차 매칭 기간 이후에는 팀원이 없어도 파트별로 "매칭이 진행 중이에요"를 보여줌
 };
 
 // 피그마 팀원 구성: 파트별 매칭 인원 / 모집 인원과 매칭된 팀원 카드
 // 팀원이 아직 없는 파트는 "매칭이 진행 중이에요"
+// 1차 매칭 기간 전에 팀원이 한 명도 없으면 파트별 목록 대신 안내만 보여줌
 // 프로젝트 상세 모달(radix) 위에 겹쳐 뜨므로 같은 radix Dialog로 만듦
-const TeamCompositionPanel = ({ open, onOpenChange, recruitments }: TeamCompositionPanelProps) => {
-  // 팀원이 한 명도 없으면 파트별 목록 대신 안내만 보여줌
-  const isEmpty = recruitments.every(({ members }) => members.length === 0);
+const TeamCompositionPanel = ({
+  open,
+  onOpenChange,
+  recruitments,
+  hasMatchingStarted = false,
+}: TeamCompositionPanelProps) => {
+  const isEmpty = !hasMatchingStarted && recruitments.every(({ members }) => members.length === 0);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>

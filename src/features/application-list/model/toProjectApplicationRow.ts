@@ -1,6 +1,7 @@
 import type { ProjectsResponse } from '@/entities/project';
 import { toCount, toId } from '@/shared/api/toId';
 import { formatPersonName } from '@/shared/lib/formatPersonName';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 
 import type { PartRecruitment, PartRecruitments, ProjectApplicationRow } from './types';
 
@@ -41,7 +42,7 @@ export const toProjectApplicationRow = ({
     projectName: name ?? '',
     part: 'pm',
     challengerName: formatPersonName(productOwner),
-    schoolName: productOwner?.schoolName ?? '',
+    schoolName: formatSchoolName(productOwner?.schoolName),
     recruitStatus: partQuotaStatus === 'COMPLETED' ? 'CLOSED' : 'RECRUITING',
     recruitments: toRecruitments(partQuotas),
   };

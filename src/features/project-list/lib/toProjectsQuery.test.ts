@@ -36,9 +36,19 @@ describe('toProjectsQuery', () => {
       keyword: 'UMC',
       chapterId: 3,
       schoolIds: [10, 11],
-      parts: ['WEB_PRODUCT_ENGINEER', 'MOBILE_PRODUCT_ENGINEER'],
+      parts: ['DESIGN'],
       partQuotaStatus: 'COMPLETED',
       page: 2,
     });
+  });
+
+  it('모집 중이면 선택한 플랫폼 파트로 거름', () => {
+    const query = toProjectsQuery({
+      gisuId: 6,
+      keyword: '',
+      filters: { ...INITIAL_PROJECT_FILTERS, part: ['Web'], recruitStatus: ['RECRUITING'] },
+      page: 1,
+    });
+    expect(query).toMatchObject({ parts: ['WEB_PRODUCT_ENGINEER'], partQuotaStatus: 'RECRUITING' });
   });
 });
