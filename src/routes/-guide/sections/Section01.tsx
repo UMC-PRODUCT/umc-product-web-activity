@@ -8,7 +8,7 @@ const STEPS = ['프로젝트 탐색', '팀 매칭', '지원 · 매칭 현황', '
 
 const Section01 = () => {
   return (
-    <section className="relative min-h-screen overflow-hidden rounded-br-[60px] rounded-bl-[60px] bg-[#020A09]">
+    <section className="relative min-h-screen min-w-[1440px] overflow-hidden rounded-br-[60px] rounded-bl-[60px] bg-[#020A09]">
       <div className="absolute inset-0 bg-black/20" />
       <div className="absolute inset-0 bg-gradient-to-br from-[#2ED1BE]/40 to-transparent" />
       <div className="absolute inset-0 bg-[#020A09]" />
@@ -18,8 +18,8 @@ const Section01 = () => {
         className="absolute inset-0 h-full w-full object-cover opacity-[0.08]"
       />
 
-      <div className="relative z-10 flex items-center justify-center gap-[21px] pt-[92px]">
-        <div className="flex flex-col gap-[145.83px]">
+      <div className="relative z-10 flex min-h-screen items-center justify-center gap-[21px] 3xl:px-30">
+        <div className="flex flex-col items-baseline justify-center gap-[145.83px]">
           <div>
             <div className="flex flex-col gap-[3px] text-white">
               <h1 className="font-['KIMM'] text-[64px]">UMC Demo Day</h1>
