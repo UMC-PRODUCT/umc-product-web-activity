@@ -23,8 +23,11 @@ type Params = {
 export const toProjectsQuery = ({ gisuId, keyword, filters, page }: Params): ProjectsQuery => {
   const chapterId = toId(filters.chapter[0]);
   const schoolIds = filters.school.flatMap((school) => toId(school) ?? []);
-  const parts = filters.part.flatMap((part) => PART_FILTER[part] ?? []);
+  const platformParts = filters.part.flatMap((part) => PART_FILTER[part] ?? []);
   const recruitStatus = filters.recruitStatus[0];
+  // 모집 완료는 PE 충원과 관계없이 디자인 정원이 찬 프로젝트. 서버의 프로젝트 전체 상태는 PE 기준이라 DESIGN 파트로 조회
+  const parts: NonNullable<ProjectsQuery['parts']> =
+    recruitStatus === 'CLOSED' ? ['DESIGN'] : platformParts;
 
   return {
     gisuId,
