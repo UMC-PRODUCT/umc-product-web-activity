@@ -2,10 +2,18 @@
 @import '@umc-product/react/styles.css';
 @import '@umc-product/design-tokens/tailwind.css';
 
+@font-face {
+  font-family: 'KIMM';
+  src: url('@/routes/-guide/assets/fonts/KIMM_bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
 @theme {
   --color-primary-500: #3b82f6;
   /* 디자인 시스템이 불러오는 글꼴 이름은 'Pretendard Variable' */
   --font-sans: var(--umc-font-family-brand);
+  --breakpoint-3xl: 1920px;
 }
 
 /* 디자인 시스템 Tooltip은 className을 못 받아서, 줄바꿈을 직접 정한 문구는 표식 클래스로 최대 너비(240px)를 풂 */
