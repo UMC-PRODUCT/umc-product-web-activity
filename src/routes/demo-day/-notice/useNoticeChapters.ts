@@ -36,6 +36,8 @@ export const useNoticeChapters = (requestedChapter?: string, mode: 'view' | 'wri
       serverChapterId === null ? null : String(serverChapterId),
       String(chapterId),
     );
+  // 지부장은 타 지부 탭에서도 공지 작성 버튼이 보이되 비활성화된다
+  const showWriteButton = canManage || (isAdminView && role === 'CHAPTER_ADMIN');
 
   return {
     gisuId,
@@ -44,5 +46,6 @@ export const useNoticeChapters = (requestedChapter?: string, mode: 'view' | 'wri
     chaptersLoaded,
     chapterId,
     canManage,
+    showWriteButton,
   };
 };
