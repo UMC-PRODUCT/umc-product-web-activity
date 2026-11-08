@@ -8,25 +8,25 @@ import { getMatchingCandidates } from '../api/getMatchingCandidates';
 import { SERVER_PART } from '../model/serverPart';
 import type { MatchingPart, UnassignedChallenger } from '../model/types';
 
-// 피그마: 검색해야 목록이 보여서 한 번에 넉넉히 받음
+// 검색 전에도 전체 미배정 챌린저를 보여 줘서 한 번에 넉넉히 받음
 const CANDIDATES_SIZE = 50;
 
 type CandidatesTarget = { projectId: number; part: MatchingPart };
 
 // 수동 배정 후보 (빈 칸 파트의 미배정 챌린저, 검색어는 서버에서 거름)
-// 모달이 닫혀 있거나 검색어가 없으면 부르지 않음
+// 모달이 닫혀 있으면 부르지 않고, 검색어가 없으면 전체 후보
 export const useMatchingCandidates = (target: CandidatesTarget | null, keyword: string) => {
   const trimmed = keyword.trim();
 
   return useQuery({
     queryKey: ['matching-status', 'candidates', target?.projectId, target?.part, trimmed],
     queryFn:
-      target === null || trimmed === ''
+      target === null
         ? skipToken
         : () =>
             getMatchingCandidates(target.projectId, {
               part: SERVER_PART[target.part],
-              keyword: trimmed,
+              keyword: trimmed || undefined,
               size: CANDIDATES_SIZE,
             }),
     select: ({ content = [] }): UnassignedChallenger[] =>
