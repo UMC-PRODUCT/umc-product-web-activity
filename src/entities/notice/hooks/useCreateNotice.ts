@@ -2,20 +2,22 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { createNotice } from '../api/createNotice';
 import { noticeKeys } from '../api/queryKeys';
-import type { NoticeInput } from '../model/types';
+import { getTargetParts } from '../lib/noticeKindParts';
+import type { NoticeInput, NoticeKind } from '../model/types';
 
 type CreateNoticeVariables = {
+  kind: NoticeKind;
   gisuId: number;
   chapterIds: number[]; // 지부마다 공지를 하나씩 등록
   input: NoticeInput;
 };
 
-// 팀 매칭 공지 작성 (챌린저 공지, 선택한 지부마다 한 건씩)
+// 공지 작성 (챌린저 공지, 선택한 지부마다 한 건씩)
 export const useCreateNotice = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ gisuId, chapterIds, input }: CreateNoticeVariables) =>
+    mutationFn: ({ kind, gisuId, chapterIds, input }: CreateNoticeVariables) =>
       Promise.all(
         chapterIds.map((chapterId) =>
           createNotice({
@@ -26,6 +28,7 @@ export const useCreateNotice = () => {
             targetInfo: {
               targetGisuId: gisuId,
               targetChapterId: chapterId,
+              targetParts: getTargetParts(kind),
               targetNoticeTab: 'CHALLENGER',
             },
           }),
