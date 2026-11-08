@@ -1,5 +1,5 @@
 import { MoreVerticalIcon } from '@umc-product/icons';
-import { Menu, type MenuItemDef, Tag, type TagColor } from '@umc-product/react';
+import { ImageThumbnail, Menu, type MenuItemDef, Tag, type TagColor } from '@umc-product/react';
 
 import type { Role } from '@/entities/session';
 
@@ -132,15 +132,7 @@ const ProjectManagementCard = ({
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2">
-              <div className="flex size-[30px] shrink-0 items-center justify-center overflow-hidden rounded-[8px] bg-teal-grey-100">
-                {logoUrl && (
-                  <img
-                    src={logoUrl}
-                    alt={`${projectName} 로고`}
-                    className="size-full object-cover"
-                  />
-                )}
-              </div>
+              <ImageThumbnail src={logoUrl} alt={`${projectName} 로고`} size={30} />
               <h3 className="truncate text-heading-4-semibold text-teal-grey-900">{projectName}</h3>
               <Tag variant="weak" color={statusTag.color} size="md" className="shrink-0">
                 {statusTag.label}
