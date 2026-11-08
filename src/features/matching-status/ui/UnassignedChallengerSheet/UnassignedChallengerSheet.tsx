@@ -26,7 +26,7 @@ const UnassignedChallengerSheet = ({
 }: UnassignedChallengerSheetProps) => (
   <div className="flex min-h-0 flex-col">
     <div
-      className={`${COLUMNS_CLASS} rounded-t-xl bg-teal-grey-75 py-2 pl-8 text-caption-2-regular text-teal-grey-500`}
+      className={`${COLUMNS_CLASS} rounded-t-xl bg-teal-grey-75 py-2 pl-8 text-caption-2-regular leading-5 text-teal-grey-500`}
     >
       <p>닉네임/이름</p>
       <p className="text-center">학교</p>
@@ -48,7 +48,9 @@ const UnassignedChallengerSheet = ({
               aria-checked={selected}
               onClick={() => onSelect(memberId)}
               className={`relative ${COLUMNS_CLASS} h-[42px] w-full border-b border-teal-grey-100 pl-8 text-left text-body-2-medium ${
-                selected ? 'bg-teal-50 text-teal-600' : 'bg-teal-grey-50 text-teal-grey-800'
+                selected
+                  ? 'bg-teal-50 text-teal-600'
+                  : 'bg-teal-grey-50 text-teal-grey-800 hover:bg-teal-grey-75'
               }`}
             >
               {/* 고른 줄은 이름 앞 여백에 체크 */}

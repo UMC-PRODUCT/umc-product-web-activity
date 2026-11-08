@@ -54,6 +54,7 @@ type MatchedApplicationModalProps = {
   chapterName: string; // 소속 지부
   onClose: () => void;
   canRelease: boolean; // 매칭 해제 가능 여부 (서버 권한 canUnassign). false면 조회만 (버튼 숨김)
+  releaseBlockedMessage?: string | null;
   onReleased: () => void; // 매칭 해제 완료 (모달 닫기 · 안내)
 };
 
@@ -64,6 +65,7 @@ const MatchedApplicationModal = ({
   chapterName,
   onClose,
   canRelease,
+  releaseBlockedMessage = null,
   onReleased,
 }: MatchedApplicationModalProps) => {
   const [releaseDialogOpen, setReleaseDialogOpen] = useState(false);
@@ -107,8 +109,7 @@ const MatchedApplicationModal = ({
       title={
         target && (
           <>
-            <span className="font-bold text-teal-600">{PART_TITLE[target.part.part]}</span> 파트
-            지원서
+            <span className="text-teal-600">{PART_TITLE[target.part.part]}</span> 파트 지원서
           </>
         )
       }
@@ -118,9 +119,14 @@ const MatchedApplicationModal = ({
             variant="fill"
             color="white"
             size="sm"
+            className="-my-1"
             leadingIcon={<RemoveCircleIcon size={16} />}
             disabled={release.isPending}
-            onClick={() => setReleaseDialogOpen(true)}
+            onClick={() =>
+              releaseBlockedMessage
+                ? toast.show(releaseBlockedMessage, { color: 'error' })
+                : setReleaseDialogOpen(true)
+            }
           >
             매칭 해제
           </Button>
@@ -130,7 +136,7 @@ const MatchedApplicationModal = ({
       className="h-[790px] w-[1104px]"
     >
       {target && (
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-[34px]">
           <FormSheet
             className="shrink-0"
             header={
@@ -179,7 +185,7 @@ const MatchedApplicationModal = ({
       {target && canRelease && (
         <Dialog
           // 아래 radix 패널이 body 클릭을 막아서(pointer-events: none) 확인창만 다시 열어 줌
-          className="pointer-events-auto"
+          className="dialog-flat pointer-events-auto"
           open={releaseDialogOpen}
           onOpenChange={setReleaseDialogOpen}
           color="error"

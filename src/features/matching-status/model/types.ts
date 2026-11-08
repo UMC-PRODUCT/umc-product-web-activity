@@ -1,6 +1,8 @@
 // 지부 프로젝트 매칭률: 지부 전체 모집 인원(TO) 중 차수별 매칭 인원
 export type ChapterMatchingRate = {
   totalCapacity: number; // 지부 전체 모집 인원
+  totalMembers: number; // 지부 매칭 대상 총원 (학교별 총원 합)
+  matchedMembers: number; // 랜덤 매칭까지 포함한 매칭 인원
   rounds: {
     round: 1 | 2 | 3;
     matched: number | null; // 아직 진행 전이면 null

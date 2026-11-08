@@ -24,7 +24,7 @@ type ManualAssignModalProps = {
 };
 
 // 피그마 팀원 수동 배정 모달: 매칭 결과 시트의 빈 칸에서 열림
-// 처음엔 검색바만, 검색하면 빈 칸의 파트에 맞는 미배정 챌린저(서버 후보 조회)를 보여 주고 한 명을 골라 배정 → 배정 완료 안내
+// 빈 칸의 파트에 맞는 미배정 챌린저(서버 후보 조회)를 바로 보여 주고, 검색하면 좁혀서 한 명을 골라 배정 → 배정 완료 안내
 const ManualAssignModal = ({ target, onClose }: ManualAssignModalProps) => {
   const [keyword, setKeyword] = useState('');
   const searchKeyword = useDebouncedValue(keyword, SEARCH_DEBOUNCE);
@@ -88,7 +88,6 @@ const ManualAssignModal = ({ target, onClose }: ManualAssignModalProps) => {
         />
       }
     >
-      {/* 피그마 기본 상태: 검색 전에는 목록 없이 검색바만 */}
       {/* TODO: 불러오기 실패 화면이 피그마에 나오면 교체 */}
       {candidates.isError && (
         <p role="alert" className="text-body-3-medium text-red-500">

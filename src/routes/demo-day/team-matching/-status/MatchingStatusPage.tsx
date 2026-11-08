@@ -26,6 +26,7 @@ import { getBreadcrumbs } from '../-shared/constants';
 import UpdatedAtCaption from '../-shared/UpdatedAtCaption';
 import ManualAssignModal from './ManualAssignModal';
 import MatchedApplicationModal, { type MatchedApplicationTarget } from './MatchedApplicationModal';
+import { useAssignablePeriod } from './useAssignablePeriod';
 
 // 피그마 전체 매칭 현황: 지부 선택 + 01 매칭 통계 + 02 매칭 결과 시트
 const MatchingStatusPage = () => {
@@ -42,8 +43,11 @@ const MatchingStatusPage = () => {
     null;
   // 권한표: 지원서 열람 · 매칭 해제 · 수동 배정은 마스터(전 지부) · 지부장(소속 지부 프로젝트)만
   // 칸을 누를 수 있는지는 역할로, 실제 해제 · 배정은 서버 권한(canUnassign · canAssign)으로 한 번 더 확인
-  // 서버는 기간 제한이 없어서 매칭 기간 확인은 하지 않음
+  // 배정 · 해제 기간은 파트별로 확인 (Design은 Plan-Design 일정, PE는 Plan-PE 일정)
+  // 두 트랙 모두 최종 결과가 발표되면 챌린저 뷰와 같이 조회만
+  const assignablePeriod = useAssignablePeriod(chapterId);
   const canManage =
+    !assignablePeriod.isAllPublished &&
     view === 'ADMIN' &&
     (role === 'SUPER_ADMIN' ||
       role === 'HQ_LEAD' ||
@@ -70,6 +74,10 @@ const MatchingStatusPage = () => {
 
   // 권한을 확인하지 못한 경우(요청 실패 · 불러오는 중)와 권한이 없는 경우를 구분해서 알려 줌
   const handleEmptySlotClick = (project: ProjectMatchingResult, part: PartMatching) => {
+    if (!assignablePeriod.isPartOpen(part.part)) {
+      toast.show(assignablePeriod.closedMessage(part.part), { color: 'error' });
+      return;
+    }
     if (permissions.isError) {
       toast.show('배정 권한을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.', { color: 'error' });
       return;
@@ -190,6 +198,11 @@ const MatchingStatusPage = () => {
         canRelease={
           applicationTarget !== null &&
           permissions.data?.get(applicationTarget.project.projectId)?.canUnassign === true
+        }
+        releaseBlockedMessage={
+          applicationTarget && !assignablePeriod.isPartOpen(applicationTarget.part.part)
+            ? assignablePeriod.closedMessage(applicationTarget.part.part)
+            : null
         }
         onReleased={handleReleased}
       />

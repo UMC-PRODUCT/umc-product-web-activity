@@ -8,7 +8,12 @@ import type { ChapterMatchingRate } from '../../model/types';
 
 // 피그마 지부 프로젝트 매칭률 카드: 차수별 매칭 비율 도넛 + 매칭 완료 / 전 + 차수별 매칭 인원
 // 도넛은 매칭된 만큼만 차수별 색으로 채우고, 남은 부분은 회색 트랙
-const ChapterMatchingRateCard = ({ totalCapacity, rounds }: ChapterMatchingRate) => {
+const ChapterMatchingRateCard = ({
+  totalCapacity,
+  totalMembers,
+  matchedMembers,
+  rounds,
+}: ChapterMatchingRate) => {
   const counts = rounds.map(({ round, matched }) => ({ round, count: matched ?? 0 }));
   const matchedCount = counts.reduce((sum, { count }) => sum + count, 0);
   const rate = totalCapacity === 0 ? 0 : Math.round((matchedCount / totalCapacity) * 100);
@@ -27,8 +32,8 @@ const ChapterMatchingRateCard = ({ totalCapacity, rounds }: ChapterMatchingRate)
       summary={
         <CompletionSummary
           label="매칭"
-          doneCount={matchedCount}
-          remainingCount={Math.max(0, totalCapacity - matchedCount)}
+          doneCount={matchedMembers}
+          remainingCount={Math.max(0, totalMembers - matchedMembers)}
         />
       }
       details={
