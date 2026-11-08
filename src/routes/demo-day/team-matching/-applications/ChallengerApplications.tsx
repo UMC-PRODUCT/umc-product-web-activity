@@ -65,7 +65,7 @@ const ChallengerApplications = () => {
       )}
       {applications.isSuccess &&
         (groups.length === 0 ? (
-          <div className="flex w-full max-w-[962px] flex-col gap-2">
+          <div className="flex w-full max-w-[1152px] flex-col gap-2">
             <ApplicationListCard />
           </div>
         ) : (
