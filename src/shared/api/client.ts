@@ -1,6 +1,10 @@
-import axios, { AxiosError } from 'axios';
+import { isAuthEndpoint } from '@umc-product/auth-client';
+import type { InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, isAxiosError } from 'axios';
 
-import { DEV_ACCESS_TOKEN, getAccessToken } from './authToken';
+import { getSsoClient } from '@/shared/auth/sso-client';
+
+import { getAccessToken } from './authToken';
 
 export interface ApiResponse<T> {
   success?: boolean;
@@ -28,25 +32,61 @@ export const apiClient = axios.create({
   paramsSerializer: { indexes: null },
 });
 
-// 로그인으로 받은 토큰을 붙이고, 없으면 개발용 토큰을 씀
 apiClient.interceptors.request.use((config) => {
-  const token = getAccessToken() ?? DEV_ACCESS_TOKEN;
+  if (config.skipAuth) {
+    delete config.headers.Authorization;
+    return config;
+  }
+  const token = getAccessToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-apiClient.interceptors.response.use(undefined, (error: AxiosError<ApiResponse<unknown>>) => {
-  const status = error.response?.status ?? 0;
-  const body = error.response?.data;
+apiClient.interceptors.response.use(undefined, async (error: unknown) => {
+  if (!isAxiosError(error) || error.response?.status !== 401) {
+    return Promise.reject(toApiError(error));
+  }
 
-  return Promise.reject(
-    new ApiError(
+  const config = error.config;
+  if (!config || isAuthEndpoint(requestUrl(config)) || config._retry) {
+    return Promise.reject(toApiError(error));
+  }
+
+  config._retry = true;
+  try {
+    const accessToken = await getSsoClient().recoverFromUnauthorized();
+    config.headers.Authorization = `Bearer ${accessToken}`;
+    return apiClient.request(config);
+  } catch (renewError) {
+    return Promise.reject(toApiError(renewError));
+  }
+});
+
+const requestUrl = (config: InternalAxiosRequestConfig) => {
+  const baseURL = config.baseURL ?? '';
+  return `${baseURL}${config.url ?? ''}`;
+};
+
+const toApiError = (error: unknown) => {
+  if (error instanceof ApiError) return error;
+
+  if (isAxiosError(error)) {
+    const axiosError = error as AxiosError<ApiResponse<unknown>>;
+    const status = axiosError.response?.status ?? 0;
+    const body = axiosError.response?.data;
+    return new ApiError(
       status,
       body?.code ?? (status === 0 ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR'),
       body?.message ?? '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.',
-    ),
-  );
-});
+    );
+  }
+
+  if (error instanceof Error) {
+    return new ApiError(0, 'UNKNOWN_ERROR', error.message);
+  }
+
+  return new ApiError(0, 'UNKNOWN_ERROR', '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.');
+};
 
 const unwrap = <T>(body: ApiResponse<T>, status: number): T => {
   if (body.success === false) {

@@ -5,14 +5,13 @@ import { LinkProvider } from '@umc-product/react';
 
 import { MOCK_CHAPTERS } from '@/entities/chapter';
 import { myInfoQueryOptions, type Session, toSession, useSessionStore } from '@/entities/session';
-import { clearAuthTokens, DEV_ACCESS_TOKEN, getAccessToken } from '@/shared/api/authToken';
+import { clearAuthTokens, getAccessToken } from '@/shared/api/authToken';
 import { ApiError } from '@/shared/api/client';
 import { RouterLink } from '@/shared/ui/RouterLink';
 import { Header } from '@/widgets/header';
 import { ToastProvider } from '@/widgets/toast';
 
-// TODO: 정식 로그인(다른 팀)이 붙으면 그쪽 경로로 교체
-const PUBLIC_PATHS = ['/login'];
+const PUBLIC_PATHS = ['/login', '/auth/callback'];
 
 const isSameSession = (left: Session, right: Session) =>
   left.role === right.role &&
@@ -25,11 +24,20 @@ const isSameSession = (left: Session, right: Session) =>
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   // 하위 라우트의 권한 확인(beforeLoad)보다 먼저 실행돼서, 화면을 그리기 전에 내 정보로 세션을 채움
   beforeLoad: async ({ context, location }) => {
-    // 로그인 화면은 토큰 없이 들어와야 함
+    // 로그인 · 콜백은 토큰 없이 들어와야 함
     if (PUBLIC_PATHS.includes(location.pathname)) return;
 
-    const toLogin = () => redirect({ to: '/login' });
-    if (!getAccessToken() && !DEV_ACCESS_TOKEN) throw toLogin();
+    const loginRedirect = location.href;
+    const toLogin = () =>
+      redirect({
+        to: '/login',
+        search:
+          loginRedirect.startsWith('/') && !loginRedirect.startsWith('//')
+            ? { redirect: loginRedirect }
+            : {},
+      });
+
+    if (!getAccessToken()) throw toLogin();
 
     const myInfo = await context.queryClient
       .ensureQueryData(myInfoQueryOptions)
