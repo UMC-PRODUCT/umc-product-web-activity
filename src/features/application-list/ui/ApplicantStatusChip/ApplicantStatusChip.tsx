@@ -4,10 +4,10 @@ import { DropdownMenu } from 'radix-ui';
 import { APPLICANT_STATUS_TAG, APPLICANT_STATUSES } from '../../model/applicantStatus';
 import type { ApplicantStatus } from '../../model/types';
 
-const CHIP_BASE_CLASS = 'inline-flex h-[26px] items-center rounded-[20px] pr-3 pl-2';
+const CHIP_BASE_CLASS = 'inline-flex h-[26px] items-center rounded-[20px]';
 // 피그마 State Chip: Default(흰 배경 + 테두리 + 그림자) / Disabled(회색 배경)
-const CHIP_CLASS = `${CHIP_BASE_CLASS} border border-teal-grey-100 bg-white shadow-drop-neutral-2`;
-const DISABLED_CHIP_CLASS = `${CHIP_BASE_CLASS} bg-teal-grey-75`;
+const CHIP_CLASS = `${CHIP_BASE_CLASS} border border-teal-grey-100 bg-white pr-[11px] pl-[7px] shadow-drop-neutral-2`;
+const DISABLED_CHIP_CLASS = `${CHIP_BASE_CLASS} bg-teal-grey-75 pr-3 pl-2`;
 
 const Chip = ({ status }: { status: ApplicantStatus }) => {
   const { label, color } = APPLICANT_STATUS_TAG[status];
@@ -46,7 +46,7 @@ const ApplicantStatusChip = ({ status, onStatusChange }: ApplicantStatusChipProp
       <DropdownMenu.Portal>
         <DropdownMenu.Content
           align="start"
-          sideOffset={4}
+          sideOffset={0}
           className="z-(--umc-z-dropdown) flex flex-col gap-2.5 rounded-md bg-white px-3 pt-2.5 pb-3 shadow-drop-neutral-1"
         >
           <DropdownMenu.Label className="px-0.5 text-caption-2-regular text-teal-grey-500">

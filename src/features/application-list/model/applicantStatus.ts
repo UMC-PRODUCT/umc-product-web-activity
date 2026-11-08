@@ -6,7 +6,7 @@ export const APPLICANT_STATUS_TAG: Record<
   ApplicantStatus,
   { label: string; color: StatusTagColor }
 > = {
-  PASSED: { label: '합격', color: 'brand' },
+  PASSED: { label: '합격', color: 'success' },
   WAITING: { label: '대기', color: 'warning' },
   FAILED: { label: '불합격', color: 'error' },
 };

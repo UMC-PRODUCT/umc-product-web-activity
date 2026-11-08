@@ -14,9 +14,9 @@ export const COLUMN_CLASS = {
 export const RECRUIT_GROUP_CLASS = 'flex flex-[1_1_320px] min-w-[292px] items-center gap-0.5';
 
 export const RECRUIT_COLUMNS: { part: RecruitPart; label: string; width: string }[] = [
-  { part: 'DESIGN', label: 'Design 지원', width: 'flex-[1_1_104px] min-w-24' },
-  { part: 'WEB_PE', label: 'Web PE 지원', width: 'flex-[1_1_105px] min-w-24' },
-  { part: 'MOBILE_PE', label: 'Mobile PE 지원', width: 'flex-[1_1_107px] min-w-24' },
+  { part: 'DESIGN', label: 'Design TO', width: 'flex-[1_1_104px] min-w-24' },
+  { part: 'WEB_PE', label: 'Web PE TO', width: 'flex-[1_1_105px] min-w-24' },
+  { part: 'MOBILE_PE', label: 'Mobile PE TO', width: 'flex-[1_1_107px] min-w-24' },
 ];
 
 // 이보다 좁으면 표 전체를 가로로 스크롤 (지원자 줄의 최소 폭 기준)
