@@ -9,14 +9,14 @@ const STEPS = ['프로젝트 탐색', '팀 매칭', '지원 · 매칭 현황', '
 const Section01 = () => {
   return (
     <section className="relative min-h-screen min-w-[1440px] overflow-hidden rounded-br-[60px] rounded-bl-[60px] bg-[#020A09]">
-      <div className="absolute inset-0 bg-black/20" />
-      <div className="absolute inset-0 bg-gradient-to-br from-[#2ED1BE]/40 to-transparent" />
-      <div className="absolute inset-0 bg-[#020A09]" />
-      <img
-        src={HeroBg}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover opacity-[0.08]"
-      />
+      <div className="absolute inset-0 bg-[linear-gradient(133.22deg,rgba(46,209,190,0.16)_8.35%,rgba(46,209,190,0)_48.63%),linear-gradient(90deg,rgba(0,0,0,0.2)_0%,rgba(0,0,0,0.2)_100%)]" />
+      <div className="absolute inset-0 overflow-hidden opacity-[0.08]">
+        <img
+          src={HeroBg}
+          alt=""
+          className="absolute top-0 left-[-2.15%] h-full w-[104.3%] object-cover"
+        />
+      </div>
 
       <div className="relative z-10 flex min-h-screen items-center justify-center gap-[21px] 3xl:px-30">
         <div className="flex flex-col items-baseline justify-center gap-[145.83px]">
