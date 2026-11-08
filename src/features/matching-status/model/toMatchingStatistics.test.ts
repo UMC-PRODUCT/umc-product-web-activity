@@ -65,6 +65,8 @@ describe('toChapterMatchingRate', () => {
   it('정원은 Design · PE만 더하고, 차수별 남은 정원은 이전 차수 매칭 인원을 뺀 정원', () => {
     expect(toChapterMatchingRate(statistics)).toEqual({
       totalCapacity: 12,
+      totalMembers: 21,
+      matchedMembers: 10,
       rounds: [
         { round: 1, matched: 8, capacity: 12 },
         { round: 2, matched: 2, capacity: 4 },

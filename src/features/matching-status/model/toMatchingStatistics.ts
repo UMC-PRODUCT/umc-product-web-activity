@@ -78,7 +78,12 @@ export const toChapterMatchingRate = (
     matchedBefore += matched ?? 0;
     return { round, matched, capacity };
   });
-  return { totalCapacity, rounds };
+  const totalMembers = (statistics.schoolMatchingStatistics ?? []).reduce(
+    (sum, { totalMemberCount }) => sum + toCount(totalMemberCount),
+    0,
+  );
+  const matchedMembers = [...totals.values()].reduce((sum, count) => sum + count, 0);
+  return { totalCapacity, totalMembers, matchedMembers, rounds };
 };
 
 // 학교별 매칭 현황 카드 (학교 이름을 모르면 뺌)
