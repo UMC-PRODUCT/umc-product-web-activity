@@ -8,7 +8,7 @@ const ApplicationTableHead = () => (
       <p className={`text-center ${COLUMN_CLASS.project}`}>프로젝트</p>
       <p className={`px-4 ${COLUMN_CLASS.part}`}>파트</p>
       <p className={`pl-4 ${COLUMN_CLASS.challenger}`}>챌린저</p>
-      <p className={`px-[26px] ${COLUMN_CLASS.status}`}>상태</p>
+      <p className={`px-2.5 text-center ${COLUMN_CLASS.status}`}>상태</p>
       <div className={`text-center ${RECRUIT_GROUP_CLASS}`}>
         {RECRUIT_COLUMNS.map(({ part, label, width }) => (
           <p key={part} className={width}>

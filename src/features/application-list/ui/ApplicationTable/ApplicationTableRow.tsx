@@ -81,7 +81,7 @@ const ApplicationTableRow = ({
           <p className="text-body-3-medium text-teal-grey-800">{challengerName}</p>
           <p className="text-caption-3-regular text-teal-grey-500">{schoolName}</p>
         </div>
-        <div className={`px-2.5 ${COLUMN_CLASS.status}`}>
+        <div className={`flex justify-center px-2.5 ${COLUMN_CLASS.status}`}>
           <Tag variant="weak" color={statusTag.color} size="md">
             {statusTag.label}
           </Tag>

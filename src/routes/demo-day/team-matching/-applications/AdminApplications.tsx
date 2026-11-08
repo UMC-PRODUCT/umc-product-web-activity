@@ -35,13 +35,14 @@ import UpdatedAtCaption from '../-shared/UpdatedAtCaption';
 import ProjectApplicantsModal from './ProjectApplicantsModal';
 import { useApplicantStatusControl } from './useApplicantStatusControl';
 import { useCurrentMatchingRound } from './useCurrentMatchingRound';
+import { useMatchingPeriodAccess } from './useMatchingPeriodAccess';
 
 const SEARCH_DEBOUNCE = { delay: 300, maxWait: 1000 };
 
 // 어드민 뷰: 지부별 지원 통계 + 전체 프로젝트 지원 목록
 const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) => {
   const { role, gisuId, serverChapterId: ownChapterId } = useSessionStore((state) => state.session);
-  const ownChapterOnly = getChapterScope(role) === 'OWN';
+  const ownChapterOnly = getChapterScope(role) === 'OWN' && role !== 'CHAPTER_ADMIN';
   // 권한표: 중앙운영진 · 학교회장단 · 학교운영진은 지원 시트까지만
   const { canReadApplicants, canOpenProject, canReadApplication } = getApplicationsAccess(role);
   const {
@@ -49,20 +50,22 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
     isError: chaptersError,
     isSuccess: chaptersLoaded,
   } = useChapters(gisuId);
-  // 지부 탭에는 전 지부를 보여 주고, 지부장 · 학교 운영진은 소속 지부만 고를 수 있음
+  // 지부 탭에는 전 지부를 보여 주고, 학교 운영진은 소속 지부만 고를 수 있음
   const chapters = allChapters;
   const toast = useAppToast();
   // 고르기 전에는 initialChapterId → 소속 지부 → 첫 지부
   const [selectedChapterId, setSelectedChapterId] = useState<number | null>(
     initialChapterId ?? null,
   );
-  const chapterId =
-    selectedChapterId ??
-    (ownChapterOnly
-      ? ownChapterId
-      : (chapters.find(({ id }) => id === ownChapterId)?.id ?? chapters[0]?.id ?? null));
+  const chapterId = ownChapterOnly
+    ? ownChapterId
+    : (selectedChapterId ??
+      chapters.find(({ id }) => id === ownChapterId)?.id ??
+      chapters[0]?.id ??
+      null);
   const selectedChapter = chapters.find(({ id }) => id === chapterId);
   const chapterName = selectedChapter?.name ?? '';
+  const canManageChapter = getChapterScope(role) === 'ALL' || chapterId === ownChapterId;
 
   const [keyword, setKeyword] = useState('');
   // 글자마다 요청하지 않도록 입력이 멈추면(300ms) 검색, 계속 입력해도 1초마다는 중간 결과를 보여 줌
@@ -96,15 +99,21 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
   const coPms = useProjectsCoPms(rowProjectIds);
   // 배정 상태 변경 (서버 권한 기준: 지부장 · 학교 운영진은 조회만)
   const statusControl = useApplicantStatusControl(chapterId, rowProjectIds);
+  const { isModalLocked, isCurrentRound, isResultPublished } = useMatchingPeriodAccess(chapterId);
+  const hidesUnpublishedResult = !canOpenProject || !canManageChapter;
 
   // 프로젝트 줄 + 지원자. 차수 필터는 지원자만 거름 (고른 차수가 없으면 전체)
   // 보조 PM은 목록 API에 없어서 팀원 구성 일괄 조회로 붙임
   const groups: ProjectApplicationGroup[] = rows.map((project) => ({
     project,
     coPms: coPms.data?.get(project.projectId) ?? [],
-    applicants: (applicants.data?.get(project.projectId) ?? []).filter(
-      ({ round }) => filters.round.length === 0 || filters.round.includes(String(round)),
-    ),
+    applicants: (applicants.data?.get(project.projectId) ?? [])
+      .filter(({ round }) => filters.round.length === 0 || filters.round.includes(String(round)))
+      .map((applicant) =>
+        hidesUnpublishedResult && !isResultPublished(applicant)
+          ? { ...applicant, status: 'WAITING' as const, processedAt: null }
+          : applicant,
+      ),
   }));
   const selectedGroup = groups.find(({ project }) => project.projectId === selectedProjectId);
 
@@ -249,7 +258,7 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
                     groups={groups}
                     // 지원서 모달을 열 수 없는 역할은 프로젝트명이 링크가 아님
                     onProjectClick={
-                      canOpenProject
+                      canOpenProject && canManageChapter && !isModalLocked
                         ? ({ project }) => setSelectedProjectId(project.projectId)
                         : undefined
                     }
@@ -274,10 +283,13 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
           selectedGroup && statusControl.changeStatus(selectedGroup.project.projectId)
         }
         canChangeStatus={
-          selectedGroup && statusControl.canChangeStatus(selectedGroup.project.projectId)
+          selectedGroup && canManageChapter
+            ? statusControl.canChangeStatus(selectedGroup.project.projectId)
+            : undefined
         }
         isUpdatingStatus={statusControl.isUpdating}
-        canReadApplication={canReadApplication}
+        canReadApplication={canReadApplication && canManageChapter}
+        canOpenApplicant={isCurrentRound}
       />
     </main>
   );

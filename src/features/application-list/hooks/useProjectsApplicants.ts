@@ -14,6 +14,7 @@ export const useProjectsApplicants = (projectIds: number[]) =>
     queryKey: applicationListKeys.applicants.batch(projectIds),
     queryFn: projectIds.length === 0 ? skipToken : () => getProjectsApplicants({ projectIds }),
     placeholderData: keepPreviousData,
+    refetchInterval: 30_000,
     select: (byProject) => {
       const result = new Map<number, Applicant[]>();
       for (const [key, applicants] of Object.entries(byProject)) {

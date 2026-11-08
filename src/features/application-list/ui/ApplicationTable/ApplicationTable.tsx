@@ -27,6 +27,7 @@ type ApplicationTableProps = {
   groups: ProjectApplicationGroup[]; // 현재 페이지 데이터 (피그마: 10개씩 페이지 구분)
   onProjectClick?: (group: ProjectApplicationGroup) => void; // 어드민: 프로젝트명 클릭
   onApplicantClick?: (group: ProjectApplicationGroup, applicant: Applicant) => void; // PM: 지원자 이름 클릭
+  canOpenApplicant?: (applicant: Applicant) => boolean;
   className?: string; // 스크롤 영역 폭 (화면에 보이는 폭으로 줄일 때)
   contentClassName?: string; // 표 자체의 최소 폭 (기본 860px, 이보다 좁으면 가로 스크롤)
 };
@@ -37,6 +38,7 @@ const ApplicationTable = ({
   groups,
   onProjectClick,
   onApplicantClick,
+  canOpenApplicant = () => true,
   className = '',
   contentClassName = TABLE_MIN_WIDTH_CLASS,
 }: ApplicationTableProps) => {
@@ -88,7 +90,9 @@ const ApplicationTable = ({
                       key={applicant.applicantId}
                       {...applicant}
                       onApplicantClick={
-                        onApplicantClick && (() => onApplicantClick(group, applicant))
+                        onApplicantClick && canOpenApplicant(applicant)
+                          ? () => onApplicantClick(group, applicant)
+                          : undefined
                       }
                     />
                   ))}

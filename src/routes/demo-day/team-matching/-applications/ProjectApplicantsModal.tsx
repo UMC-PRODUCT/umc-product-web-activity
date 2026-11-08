@@ -39,6 +39,7 @@ type ProjectApplicantsModalProps = {
   canChangeStatus?: (applicant: Applicant) => boolean;
   isUpdatingStatus?: boolean; // 변경 요청 중 (중복 클릭 방지)
   canReadApplication?: boolean; // 지원서 열람 가능 여부
+  canOpenApplicant?: (applicant: Applicant) => boolean;
 };
 
 // 어드민 지원 현황에서 프로젝트명을 누르면 뜨는 프로젝트 상세: 파트별 지원한 챌린저 목록
@@ -50,6 +51,7 @@ const ProjectApplicantsModal = ({
   canChangeStatus = () => false,
   isUpdatingStatus = false,
   canReadApplication = true,
+  canOpenApplicant,
 }: ProjectApplicantsModalProps) => {
   const [round, setRound] = useState<ApplicantRoundFilter>('ALL');
   const [status, setStatus] = useState<ApplicantStatusFilter>('ALL');
@@ -84,7 +86,7 @@ const ProjectApplicantsModal = ({
                 event.preventDefault();
                 (event.currentTarget as HTMLElement).focus();
               }}
-              className="fixed top-1/2 left-1/2 z-(--umc-z-dimmed) flex h-[790px] max-h-[calc(100vh-40px)] w-[1040px] -translate-x-1/2 -translate-y-1/2 flex-col gap-[18px] overflow-hidden rounded-xl bg-white px-8 pb-8 outline-none"
+              className="fixed top-1/2 left-1/2 z-(--umc-z-dimmed) flex h-[790px] max-h-[calc(100vh-40px)] w-[960px] -translate-x-1/2 -translate-y-1/2 flex-col gap-[18px] overflow-hidden rounded-xl bg-white px-8 pb-8 outline-none"
             >
               <div className="flex w-full flex-col gap-8 pt-10 pb-2">
                 <div className="flex flex-col gap-4 px-2.5">
@@ -159,6 +161,7 @@ const ProjectApplicantsModal = ({
                           ? ({ applicantId }) => setSelectedApplicantId(applicantId)
                           : undefined
                       }
+                      canOpenApplicant={canOpenApplicant}
                     />
                   );
                 })}

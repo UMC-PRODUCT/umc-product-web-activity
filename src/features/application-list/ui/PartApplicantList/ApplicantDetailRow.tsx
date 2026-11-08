@@ -1,6 +1,6 @@
 import type { Applicant, ApplicantStatus } from '../../model/types';
 import ApplicantStatusChip from '../ApplicantStatusChip/ApplicantStatusChip';
-
+import openNewIcon from '../ApplicationTable/assets/open-new.svg';
 // "04/22 00:00" 형식
 const formatDateTime = (iso: string) => {
   const date = new Date(iso);
@@ -11,25 +11,21 @@ const formatDateTime = (iso: string) => {
   };
 };
 
-// 시각 + "지원" / "처리" 라벨. 처리 전이면 "-"
+// 시각 + "지원" / "처리" 라벨. 처리 전이면 빈 칸
 const DateTimeCell = ({ iso, label }: { iso: string | null; label: string }) => {
   const formatted = iso ? formatDateTime(iso) : null;
 
   return (
     <div className="flex h-[50px] w-[140px] items-center justify-center">
-      <p className="flex items-center gap-1.5 text-body-3-regular whitespace-nowrap">
-        <span className="flex items-center gap-1 text-teal-grey-900">
-          {formatted ? (
-            <>
-              <span>{formatted.day}</span>
-              <span>{formatted.time}</span>
-            </>
-          ) : (
-            '-'
-          )}
-        </span>
-        <span className="text-teal-grey-600">{label}</span>
-      </p>
+      {formatted && (
+        <p className="flex items-center gap-1.5 text-body-3-regular whitespace-nowrap">
+          <span className="flex items-center gap-1 text-teal-grey-900">
+            <span>{formatted.day}</span>
+            <span>{formatted.time}</span>
+          </span>
+          <span className="text-teal-grey-600">{label}</span>
+        </p>
+      )}
     </div>
   );
 };
@@ -54,14 +50,23 @@ const ApplicantDetailRow = ({
         <button
           type="button"
           onClick={onApplicantClick}
-          className="flex h-[50px] w-[150px] shrink-0 flex-col items-start justify-center gap-0.5 rounded-lg px-3.5 text-left whitespace-nowrap hover:bg-teal-grey-75"
+          className="group flex h-[50px] w-[220px] shrink-0 items-center gap-1.5 rounded-lg px-3.5 text-left whitespace-nowrap hover:bg-teal-grey-75"
         >
-          <span className="text-body-3-medium text-teal-grey-800">{challengerName}</span>
-          <span className="text-caption-3-regular text-teal-grey-500">{schoolName}</span>
+          <img
+            src={openNewIcon}
+            alt=""
+            width={20}
+            height={20}
+            className="hidden shrink-0 group-hover:block"
+          />
+          <span className="flex flex-col gap-0.5">
+            <span className="text-body-3-medium text-teal-grey-800">{challengerName}</span>
+            <span className="text-caption-3-regular text-teal-grey-500">{schoolName}</span>
+          </span>
         </button>
       ) : (
         // 지원서를 열 수 없으면 이름만 표시
-        <p className="flex h-[50px] w-[150px] shrink-0 flex-col justify-center gap-0.5 px-3.5 whitespace-nowrap">
+        <p className="flex h-[50px] w-[220px] shrink-0 flex-col justify-center gap-0.5 px-3.5 whitespace-nowrap">
           <span className="text-body-3-medium text-teal-grey-800">{challengerName}</span>
           <span className="text-caption-3-regular text-teal-grey-500">{schoolName}</span>
         </p>
