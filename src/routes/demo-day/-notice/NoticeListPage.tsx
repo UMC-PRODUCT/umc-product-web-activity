@@ -40,8 +40,15 @@ const NoticeListPage = ({
 }: NoticeListPageProps) => {
   const config = NOTICE_PAGE_CONFIG[kind];
   const toast = useAppToast();
-  const { gisuId, allChapters, selectableChapterId, chaptersLoaded, chapterId, canManage } =
-    useNoticeChapters(chapter, 'view');
+  const {
+    gisuId,
+    allChapters,
+    selectableChapterId,
+    chaptersLoaded,
+    chapterId,
+    canManage,
+    showWriteButton,
+  } = useNoticeChapters(chapter, 'view');
   const { data: serverNotices = [], isError } = useChapterNotices(kind, gisuId, chapterId);
   const { role, memberId } = useSessionStore((state) => state.session);
   const updateNotice = useUpdateNotice();
@@ -97,9 +104,10 @@ const NoticeListPage = ({
                 }
               />
             </div>
-            {canManage && (
+            {showWriteButton && (
               <Button
                 size="sm"
+                disabled={!canManage}
                 leadingIcon={<AddIcon size={14} />}
                 // 피그마: 지부 선택 줄 높이(46px)에 맞춰 늘어나고, 여백은 왼쪽 12 · 아이콘 간격 8 · 오른쪽 16
                 className="gap-2 pr-4 pl-3 [--umc-button-height:46px]"
