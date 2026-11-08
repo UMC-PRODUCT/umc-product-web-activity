@@ -21,6 +21,7 @@ type PartApplicantListProps = {
   // 이 지원자의 배정 상태를 지금 바꿀 수 있는지 (서버 권한 + 그 차수의 결정 기간)
   canChangeStatus?: (applicant: Applicant) => boolean;
   onApplicantClick?: (applicant: Applicant) => void;
+  canOpenApplicant?: (applicant: Applicant) => boolean;
 };
 
 // 피그마 프로젝트 상세 모달: 파트 태그 + 지원/모집 인원 + 차수별 지원자 수 + 지원한 챌린저 목록
@@ -32,6 +33,7 @@ const PartApplicantList = ({
   onStatusChange,
   canChangeStatus = () => false,
   onApplicantClick,
+  canOpenApplicant = () => true,
 }: PartApplicantListProps) => (
   <section className="flex w-full flex-col gap-2">
     <div className="flex w-full items-center justify-between pr-0.5 pl-2.5">
@@ -72,7 +74,11 @@ const PartApplicantList = ({
                 ? (status) => onStatusChange(applicant, status)
                 : undefined
             }
-            onApplicantClick={onApplicantClick && (() => onApplicantClick(applicant))}
+            onApplicantClick={
+              onApplicantClick && canOpenApplicant(applicant)
+                ? () => onApplicantClick(applicant)
+                : undefined
+            }
           />
         ))}
       </ul>

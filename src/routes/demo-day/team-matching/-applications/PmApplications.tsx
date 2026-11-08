@@ -32,6 +32,7 @@ import UpdatedAtCaption from '../-shared/UpdatedAtCaption';
 import ApplicantApplicationModal from './ApplicantApplicationModal';
 import { useApplicantStatusControl } from './useApplicantStatusControl';
 import { useCurrentMatchingRound } from './useCurrentMatchingRound';
+import { useMatchingPeriodAccess } from './useMatchingPeriodAccess';
 
 // 피그마: 지원자 10명씩 페이지 구분
 const APPLICANTS_PER_PAGE = 10;
@@ -66,9 +67,10 @@ const PmApplications = () => {
   // 지금 매칭 종류 · 차수는 서버가 알려 준 값을 쓰고, 진행 중인 차수가 없으면 지부 일정으로 정함
   const scheduleRound = useCurrentMatchingRound(chapterId);
   const current = (statistics.data && getCurrentRound(statistics.data)) ?? scheduleRound;
+  const { isModalLocked, isCurrentRound } = useMatchingPeriodAccess(chapterId);
 
   // 02 지원자 목록: 프로젝트 하나라 전체를 받아 화면에서 검색 · 필터 · 페이지를 나눔
-  const applicants = useProjectApplicants(projectId);
+  const applicants = useProjectApplicants(projectId, 30_000);
   const allApplicants = applicants.data ?? [];
   const filteredApplicants = filterPmApplicants(allApplicants, keyword, filters);
   const totalPages = Math.max(1, Math.ceil(filteredApplicants.length / APPLICANTS_PER_PAGE));
@@ -122,7 +124,7 @@ const PmApplications = () => {
       {pageHeader}
       {/* 처음 불러오는 동안은 빈 화면이 잠깐 보이지 않도록 그리지 않음 */}
       {project && (
-        <div className="flex w-full max-w-[1084px] flex-col">
+        <div className="flex w-full max-w-[1076px] flex-col">
           <MyProjectTab
             projectName={project.projectName}
             logoUrl={detail?.logoUrl ?? null}
@@ -130,7 +132,7 @@ const PmApplications = () => {
             schoolName={project.schoolName}
           />
 
-          <div className="flex w-full max-w-[1076px] flex-col gap-16 rounded-xl px-6 pt-7 pb-8">
+          <div className="flex w-full flex-col gap-16 rounded-xl pt-7 pb-8">
             <section className="flex w-full flex-col gap-4">
               <SectionHeader
                 number="01"
@@ -188,9 +190,9 @@ const PmApplications = () => {
                   {/* 지원 마감 전 차수의 지원자 실시간 노출은 담당 PM · 보조 PM만 (서버 규칙) */}
                   <ApplicationTable
                     view="PM_CHALLENGER"
-                    // 반응형 없음: 표는 피그마 폭(1028) 그대로 두고, 화면에 보이는 폭(페이지 32 + 카드 24 여백씩 제외)보다 넓으면 가로 스크롤
-                    className="max-w-[calc(100cqw-112px)]"
-                    contentClassName="min-w-[1028px]"
+                    // 반응형 없음: 표는 피그마 폭(1076) 그대로 두고, 화면에 보이는 폭(좌우 여백 32씩 제외)보다 넓으면 가로 스크롤
+                    className="max-w-[calc(100cqw-64px)]"
+                    contentClassName="min-w-[1076px]"
                     groups={[
                       {
                         project,
@@ -201,7 +203,12 @@ const PmApplications = () => {
                         ),
                       },
                     ]}
-                    onApplicantClick={(_, { applicantId }) => setSelectedApplicantId(applicantId)}
+                    onApplicantClick={
+                      isModalLocked
+                        ? undefined
+                        : (_, { applicantId }) => setSelectedApplicantId(applicantId)
+                    }
+                    canOpenApplicant={isCurrentRound}
                   />
                 </div>
               </section>
