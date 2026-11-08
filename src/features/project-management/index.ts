@@ -1,9 +1,6 @@
 export { deleteProject } from './api/deleteProject';
 export type { ManagedProjectsPage } from './api/getManagedProjects';
-export {
-  managedProjectsInfiniteQueryOptions,
-  managedProjectsQueryOptions,
-} from './api/managedProjectsQuery';
+export { managedProjectsQueryOptions } from './api/managedProjectsQuery';
 export type {
   ManagedProject,
   PartRecruitment,
