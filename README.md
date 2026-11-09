@@ -50,9 +50,14 @@ cp .env.example .env   # 환경 변수 설정
 npm run dev            # http://localhost:5173
 ```
 
-| 환경 변수      | 설명          |
-| -------------- | ------------- |
-| `VITE_API_URL` | API 서버 주소 |
+| 환경 변수             | 설명                                             |
+| --------------------- | ------------------------------------------------ |
+| `VITE_API_URL`        | 도메인 API 서버 주소                             |
+| `VITE_AUTH_APP_URL`   | (로컬) 인증 앱 URL. 기본 `http://localhost:5174` |
+| `VITE_SSO_LOGIN_MODE` | (로컬) `auth-app` \| `direct`. 기본 `auth-app`   |
+| `VITE_QA_ACCOUNTS`    | (direct) QA Chip용 `라벨=이메일` CSV             |
+
+SSO 로그인 변경점·로컬/dev 테스트 방법은 [docs/sso-login.md](./docs/sso-login.md)를 참고하세요.
 
 > 패키지를 추가할 때는 `npm install <패키지>`를 사용하고, 변경된 `package-lock.json`을 함께 커밋해 주세요.
 
