@@ -27,7 +27,7 @@ type PartSlotsProps = {
   // 빗금 칸을 MAX_SLOTS까지 채울지. 첫 줄은 오른쪽에 매칭 인원이 있어 빗금 칸 하나만 (피그마)
   fillBlocked: boolean;
   onMemberClick?: (member: MatchedMember) => void; // 지원서 열기 (→ 매칭 해제). 없으면 조회만
-  onEmptySlotClick?: () => void; // 수동 배정. 없으면 빈 칸만 보임
+  onAddMemberClick?: () => void;
 };
 
 // 파트 하나의 매칭 결과 칸: 매칭된 챌린저 → 남은 빈 자리 → (모집 인원 밖) 빗금 칸
@@ -36,12 +36,12 @@ const PartSlots = ({
   roundedClassName,
   fillBlocked,
   onMemberClick,
-  onEmptySlotClick,
+  onAddMemberClick,
 }: PartSlotsProps) => {
   const emptyCount = Math.max(0, part.capacity - part.members.length);
   const slotCount = part.members.length + emptyCount;
   const blockedCount = Math.max(
-    0,
+    onAddMemberClick ? 1 : 0,
     fillBlocked ? MAX_SLOTS - slotCount : Math.min(1, MAX_SLOTS - slotCount),
   );
 
@@ -83,12 +83,11 @@ const PartSlots = ({
       })}
       {Array.from({ length: emptyCount }, (_, index) => (
         <li key={`empty-${index}`} className="-mt-px flex shrink-0">
-          {onEmptySlotClick ? (
-            // 피그마 수동 배정: 빈칸에 마우스를 올리면 "수동 배정하기"
+          {onAddMemberClick ? (
             <button
               type="button"
               aria-label={`${part.partLabel} 수동 배정하기`}
-              onClick={onEmptySlotClick}
+              onClick={onAddMemberClick}
               className={`group ${SLOT_CLASS} justify-center border-teal-grey-100 bg-white`}
             >
               <span className="text-caption-3-regular text-teal-grey-500 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100">
@@ -102,11 +101,27 @@ const PartSlots = ({
           )}
         </li>
       ))}
-      {Array.from({ length: blockedCount }, (_, index) => (
-        <li key={`blocked-${index}`} aria-hidden className="-mt-px -mr-px shrink-0 last:mr-0">
-          <img src={blockedSlot} alt="" width={124} height={34} className="block" />
-        </li>
-      ))}
+      {Array.from({ length: blockedCount }, (_, index) =>
+        index === 0 && onAddMemberClick ? (
+          <li key={`blocked-${index}`} className="-mt-px -mr-px shrink-0 last:mr-0">
+            <button
+              type="button"
+              aria-label={`${part.partLabel} 모집 인원 외 수동 배정하기`}
+              onClick={onAddMemberClick}
+              className="group relative block h-[34px] w-[124px]"
+            >
+              <img src={blockedSlot} alt="" width={124} height={34} className="block" />
+              <span className="absolute inset-0 flex items-center justify-center bg-teal-grey-75 text-caption-3-regular text-teal-grey-500 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100">
+                수동 배정하기
+              </span>
+            </button>
+          </li>
+        ) : (
+          <li key={`blocked-${index}`} aria-hidden className="-mt-px -mr-px shrink-0 last:mr-0">
+            <img src={blockedSlot} alt="" width={124} height={34} className="block" />
+          </li>
+        ),
+      )}
     </ul>
   );
 };

@@ -28,7 +28,8 @@ type MatchingResultSheetProps = PlatformMatchingResults & {
     part: PartMatching,
     member: MatchedMember,
   ) => void;
-  onEmptySlotClick?: (project: ProjectMatchingResult, part: PartMatching) => void; // 수동 배정
+  onAddMemberClick?: (project: ProjectMatchingResult, part: PartMatching) => void;
+  canAddMember?: (part: PartMatching) => boolean;
 };
 
 // 피그마 매칭 결과 시트: 플랫폼 제목 + 표 머리(차수 범례) + 프로젝트별 매칭 결과
@@ -36,7 +37,8 @@ const MatchingResultSheet = ({
   platform,
   projects,
   onMemberClick,
-  onEmptySlotClick,
+  onAddMemberClick,
+  canAddMember,
 }: MatchingResultSheetProps) => (
   <section className="flex w-full flex-col">
     <h3 className="rounded-t-xl border border-b-0 border-teal-300 bg-teal-100 py-2 pr-5 pl-[30px] text-heading-4-semibold text-teal-600">
@@ -74,7 +76,8 @@ const MatchingResultSheet = ({
             key={project.projectId}
             project={project}
             onMemberClick={onMemberClick}
-            onEmptySlotClick={onEmptySlotClick}
+            onAddMemberClick={onAddMemberClick}
+            canAddMember={canAddMember}
           />
         ))}
       </ul>
