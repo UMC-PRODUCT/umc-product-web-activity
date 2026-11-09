@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 
 import { HOME_PATH } from '@/shared/config/teamMatchingMenu';
 
-// 서비스에 처음 들어오면(로그인 후 돌아갈 곳이 없을 때 포함) 프로젝트 목록으로
+// 로그인 여부와 상관없이 프로젝트 목록으로 (비로그인도 볼 수 있는 화면)
 export const Route = createFileRoute('/')({
   beforeLoad: () => {
     throw redirect({ to: HOME_PATH });

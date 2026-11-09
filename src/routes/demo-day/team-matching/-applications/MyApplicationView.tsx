@@ -33,6 +33,7 @@ type MyApplicationViewProps = {
   description: string; // 프로젝트 소개 (불러오기 전이면 빈 문자열)
   isCanceling: boolean; // 지원 취소 요청 중
   onCancelClick: () => void; // 지원 취소 경고창 열기
+  onClose: () => void; // 지원서 닫기 (지원 기간이 지나 취소 · 수정할 수 없을 때의 닫기 버튼)
 };
 
 // 피그마 내 지원서 보기 (Web/Form/Sheet): 탭 모양 프로젝트 라벨(Form/Header) + 프로젝트 요약 + 제출한 지원서
@@ -43,6 +44,7 @@ const MyApplicationView = ({
   description,
   isCanceling,
   onCancelClick,
+  onClose,
 }: MyApplicationViewProps) => {
   const target = { projectId: project.projectId, applicationId };
   const application = useApplicationDetail(target);
@@ -100,7 +102,7 @@ const MyApplicationView = ({
           />
         </div>
       }
-      // 지원 기간 동안만 취소 · 수정 가능 (false를 넘기면 빈 버튼 영역이 남아서 undefined)
+      // 지원 기간 동안만 취소 · 수정 가능. 그 뒤에는 모집 문항 보기와 같은 닫기 버튼만 둠
       control={
         project.applicationEditable ? (
           <div className="flex flex-1 items-center justify-center gap-3">
@@ -150,7 +152,13 @@ const MyApplicationView = ({
               </>
             )}
           </div>
-        ) : undefined
+        ) : (
+          <div className="flex flex-1 items-center justify-between gap-3">
+            <Button size="md" className="ml-auto" onClick={onClose}>
+              닫기
+            </Button>
+          </div>
+        )
       }
     >
       {/* TODO: 불러오는 중 · 실패 화면이 피그마에 나오면 교체 */}

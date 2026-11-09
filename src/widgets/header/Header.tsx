@@ -8,11 +8,11 @@ import {
 
 import { EXTERNAL_LINKS, openExternalLink } from '@/shared/config/externalLinks';
 
+import { useHeaderModeStore } from './headerModeStore';
 import { useHeaderAuth } from './useHeaderAuth';
 
 type HeaderNavItem = { label: string; href: string };
 
-// 피그마 Web/Header: 홈은 로고(DS HeaderHomeLink, Header 기본 logo)로 이동하고 메뉴는 3개
 const NAV_ITEMS: HeaderNavItem[] = [
   { label: '프로젝트', href: EXTERNAL_LINKS.projects },
   { label: '데모데이 매칭', href: '/demo-day' },
@@ -20,22 +20,41 @@ const NAV_ITEMS: HeaderNavItem[] = [
 ];
 
 const Header = () => {
-  const { pathname, profileMenu, showLogin, handleLogin, handleLogout } = useHeaderAuth();
+  const isDark = useHeaderModeStore((state) => state.isDark);
+  const { pathname, profileMenu, showLogin, handleLogin, handleLogout } = useHeaderAuth({
+    logoutReturnTo: '/guide',
+    loginRedirectTo: '/demo-day',
+  });
 
   return (
     <HeaderDesktop
+      mode={isDark ? 'dark' : 'light'}
       logo={<HeaderHomeLink context="activity" generation={11} href="/" />}
       navItems={NAV_ITEMS}
       currentPath={pathname}
       actions={
         <>
-          <HeaderActionButton onClick={() => openExternalLink(EXTERNAL_LINKS.inquiry)}>
-            문의사항
-          </HeaderActionButton>
+          {isDark ? (
+            <div>
+              {/* <Button size="sm" onClick={() => openExternalLink(EXTERNAL_LINKS.umcWebsite)}>
+                UMC 바로가기
+              </Button> */}
+            </div>
+          ) : (
+            <HeaderActionButton onClick={() => openExternalLink(EXTERNAL_LINKS.inquiry)}>
+              문의사항
+            </HeaderActionButton>
+          )}
           {showLogin ? (
-            <Button variant="weak" color="brand" size="sm" onClick={handleLogin}>
-              로그인
-            </Button>
+            isDark ? (
+              <Button size="sm" variant="weak" onClick={handleLogin}>
+                로그인
+              </Button>
+            ) : (
+              <Button variant="weak" color="brand" size="sm" onClick={handleLogin}>
+                로그인
+              </Button>
+            )
           ) : (
             profileMenu && (
               <HeaderProfileMenu

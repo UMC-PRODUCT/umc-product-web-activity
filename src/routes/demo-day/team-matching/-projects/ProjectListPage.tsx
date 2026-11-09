@@ -14,6 +14,7 @@ import {
   ProjectListSkeleton,
   PROJECTS_PER_PAGE,
   useProjectFilters,
+  useProjectGisuId,
   useProjects,
   useProjectViewer,
   useProjectWithDetail,
@@ -35,7 +36,8 @@ const ProjectListPage = () => {
   const session = useSessionStore((state) => state.session);
   const view = useApplicationsView();
   const viewer = useProjectViewer(session, view);
-  const { data: chapters = [] } = useChapters(session.gisuId);
+  const gisuId = useProjectGisuId(session);
+  const { data: chapters = [] } = useChapters(gisuId);
   const [keyword, setKeyword] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filters, setFilters] = useState(INITIAL_PROJECT_FILTERS);
@@ -51,7 +53,7 @@ const ProjectListPage = () => {
   }, [keyword]);
 
   const { data, isPending } = useProjects({
-    gisuId: session.gisuId,
+    gisuId,
     keyword: searchKeyword,
     filters,
     page,
@@ -70,7 +72,7 @@ const ProjectListPage = () => {
         )?.id
       : undefined;
   const period = useProjectPeriod(session, view, viewer, projectChapterId);
-  const filterDropdowns = useProjectFilters(session.gisuId);
+  const filterDropdowns = useProjectFilters(gisuId);
   // 지원서 시트가 떠 있는 동안 상세 카드는 숨김 (선택은 유지해서 시트를 닫으면 다시 보임)
   const matchRoute = useMatchRoute();
   const isApplying = !!matchRoute({ to: '/demo-day/team-matching/projects/$projectId/apply' });

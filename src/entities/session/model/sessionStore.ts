@@ -9,6 +9,7 @@ import {
   getMatchingScheduleAccess,
   getProjectRegisterAccess,
   getProjectSettingsAccess,
+  getViewOptions,
 } from '../lib/access';
 import type { Session, View } from './types';
 
@@ -29,11 +30,35 @@ type SessionState = {
   setView: (view: View) => void;
 };
 
-export const useSessionStore = create<SessionState>()((set) => ({
+const viewStorageKey = (memberId: number) => `umc-activity:view:${memberId}`;
+
+const readSavedView = (session: Session): View => {
+  if (session.memberId === null) return 'ADMIN';
+  try {
+    const saved = localStorage.getItem(viewStorageKey(session.memberId));
+    return getViewOptions(session).some(({ value }) => value === saved) ? (saved as View) : 'ADMIN';
+  } catch {
+    return 'ADMIN';
+  }
+};
+
+const saveView = (memberId: number | null, view: View) => {
+  if (memberId === null) return;
+  try {
+    localStorage.setItem(viewStorageKey(memberId), view);
+  } catch {
+    return;
+  }
+};
+
+export const useSessionStore = create<SessionState>()((set, get) => ({
   session: INITIAL_SESSION,
   view: 'ADMIN',
-  setSession: (session) => set({ session, view: 'ADMIN' }),
-  setView: (view) => set({ view }),
+  setSession: (session) => set({ session, view: readSavedView(session) }),
+  setView: (view) => {
+    saveView(get().session.memberId, view);
+    set({ view });
+  },
 }));
 
 export const useProjectSettingsAccess = () =>

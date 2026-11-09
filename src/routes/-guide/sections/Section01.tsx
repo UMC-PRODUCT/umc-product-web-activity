@@ -18,7 +18,7 @@ const Section01 = () => {
         />
       </div>
 
-      <div className="relative z-10 flex min-h-screen items-center justify-center gap-[21px] 3xl:px-30">
+      <div className="relative z-10 flex min-h-screen items-center justify-center gap-[21px] pt-header 3xl:px-30">
         <div className="flex flex-col items-baseline justify-center gap-[145.83px]">
           <div>
             <div className="flex flex-col gap-[3px] text-white">
