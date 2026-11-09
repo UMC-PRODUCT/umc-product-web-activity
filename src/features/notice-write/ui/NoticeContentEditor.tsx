@@ -101,12 +101,14 @@ const NoticeContentEditor = ({ value, onChange, className }: NoticeContentEditor
     const typedSpace = (event.nativeEvent as InputEvent).data === ' ';
     const selection = window.getSelection();
     const node = selection?.anchorNode;
+    // 굵게 처리된 글자 안(<strong>)에서 쳐도 같은 줄의 첫 글자 노드면 바꾼다
+    const line = getCurrentLine(event.currentTarget);
     if (
       typedSpace &&
       selection?.isCollapsed &&
       node instanceof Text &&
-      node.parentNode?.parentNode === event.currentTarget &&
-      node.parentNode.firstChild === node &&
+      line &&
+      document.createTreeWalker(line, NodeFilter.SHOW_TEXT).nextNode() === node &&
       selection.anchorOffset === 2 &&
       normalizeSpace(node.data).startsWith('- ')
     ) {

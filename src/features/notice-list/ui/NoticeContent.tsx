@@ -1,5 +1,7 @@
 import { Fragment } from 'react';
 
+import { splitBoldSegments } from '@/entities/notice';
+
 type NoticeContentProps = {
   content: string;
 };
@@ -7,26 +9,21 @@ type NoticeContentProps = {
 // 불렛 줄은 '· '로 시작한다 (작성 화면에서 '- '를 치면 바뀐다)
 const BULLET = '· ';
 
-// 줄 안의 **굵게** 구간을 나눈다 (구간이 한 줄 전체여도 같다)
-const BOLD_SPLIT_PATTERN = /(\*\*.+?\*\*)/g;
-const BOLD_PATTERN = /^\*\*(.+)\*\*$/;
-
 // TODO: 공지 본문 형식(마크다운/HTML)이 정해지면 교체. 지금은 줄 단위 텍스트에 **굵게**만 지원한다.
 const NoticeContent = ({ content }: NoticeContentProps) => (
   <div className="text-body-1-regular text-teal-grey-900">
     {content.split('\n').map((line, index) => {
       const bullet = line.startsWith(BULLET);
       const text = bullet ? line.slice(BULLET.length) : line;
-      const parts = text.split(BOLD_SPLIT_PATTERN).map((part, partIndex) => {
-        const bold = BOLD_PATTERN.exec(part)?.[1];
-        return bold ? (
+      const parts = splitBoldSegments(text).map(({ text: part, bold }, partIndex) =>
+        bold ? (
           <strong key={partIndex} className="font-bold">
-            {bold}
+            {part}
           </strong>
         ) : (
           <Fragment key={partIndex}>{part}</Fragment>
-        );
-      });
+        ),
+      );
 
       // 빈 줄도 한 줄 높이를 차지해야 단락 간격이 유지된다
       return bullet ? (

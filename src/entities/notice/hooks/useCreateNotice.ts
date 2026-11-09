@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { createNotice } from '../api/createNotice';
 import { noticeKeys } from '../api/queryKeys';
-import { getTargetParts } from '../lib/noticeKindParts';
+import { toUpmsNoticeType } from '../lib/noticeKindParts';
 import type { NoticeInput, NoticeKind } from '../model/types';
 
 type CreateNoticeVariables = {
@@ -28,9 +28,10 @@ export const useCreateNotice = () => {
             targetInfo: {
               targetGisuId: gisuId,
               targetChapterId: chapterId,
-              targetParts: getTargetParts(kind),
+              targetParts: [],
               targetNoticeTab: 'CHALLENGER',
             },
+            upmsNoticeType: toUpmsNoticeType(kind),
           }),
         ),
       ),

@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { UsersPictogram } from '@umc-product/icons';
 import { Button, Dimmed } from '@umc-product/react';
 import { Dialog } from 'radix-ui';
@@ -9,6 +10,11 @@ import {
   type RecruitPart,
   useProjectDetail,
 } from '@/features/applications';
+import {
+  getProjectMembers,
+  TeamCompositionPanel,
+  toTeamRecruitments,
+} from '@/features/project-list';
 import { ProjectCard } from '@/widgets/card';
 import { CancelApplicationDialog } from '@/widgets/dialog';
 
@@ -29,6 +35,7 @@ type AppliedProjectModalProps = {
   // 지원 취소 확정. 성공하면 부모가 project를 null로 바꿔 모달을 닫음
   onCancelApplication: (project: AppliedProject) => void;
   isCanceling: boolean; // 취소 요청 중 (버튼 중복 클릭 방지)
+  hasMatchingStarted: boolean; // 1차 매칭 기간 이후면 팀원이 없는 파트도 "매칭이 진행 중이에요"로 보임
 };
 
 // 내 지원 현황에서 카드를 누르면 뜨는 모달. 프로젝트 상세 → 내 지원서 보기로 넘어감
@@ -37,14 +44,23 @@ const AppliedProjectModal = ({
   onClose,
   onCancelApplication,
   isCanceling,
+  hasMatchingStarted,
 }: AppliedProjectModalProps) => {
   const [view, setView] = useState<ModalView>('PROJECT');
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [teamPanelOpen, setTeamPanelOpen] = useState(false);
   // 목록 API에 없는 소개 · 로고는 모달을 열 때 프로젝트 상세로 불러옴
   const { data: detail } = useProjectDetail(project?.projectId ?? null);
+  // 팀원 구성도 목록 API에 없어서 팀원 보기를 열 때 불러옴
+  const { data: teamMembers } = useQuery({
+    queryKey: ['project-members', project?.projectId],
+    queryFn: () => getProjectMembers(project!.projectId),
+    enabled: teamPanelOpen && project !== null,
+  });
 
   const close = () => {
     setView('PROJECT');
+    setTeamPanelOpen(false);
     onClose();
   };
 
@@ -86,7 +102,6 @@ const AppliedProjectModal = ({
                 label: PART_LABEL[part],
               }))}
               actions={
-                // TODO: 팀원 보기 연동 (프로젝트 목록의 팀원 구성 패널과 같은 화면, 기획 확인 필요)
                 <>
                   <Button
                     variant="weak"
@@ -94,6 +109,7 @@ const AppliedProjectModal = ({
                     size="md"
                     icon={<UsersPictogram size={30} color="var(--color-icon-subtle)" />}
                     aria-label="팀원 보기"
+                    onClick={() => setTeamPanelOpen(true)}
                   />
                   {/* 기획 링크를 새 탭으로. 상세를 불러오기 전이나 링크가 없으면 비활성 */}
                   <Button
@@ -116,6 +132,13 @@ const AppliedProjectModal = ({
                   )}
                 </>
               }
+            />
+            {/* 프로젝트 목록의 팀원 구성과 같은 패널. 이 모달(radix) 위에 겹쳐 뜸 */}
+            <TeamCompositionPanel
+              open={teamPanelOpen}
+              onOpenChange={setTeamPanelOpen}
+              recruitments={toTeamRecruitments(getVisibleRecruitments(project), teamMembers)}
+              hasMatchingStarted={hasMatchingStarted}
             />
           </Dialog.Content>
         )}

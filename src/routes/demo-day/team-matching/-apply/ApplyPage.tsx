@@ -128,7 +128,7 @@ const ApplyPage = ({ projectId }: ApplyPageProps) => {
           // 제출 완료 창이 떠 있으면 바깥 클릭 · ESC는 그 창에서만 처리
           onInteractOutside={(e) => submitted && e.preventDefault()}
           onEscapeKeyDown={(e) => submitted && e.preventDefault()}
-          className="fixed top-1/2 left-1/2 z-(--umc-z-dimmed) max-h-[calc(100vh-40px)] w-[1000px] max-w-[calc(100vw-40px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[20px] outline-none"
+          className="fixed top-1/2 left-1/2 z-(--umc-z-dimmed) max-h-[calc(100vh-40px)] w-[1000px] max-w-[calc(100vw-40px)] -translate-x-1/2 -translate-y-1/2 scrollbar-none overflow-y-auto rounded-[20px] outline-none"
         >
           <Dialog.Title className="sr-only">
             {project?.projectName ?? '프로젝트'} 지원하기
