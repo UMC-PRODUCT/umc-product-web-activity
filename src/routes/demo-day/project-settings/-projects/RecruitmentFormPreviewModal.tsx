@@ -49,7 +49,7 @@ const RecruitmentFormPreviewModal = ({
         <Dialog.Content
           aria-describedby={undefined}
           onOpenAutoFocus={(e) => e.preventDefault()}
-          className="fixed top-1/2 left-1/2 z-(--umc-z-dimmed) max-h-[calc(100vh-40px)] w-[1000px] max-w-[calc(100vw-40px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[20px] outline-none"
+          className="fixed top-1/2 left-1/2 z-(--umc-z-dimmed) max-h-[calc(100vh-40px)] w-[1000px] max-w-[calc(100vw-40px)] -translate-x-1/2 -translate-y-1/2 scrollbar-none overflow-y-auto rounded-[20px] outline-none"
         >
           <Dialog.Title className="sr-only">모집 문항 미리보기</Dialog.Title>
           <RecruitmentFormPreviewSheet
@@ -58,6 +58,7 @@ const RecruitmentFormPreviewModal = ({
             pmName={pmName}
             schoolName={schoolName}
             logoUrl={logoUrl}
+            onClose={() => onOpenChange(false)}
             description={
               <ProjectRecruitmentSummary
                 description={description}

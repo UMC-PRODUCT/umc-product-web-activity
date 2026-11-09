@@ -2,6 +2,7 @@ export { useChapterNotices } from './hooks/useChapterNotices';
 export { useCreateNotice } from './hooks/useCreateNotice';
 export { useDeleteNotice } from './hooks/useDeleteNotice';
 export { useUpdateNotice } from './hooks/useUpdateNotice';
+export { splitBoldSegments } from './lib/boldSegments';
 export { formatNoticeDate } from './lib/formatNoticeDate';
 export { sortNotices } from './lib/sortNotices';
 export { getHardcodedNotices } from './model/notices';
