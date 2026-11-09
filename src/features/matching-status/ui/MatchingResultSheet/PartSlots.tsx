@@ -28,6 +28,7 @@ type PartSlotsProps = {
   fillBlocked: boolean;
   onMemberClick?: (member: MatchedMember) => void; // 지원서 열기 (→ 매칭 해제). 없으면 조회만
   onAddMemberClick?: () => void;
+  overQuotaAddable?: boolean;
 };
 
 // 파트 하나의 매칭 결과 칸: 매칭된 챌린저 → 남은 빈 자리 → (모집 인원 밖) 빗금 칸
@@ -37,11 +38,13 @@ const PartSlots = ({
   fillBlocked,
   onMemberClick,
   onAddMemberClick,
+  overQuotaAddable = false,
 }: PartSlotsProps) => {
+  const onOverQuotaClick = overQuotaAddable ? onAddMemberClick : undefined;
   const emptyCount = Math.max(0, part.capacity - part.members.length);
   const slotCount = part.members.length + emptyCount;
   const blockedCount = Math.max(
-    onAddMemberClick ? 1 : 0,
+    onOverQuotaClick ? 1 : 0,
     fillBlocked ? MAX_SLOTS - slotCount : Math.min(1, MAX_SLOTS - slotCount),
   );
 
@@ -102,12 +105,12 @@ const PartSlots = ({
         </li>
       ))}
       {Array.from({ length: blockedCount }, (_, index) =>
-        index === 0 && onAddMemberClick ? (
+        index === 0 && onOverQuotaClick ? (
           <li key={`blocked-${index}`} className="-mt-px -mr-px shrink-0 last:mr-0">
             <button
               type="button"
               aria-label={`${part.partLabel} 모집 인원 외 수동 배정하기`}
-              onClick={onAddMemberClick}
+              onClick={onOverQuotaClick}
               className="group relative block h-[34px] w-[124px]"
             >
               <img src={blockedSlot} alt="" width={124} height={34} className="block" />

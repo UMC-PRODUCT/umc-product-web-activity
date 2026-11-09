@@ -30,6 +30,7 @@ type MatchingResultSheetProps = PlatformMatchingResults & {
   ) => void;
   onAddMemberClick?: (project: ProjectMatchingResult, part: PartMatching) => void;
   canAddMember?: (part: PartMatching) => boolean;
+  canAddOverQuota?: (part: PartMatching) => boolean;
 };
 
 // 피그마 매칭 결과 시트: 플랫폼 제목 + 표 머리(차수 범례) + 프로젝트별 매칭 결과
@@ -39,6 +40,7 @@ const MatchingResultSheet = ({
   onMemberClick,
   onAddMemberClick,
   canAddMember,
+  canAddOverQuota,
 }: MatchingResultSheetProps) => (
   <section className="flex w-full flex-col">
     <h3 className="rounded-t-xl border border-b-0 border-teal-300 bg-teal-100 py-2 pr-5 pl-[30px] text-heading-4-semibold text-teal-600">
@@ -78,6 +80,7 @@ const MatchingResultSheet = ({
             onMemberClick={onMemberClick}
             onAddMemberClick={onAddMemberClick}
             canAddMember={canAddMember}
+            canAddOverQuota={canAddOverQuota}
           />
         ))}
       </ul>
