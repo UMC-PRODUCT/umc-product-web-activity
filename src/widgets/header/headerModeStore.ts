@@ -6,6 +6,6 @@ type HeaderModeState = {
 };
 
 export const useHeaderModeStore = create<HeaderModeState>()((set) => ({
-  isDark: false,
+  isDark: window.location.pathname.replace(/\/$/, '') === '/guide',
   setDark: (isDark) => set({ isDark }),
 }));
