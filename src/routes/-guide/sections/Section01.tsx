@@ -8,7 +8,7 @@ const STEPS = ['프로젝트 탐색', '팀 매칭', '지원 · 매칭 현황', '
 
 const Section01 = () => {
   return (
-    <section className="relative min-h-screen min-w-[1440px] overflow-hidden rounded-br-[60px] rounded-bl-[60px] bg-[#020A09]">
+    <section className="relative min-h-screen min-w-[1440px] overflow-hidden rounded-br-[60px] rounded-bl-[60px] bg-[#020A09] pt-header">
       <div className="absolute inset-0 bg-[linear-gradient(133.22deg,rgba(46,209,190,0.16)_8.35%,rgba(46,209,190,0)_48.63%),linear-gradient(90deg,rgba(0,0,0,0.2)_0%,rgba(0,0,0,0.2)_100%)]" />
       <div className="absolute inset-0 overflow-hidden opacity-[0.08]">
         <img

@@ -8,11 +8,11 @@ import {
 
 import { EXTERNAL_LINKS, openExternalLink } from '@/shared/config/externalLinks';
 
+import { useHeaderModeStore } from './headerModeStore';
 import { useHeaderAuth } from './useHeaderAuth';
 
 type HeaderNavItem = { label: string; href: string };
 
-// 피그마 Web/Header: 홈은 로고(DS HeaderHomeLink, Header 기본 logo)로 이동하고 메뉴는 3개
 const NAV_ITEMS: HeaderNavItem[] = [
   { label: '프로젝트', href: EXTERNAL_LINKS.projects },
   { label: '데모데이 매칭', href: '/demo-day' },
@@ -20,12 +20,17 @@ const NAV_ITEMS: HeaderNavItem[] = [
 ];
 
 const Header = () => {
+  const isDark = useHeaderModeStore((state) => state.isDark);
   const { pathname, profileMenu, showLogin, handleLogin, handleLogout } = useHeaderAuth({
     logoutReturnTo: '/guide',
+    loginRedirectTo: '/demo-day',
   });
 
-  return (
+  const isGuide = pathname === '/guide';
+
+  const header = (
     <HeaderDesktop
+      mode={isDark ? 'dark' : 'light'}
       logo={<HeaderHomeLink context="activity" generation={11} href="/" />}
       navItems={NAV_ITEMS}
       currentPath={pathname}
@@ -52,6 +57,12 @@ const Header = () => {
       }
     />
   );
+
+  if (isGuide) {
+    return <div className="fixed top-0 left-0 z-50 w-full">{header}</div>;
+  }
+
+  return header;
 };
 
 export default Header;
