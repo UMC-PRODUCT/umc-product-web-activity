@@ -1,6 +1,7 @@
 export { uploadApplicationFile } from './api/uploadApplicationFile';
 export { useApplicationDetail } from './hooks/useApplicationDetail';
 export { useCancelApplication } from './hooks/useCancelApplication';
+export { useEditApplication } from './hooks/useEditApplication';
 export { useMyApplications } from './hooks/useMyApplications';
 export { useProjectDetail } from './hooks/useProjectDetail';
 export { useSubmitApplication } from './hooks/useSubmitApplication';
