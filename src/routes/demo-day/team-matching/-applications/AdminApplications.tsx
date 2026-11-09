@@ -25,13 +25,15 @@ import {
   useApplicationStatistics,
 } from '@/features/application-stats';
 import { BLOCKED_CHAPTER_MESSAGE, ServerChapterSelect } from '@/features/chapter-select';
+import { toSchoolMatchedCounts, useChapterMatchingStatistics } from '@/features/matching-status';
 import { useDebouncedValue } from '@/shared/lib/useDebouncedValue';
 import { FilterDropdownGroup } from '@/widgets/filterDropdownGroup';
 import { SearchBar } from '@/widgets/searchBar';
-import { useAppToast } from '@/widgets/toast';
 
 import { getBreadcrumbs } from '../-shared/constants';
 import UpdatedAtCaption from '../-shared/UpdatedAtCaption';
+import { useOneLineToast } from '../-shared/useOneLineToast';
+import ApplicantApplicationModal from './ApplicantApplicationModal';
 import ProjectApplicantsModal from './ProjectApplicantsModal';
 import { useApplicantStatusControl } from './useApplicantStatusControl';
 import { useCurrentMatchingRound } from './useCurrentMatchingRound';
@@ -52,7 +54,7 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
   } = useChapters(gisuId);
   // 지부 탭에는 전 지부를 보여 주고, 학교 운영진은 소속 지부만 고를 수 있음
   const chapters = allChapters;
-  const toast = useAppToast();
+  const toast = useOneLineToast();
   // 고르기 전에는 initialChapterId → 소속 지부 → 첫 지부
   const [selectedChapterId, setSelectedChapterId] = useState<number | null>(
     initialChapterId ?? null,
@@ -73,6 +75,10 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
   const [filters, setFilters] = useState(INITIAL_APPLICATION_FILTERS);
   const [page, setPage] = useState(1);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [openedApplicant, setOpenedApplicant] = useState<{
+    projectId: number;
+    applicantId: string;
+  } | null>(null);
 
   // 학교 필터는 고른 지부 소속 학교 (값은 학교 ID)
   const filterDropdowns = APPLICATION_FILTERS.map((filter) =>
@@ -112,6 +118,14 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
     ),
   }));
   const selectedGroup = groups.find(({ project }) => project.projectId === selectedProjectId);
+  const openedGroup = openedApplicant
+    ? groups.find(({ project }) => project.projectId === openedApplicant.projectId)
+    : undefined;
+  const openedApplicantRow =
+    openedGroup?.applicants.find(
+      ({ applicantId }) => applicantId === openedApplicant?.applicantId,
+    ) ?? null;
+  const canOpenApplication = canReadApplication && canManageChapter && !isModalLocked;
 
   // 01 지원 통계: 지부 통계에서 지금 매칭 종류(Plan-Design · Plan-PE)와 차수만 골라 보여 줌
   // 프로젝트 · 학교 이름은 통계 응답에 같이 옴
@@ -119,6 +133,8 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
   // 지금 매칭 종류 · 차수는 서버가 알려 준 값을 쓰고, 진행 중인 차수가 없으면 지부 일정으로 정함
   const scheduleRound = useCurrentMatchingRound(chapterId);
   const current = (statistics.data && getCurrentRound(statistics.data)) ?? scheduleRound;
+  const matchingStatistics = useChapterMatchingStatistics(chapterId);
+  const schoolMatched = matchingStatistics.data && toSchoolMatchedCounts(matchingStatistics.data);
 
   // 지부 · 검색어 · 필터를 바꾸면 첫 페이지부터
   const handleChapterChange = (nextChapterId: number) => {
@@ -197,7 +213,14 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <TotalApplicantsCard {...toTotalApplicants(statistics.data, current.round)} />
+                    <TotalApplicantsCard
+                      {...toTotalApplicants(
+                        statistics.data,
+                        current.type,
+                        current.round,
+                        schoolMatched,
+                      )}
+                    />
                   </div>
                 </div>
                 <ProjectApplicationsChart projects={toProjectApplications(statistics.data)} />
@@ -261,6 +284,13 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
                         ? ({ project }) => setSelectedProjectId(project.projectId)
                         : undefined
                     }
+                    onApplicantClick={
+                      canOpenApplication
+                        ? ({ project }, { applicantId }) =>
+                            setOpenedApplicant({ projectId: project.projectId, applicantId })
+                        : undefined
+                    }
+                    canOpenApplicant={isCurrentRound}
                   />
                 )}
               </div>
@@ -290,6 +320,21 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
         canReadApplication={canReadApplication && canManageChapter}
         canOpenApplicant={isCurrentRound}
       />
+      {openedGroup && (
+        <ApplicantApplicationModal
+          project={openedGroup.project}
+          applicant={openedApplicantRow}
+          chapterName={chapterName}
+          onClose={() => setOpenedApplicant(null)}
+          onStatusChange={statusControl.changeStatus(openedGroup.project.projectId)}
+          canChangeStatus={
+            openedApplicantRow !== null &&
+            canManageChapter &&
+            statusControl.canChangeStatus(openedGroup.project.projectId)(openedApplicantRow)
+          }
+          isUpdatingStatus={statusControl.isUpdating}
+        />
+      )}
     </main>
   );
 };
