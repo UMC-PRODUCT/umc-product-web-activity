@@ -10,7 +10,7 @@ import { getProfileGisuIds, toProfileMenu } from './toProfileMenu';
 
 const LOGIN_PATH = '/login';
 
-export const useHeaderAuth = () => {
+export const useHeaderAuth = (options?: { logoutReturnTo?: string }) => {
   const pathname = useLocation({ select: (l) => l.pathname });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -38,11 +38,12 @@ export const useHeaderAuth = () => {
   };
 
   const handleLogout = () => {
+    const returnPath = options?.logoutReturnTo ?? LOGIN_PATH;
     // 리다이렉트 전에 캐시를 비우면 빈 화면이 한 프레임 보여서, logout 이후에 비운다
     void getSsoClient()
       .logout({
         global: true,
-        returnTo: `${window.location.origin}${LOGIN_PATH}`,
+        returnTo: `${window.location.origin}${returnPath}`,
       })
       .finally(() => {
         queryClient.clear();
