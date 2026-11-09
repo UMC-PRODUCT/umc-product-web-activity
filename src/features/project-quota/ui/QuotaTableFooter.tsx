@@ -1,0 +1,106 @@
+import type { components } from '@/types/api';
+
+type Column = NonNullable<components['schemas']['Column']>;
+
+type Props = {
+  columns: Column[];
+  partTotal: (part: string) => number;
+  partQuota: (part: string) => number;
+};
+
+const QuotaTableFooter = ({ columns, partTotal, partQuota }: Props) => {
+  const totalDiff = columns.reduce(
+    (sum, col) => sum + partTotal(col.part!) - partQuota(col.part!),
+    0,
+  );
+
+  return (
+    <table className="w-auto min-w-full border-collapse">
+      <tfoot>
+        <tr className="flex">
+          <td className="flex w-[170px] shrink-0 cursor-pointer items-center justify-center border-r border-teal-grey-200 bg-fill-primary-weak-75 py-4">
+            <span className="text-[18px] leading-[1.4] font-semibold tracking-[-0.18px] text-teal-grey-900">
+              TO 합계
+            </span>
+          </td>
+          {columns.map((col) => (
+            <td
+              key={col.part}
+              className="flex w-[186.75px] shrink-0 cursor-pointer items-center justify-center gap-0.25 border-x border-teal-grey-200 bg-fill-primary-weak-75 py-4"
+            >
+              <span className="text-[18px] leading-[1.4] font-semibold tracking-[-0.36px] text-teal-600">
+                {partTotal(col.part!)}
+              </span>
+              <span className="text-title-3-medium text-teal-grey-500">명</span>
+            </td>
+          ))}
+          <td className="flex min-w-[150px] flex-1 cursor-pointer items-center justify-center border-l border-teal-grey-200 bg-fill-primary-medium-100 py-4">
+            <div className="flex items-start gap-0.5 text-[18px] leading-[1.4]">
+              <span className="font-semibold tracking-[-0.36px] text-teal-600">
+                총 {columns.reduce((sum, col) => sum + partTotal(col.part!), 0)}
+              </span>
+              <span className="font-medium text-teal-grey-500">명</span>
+            </div>
+          </td>
+        </tr>
+        <tr className="flex">
+          <td className="flex w-[170px] shrink-0 cursor-pointer items-center justify-center border-r border-teal-grey-200 bg-teal-grey-75 py-4">
+            <span className="text-[18px] leading-[1.4] font-semibold tracking-[-0.18px] text-teal-grey-700">
+              {/* 배정 현황 */}
+            </span>
+          </td>
+          {columns.map((col) => {
+            const diff = partTotal(col.part!) - partQuota(col.part!);
+            return (
+              <td
+                key={col.part}
+                className={`flex w-[186.75px] shrink-0 cursor-pointer items-center justify-center border-x border-teal-grey-200 py-4 ${diff !== 0 ? 'bg-fill-error-weak-50' : 'bg-teal-grey-75'}`}
+              >
+                {diff === 0 ? (
+                  <span className="text-[18px] leading-[1.4] font-medium text-teal-grey-500">
+                    일치
+                  </span>
+                ) : diff > 0 ? (
+                  <span className="text-[20px] leading-[1.4] font-medium text-red-300">
+                    <span className="text-[20px] font-semibold text-error">{diff}명 많음</span>
+                  </span>
+                ) : (
+                  <span className="text-[20px] leading-[1.4] font-medium text-red-500">
+                    <span className="text-[20px] font-semibold text-error">
+                      {Math.abs(diff)}명 적음
+                    </span>
+                  </span>
+                )}
+              </td>
+            );
+          })}
+          <td
+            className={`relative flex min-w-[150px] flex-1 cursor-pointer items-center justify-center overflow-hidden border-l border-teal-grey-200 ${totalDiff !== 0 ? 'bg-fill-error-weak-50' : 'bg-teal-grey-75'}`}
+          >
+            {totalDiff === 0 ? (
+              <svg
+                className="absolute inset-0 h-full w-full"
+                preserveAspectRatio="none"
+                viewBox="0 0 140 57"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <line x1="0.19" y1="-0.46" x2="140.19" y2="56.54" stroke="#CCCCCC" />
+              </svg>
+            ) : totalDiff > 0 ? (
+              <span className="text-title-3-medium leading-[1.4] text-red-500">
+                총<span className="text-[20px] font-semibold">{totalDiff}</span>명 많음
+              </span>
+            ) : (
+              <span className="text-title-3-medium leading-[1.4] text-red-500">
+                총<span className="text-[20px] font-semibold">{Math.abs(totalDiff)}</span>명 적음
+              </span>
+            )}
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  );
+};
+
+export default QuotaTableFooter;

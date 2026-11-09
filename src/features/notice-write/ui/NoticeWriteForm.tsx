@@ -1,0 +1,120 @@
+import { CheckPictogram } from '@umc-product/icons';
+import { Button, Checkbox, OptionButtonGroup } from '@umc-product/react';
+import { useState } from 'react';
+
+import { NoticeCard, type NoticeInput } from '@/entities/notice';
+import NoticeDialog from '@/shared/ui/NoticeDialog';
+
+import NoticeContentEditor from './NoticeContentEditor';
+import NoticeTitleInput from './NoticeTitleInput';
+
+// 확인창 → 등록 요청(로딩) 순서로 바뀐다
+type SubmitStatus = 'idle' | 'confirming' | 'submitting';
+
+type ChapterOption = { id: string; name: string; disabled?: boolean };
+
+type NoticeWriteFormProps = {
+  chapters: ChapterOption[]; // 전 지부. 고를 수 없는 지부는 disabled (지부장은 본인 지부만 선택 가능)
+  initialChapterIds: string[];
+  // 등록 요청이 끝날 때까지 로딩을 보여준다. 실패하면(throw) 로딩을 풀고 확인창을 닫는다
+  onSubmit: (input: NoticeInput, chapterIds: string[]) => void | Promise<void>;
+  onTitleExceed: () => void;
+  onBlockedChapterClick?: () => void; // 고를 수 없는 지부를 눌렀을 때 (안내 토스트)
+};
+
+// 피그마 '공지 작성': 위에 지부 선택·필독·작성 완료, 아래 카드에 제목과 본문
+const NoticeWriteForm = ({
+  chapters,
+  initialChapterIds,
+  onSubmit,
+  onTitleExceed,
+  onBlockedChapterClick,
+}: NoticeWriteFormProps) => {
+  const [chapterIds, setChapterIds] = useState(initialChapterIds);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [required, setRequired] = useState(false);
+  const [status, setStatus] = useState<SubmitStatus>('idle');
+
+  // 지부, 제목, 내용이 모두 있어야 작성 완료할 수 있다
+  const canSubmit = chapterIds.length > 0 && title.trim() !== '' && content.trim() !== '';
+
+  const handleConfirm = async () => {
+    setStatus('submitting');
+    try {
+      await onSubmit({ title: title.trim(), content, required }, chapterIds);
+    } catch {
+      setStatus('idle');
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-6 px-3">
+          <span className="text-[18px] leading-[1.4] text-teal-grey-800">지부 선택</span>
+          {/* 비활성 지부를 눌러도 클릭은 올라오므로 감싼 영역에서 받아 안내 */}
+          <div
+            onClick={(event) => {
+              const blockedOption = (event.target as HTMLElement).closest(
+                '[role="checkbox"][data-disabled]',
+              );
+              if (blockedOption) onBlockedChapterClick?.();
+            }}
+          >
+            <OptionButtonGroup
+              type="multiple"
+              size="sm"
+              aria-label="지부 선택"
+              options={chapters.map(({ id, name, disabled }) => ({
+                value: id,
+                label: name,
+                disabled,
+              }))}
+              value={chapterIds}
+              onValueChange={setChapterIds}
+            />
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          {/* 피그마: 체크 전 테두리는 Neutral, 체크하면 Brand로 채워진다. DS는 색을 둘이 묶어서 채움 색만 덮어씀 */}
+          <Checkbox
+            color="neutral"
+            className="[--umc-checkbox-checked-bg:var(--umc-color-fill-primary-inverse-medium-500)]"
+            labelPlacement="end"
+            checked={required}
+            onCheckedChange={setRequired}
+          >
+            필독
+          </Checkbox>
+          <Button
+            size="xs"
+            disabled={!canSubmit}
+            isLoading={status === 'submitting'}
+            onClick={() => setStatus('confirming')}
+          >
+            작성 완료
+          </Button>
+        </div>
+      </div>
+
+      <NoticeCard className="flex min-h-[560px] flex-col pb-6">
+        <div className="flex items-center pt-7 pr-8 pb-6 pl-[38px]">
+          <NoticeTitleInput value={title} onChange={setTitle} onExceed={onTitleExceed} />
+        </div>
+        <NoticeContentEditor value={content} onChange={setContent} className="flex-1" />
+      </NoticeCard>
+
+      <NoticeDialog
+        open={status === 'confirming'}
+        icon={<CheckPictogram size={24} />}
+        title="공지를 등록할까요?"
+        description="등록되는 즉시 챌린저와 운영진이 확인 할 수 있어요"
+        onConfirm={handleConfirm}
+        onDismiss={() => setStatus('idle')}
+      />
+    </div>
+  );
+};
+
+export default NoticeWriteForm;

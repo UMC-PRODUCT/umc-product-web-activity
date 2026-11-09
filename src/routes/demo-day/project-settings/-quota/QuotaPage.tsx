@@ -1,0 +1,464 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { InfoIcon, WarningTriangleIcon } from '@umc-product/icons';
+import {
+  Button,
+  Dialog,
+  PageHeader,
+  SearchField,
+  SectionHeader,
+  SegmentedControl,
+  type SelectOption,
+} from '@umc-product/react';
+import { useEffect, useRef, useState } from 'react';
+import { useDebounce } from 'use-debounce';
+
+import { useChapters } from '@/entities/chapter';
+import { useProjectSettingsAccess, useSessionStore } from '@/entities/session';
+import {
+  type DraftValues,
+  PartStatCard,
+  QuotaTableFooter,
+  QuotaTableRow,
+} from '@/features/project-quota';
+import type { ProjectRow } from '@/features/project-quota/api/getPartQuotas';
+import { partQuotasQueryOptions } from '@/features/project-quota/api/partQuotasQuery';
+import {
+  savePartQuotas,
+  type SavePartQuotasRequest,
+} from '@/features/project-quota/api/savePartQuotas';
+import { formatSchoolName } from '@/shared/lib/formatSchoolName';
+import SelectDropdown from '@/widgets/filterDropdownGroup/SelectDropdown';
+import { useAppToast } from '@/widgets/toast';
+
+const BREADCRUMBS = [
+  { label: '데모데이 매칭', href: '/demo-day' },
+  { label: '프로젝트 설정', href: '/demo-day/project-settings/notice' },
+  { label: '프로젝트 TO 관리' },
+];
+
+const initDraftFromProjects = (projects: ProjectRow[]): DraftValues =>
+  Object.fromEntries(
+    projects.map((p) => [
+      String(p.projectId!),
+      Object.fromEntries((p.cells ?? []).map((c) => [c.part!, Number(c.quota ?? 0)])),
+    ]),
+  );
+
+type QuotaPageProps = {
+  initialChapterId?: number;
+  onChapterChange?: (chapterId: number) => void;
+};
+
+const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
+  const hasFullAccess = useProjectSettingsAccess() === 'FULL';
+  const gisuId = useSessionStore((s) => s.session.gisuId);
+  const role = useSessionStore((s) => s.session.role);
+  const serverChapterId = useSessionStore((s) => s.session.serverChapterId);
+  const isChapterLeader = role === 'CHAPTER_ADMIN';
+
+  // 지부 선택
+  const [selectedChapterId, setSelectedChapterId] = useState<number | undefined>(
+    initialChapterId ?? (isChapterLeader ? (serverChapterId ?? undefined) : undefined),
+  );
+
+  const { data: chaptersData } = useChapters(gisuId ?? null);
+  const chapterId = selectedChapterId ?? chaptersData?.[0]?.id;
+
+  const hasSetDefault = useRef(false);
+  useEffect(() => {
+    if (initialChapterId !== undefined || hasSetDefault.current || chapterId === undefined) return;
+    hasSetDefault.current = true;
+    onChapterChange?.(chapterId);
+  }, [chapterId, initialChapterId, onChapterChange]);
+
+  // 지부장은 본인 지부만 수정 가능, 타 지부는 조회만 가능
+  const canEdit = hasFullAccess && (!isChapterLeader || chapterId === serverChapterId);
+
+  // 검색 및 필터
+  const [search, setSearch] = useState('');
+  const [debouncedSearch] = useDebounce(search, 300);
+  const [schoolIds, setSchoolIds] = useState<string[]>([]);
+  const schoolId = schoolIds.length > 0 ? Number(schoolIds[0]) : undefined;
+
+  const { data, isError, isPending } = useQuery(
+    partQuotasQueryOptions({
+      gisuId: gisuId ?? 0,
+      chapterId: chapterId,
+      keyword: debouncedSearch || undefined,
+      schoolId,
+    }),
+  );
+
+  const columns = data?.columns ?? [];
+  const projects = data?.projects ?? [];
+  const allColumnsLocked =
+    columns.length > 0 && columns.every((col) => col.canEdit?.allowed === false);
+
+  // 테이블 편집 상태
+  const [prevChapterId, setPrevChapterId] = useState<number | undefined>(undefined);
+  const [saved, setSaved] = useState<DraftValues>({});
+  const [draft, setDraft] = useState<DraftValues>({});
+  const [editingCell, setEditingCell] = useState<{ projectId: string; part: string } | null>(null);
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const toast = useAppToast();
+  const showToast = (msg: string, opts?: Parameters<typeof toast.show>[1]) =>
+    toast.show(<span className="toast-nowrap">{msg}</span>, opts);
+  const queryClient = useQueryClient();
+
+  const { mutate: saveMutate, isPending: isSaving } = useMutation({
+    mutationFn: ({
+      isUnder: _,
+      skipToast: __,
+      ...body
+    }: SavePartQuotasRequest & { isUnder: boolean; skipToast?: boolean }) => savePartQuotas(body),
+    onSuccess: (_, { isUnder, skipToast }) => {
+      setSaved(draft);
+      setEditingCell(null);
+      if (!skipToast)
+        showToast(
+          isUnder ? '임시 저장 됐어요. 현재 파트 인원보다 TO가 적어요.' : '저장되었어요',
+          isUnder ? { color: 'neutral' } : undefined,
+        );
+      queryClient.invalidateQueries({ queryKey: ['part-quotas'] });
+      // 프로젝트 수정/상세 화면에 TO 변경이 반영되도록 관련 캐시도 무효화
+      queryClient.invalidateQueries({ queryKey: ['project'] });
+      queryClient.invalidateQueries({ queryKey: ['project-edit'] });
+      queryClient.invalidateQueries({ queryKey: ['project-draft'] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['managed-projects'] });
+    },
+    onError: () => {
+      showToast('TO는 배정 인원(발표 대기 포함) 이상으로 설정해 주세요.', { color: 'error' });
+    },
+  });
+
+  // 지부 바뀔 때 draft 초기화 (render phase state update 패턴)
+  if (data?.chapterId !== undefined && data.chapterId !== prevChapterId) {
+    setPrevChapterId(data.chapterId);
+    const initial = initDraftFromProjects(data.projects ?? []);
+    setSaved(initial);
+    setDraft(initial);
+  }
+
+  const schoolOptions: SelectOption[] = (data?.schools ?? []).map((s) => ({
+    value: String(s.schoolId!),
+    label: formatSchoolName(s.schoolName),
+  }));
+
+  // 집계
+  const partTotal = (part: string) =>
+    projects.reduce((sum, p) => sum + (draft[String(p.projectId!)]?.[part] ?? 0), 0);
+  const partTotalAll = (part: string) =>
+    Number(data?.summary?.find((s) => s.part === part)?.availableCount ?? 0);
+  const partQuota = (part: string) =>
+    Number(data?.filteredSummary?.find((s) => s.part === part)?.availableCount ?? 0);
+
+  const handleCellClick = (projectId: string, part: string, disabled: boolean) => {
+    const isLocked = columns.find((c) => c.part === part)?.canEdit?.allowed === false;
+    if (!canEdit || isLocked || disabled) return;
+    setEditingCell({ projectId, part });
+    setTimeout(() => inputRef.current?.select(), 0);
+  };
+
+  const handleCellChange = (projectId: string, part: string, value: string) => {
+    const num = parseInt(value, 10);
+    setDraft((prev) => ({
+      ...prev,
+      [projectId]: { ...prev[projectId], [part]: isNaN(num) || num < 0 ? 0 : num },
+    }));
+  };
+
+  const handleCellBlur = () => setEditingCell(null);
+
+  const handleSave = () => {
+    if (!data?.chapterId) return;
+
+    const isPartOver = columns.some((col) => partTotal(col.part!) > partQuota(col.part!));
+    if (isPartOver) {
+      showToast('파트 인원보다 TO가 많아요. 초과한 파트의 TO를 줄여 주세요.', { color: 'error' });
+      return;
+    }
+
+    const isUnder = columns
+      .filter((col) => col.canEdit?.allowed === true)
+      .some((col) => partTotal(col.part!) < partQuota(col.part!));
+
+    type CellPart = SavePartQuotasRequest['projects'][0]['entries'][0]['part'];
+
+    const changedProjects = Object.entries(draft)
+      .map(([projectId, parts]) => {
+        const savedParts = saved[projectId] ?? {};
+        const entries = Object.entries(parts)
+          .filter(([part, quota]) => quota !== savedParts[part])
+          .map(([part, quota]) => ({ part: part as CellPart, quota }));
+        return entries.length > 0 ? { projectId: Number(projectId), entries } : null;
+      })
+      .filter((p): p is NonNullable<typeof p> => p !== null);
+
+    if (changedProjects.length === 0) return;
+
+    saveMutate({
+      isUnder,
+      gisuId: gisuId ?? 0,
+      chapterId: Number(data.chapterId),
+      projects: changedProjects,
+    });
+  };
+
+  const chapterItems = (chaptersData ?? []).map((c) => ({
+    value: String(c.id),
+    label: c.name,
+  }));
+
+  const handleReset = () => {
+    if (!data?.chapterId) return;
+
+    const resetDraft = Object.fromEntries(
+      projects.map((p) => {
+        const projectId = String(p.projectId!);
+        const cells = p.cells ?? [];
+        return [
+          projectId,
+          Object.fromEntries(cells.map((c) => [c.part!, Number(c.resetQuota ?? 0)])),
+        ];
+      }),
+    );
+    setDraft(resetDraft);
+
+    type CellPart = SavePartQuotasRequest['projects'][0]['entries'][0]['part'];
+
+    const changedProjects = Object.entries(resetDraft)
+      .map(([projectId, parts]) => {
+        const savedParts = saved[projectId] ?? {};
+        const entries = Object.entries(parts)
+          .filter(([part, quota]) => quota !== savedParts[part])
+          .map(([part, quota]) => ({ part: part as CellPart, quota }));
+        return entries.length > 0 ? { projectId: Number(projectId), entries } : null;
+      })
+      .filter((p): p is NonNullable<typeof p> => p !== null);
+
+    if (changedProjects.length === 0) {
+      showToast('프로젝트 전체 TO가 초기화되었어요.', { color: 'neutral' });
+      return;
+    }
+
+    saveMutate(
+      {
+        isUnder: false,
+        skipToast: true,
+        gisuId: gisuId ?? 0,
+        chapterId: Number(data.chapterId),
+        projects: changedProjects,
+      },
+      { onSuccess: () => toast.show('프로젝트 전체 TO가 초기화되었어요.', { color: 'neutral' }) },
+    );
+  };
+
+  return (
+    <>
+      <main className="flex min-w-[1082px] flex-col items-start gap-8 px-8 pt-12 pb-20">
+        <PageHeader
+          className="w-full max-w-[1082px]"
+          breadcrumbs={BREADCRUMBS}
+          title="프로젝트 TO 관리"
+          description="지부 별 전체 프로젝트 TO를 한번에 관리할 수 있어요."
+        />
+
+        <div className="flex w-full max-w-[1082px] flex-col">
+          <SegmentedControl
+            aria-label="지부 선택"
+            items={chapterItems}
+            value={String(chapterId ?? '')}
+            onValueChange={(v) => {
+              const nextId = Number(v);
+              setSelectedChapterId(nextId);
+              setSchoolIds([]);
+              onChapterChange?.(nextId);
+            }}
+            className="[&_[role=radio]:not([data-checked])]:text-teal-600"
+          />
+
+          <section className="mt-8 flex flex-col">
+            <SectionHeader title="파트별 인원 현황" />
+            <div className="mt-3 flex gap-2.5">
+              {columns.map((col) => (
+                <PartStatCard
+                  key={col.part}
+                  title={col.label ?? ''}
+                  count={partTotalAll(col.part!)}
+                />
+              ))}
+            </div>
+          </section>
+
+          <section className="flex flex-col">
+            <div className="mt-16 flex flex-col">
+              <SectionHeader title="프로젝트별 파트 TO" />
+              <span className="mt-1.5 mb-6 pl-1.5 text-body-2-regular text-teal-grey-600">
+                매칭이 시작되면 프로젝트TO를 수정할 수 없어요
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <SearchField
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="프로젝트 명으로 검색하세요"
+                className="w-114"
+              />
+
+              <div className="flex items-center gap-2">
+                <SelectDropdown
+                  label="학교"
+                  options={schoolOptions}
+                  value={schoolIds}
+                  onValueChange={setSchoolIds}
+                  className="w-auto shrink-0 [&_.umc-select\_\_trigger]:rounded-xl [&_.umc-select\_\_trigger]:[--umc-select-placeholder-color:var(--umc-color-text-neutral-default-900)]"
+                />
+                {canEdit && (
+                  <>
+                    <Button
+                      variant="fill"
+                      color="white"
+                      size="sm"
+                      onClick={() => setResetConfirmOpen(true)}
+                      isLoading={isSaving}
+                      className={
+                        isSaving || allColumnsLocked
+                          ? 'h-11'
+                          : 'h-11 text-teal-grey-900 [--umc-button-border-pressed:var(--umc-color-teal-grey-300)] [--umc-button-border:var(--umc-color-teal-grey-300)]'
+                      }
+                      disabled={allColumnsLocked}
+                    >
+                      초기화
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="h-11"
+                      disabled={allColumnsLocked}
+                      isLoading={isSaving}
+                      onClick={handleSave}
+                    >
+                      저장
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-8 overflow-hidden rounded-xl border border-teal-grey-200">
+              <div className="overflow-x-auto">
+                <table className="w-auto min-w-full border-collapse">
+                  <thead>
+                    <tr className="flex bg-teal-grey-100">
+                      <th className="flex w-[170px] shrink-0 cursor-pointer flex-col items-center justify-center gap-1 border border-t-0 border-l-0 border-teal-300 bg-teal-50">
+                        <span className="text-heading-3-semibold leading-[1.4] tracking-[-0.4px] text-teal-600">
+                          {data?.chapterName ?? ''} 지부
+                        </span>
+                        <span className="text-body-2-medium leading-normal tracking-[-0.15px] text-teal-grey-500">
+                          총 {data?.totalProjectCount ?? 0}개 팀
+                        </span>
+                      </th>
+                      {columns.map((col) => (
+                        <th
+                          key={col.part}
+                          className="flex w-[186.75px] shrink-0 flex-col items-center justify-center gap-1 border-b-2 border-teal-500 bg-fill-primary-weaker-50 pt-3 pb-4"
+                        >
+                          <span className="text-title-2-semibold leading-[1.4] tracking-[-0.2px] text-neutral-strong-800">
+                            {col.label}
+                          </span>
+                          <span className="text-heading-4-semibold leading-[1.4] tracking-[-0.36px] text-teal-600">
+                            {partTotal(col.part!)}명
+                          </span>
+                        </th>
+                      ))}
+                      <th className="flex min-w-[150px] flex-1 cursor-pointer flex-col items-center justify-center border border-t-0 border-r-0 border-teal-grey-300 bg-fill-neutral-medium-100 pt-3 pb-4">
+                        <span className="text-[20px] leading-[1.4] font-semibold tracking-[-0.2px] whitespace-nowrap text-teal-grey-800">
+                          합계 인원
+                        </span>
+                      </th>
+                    </tr>
+                  </thead>
+                </table>
+
+                <div className="max-h-[510px] scrollbar-none overflow-y-auto">
+                  {isError ? (
+                    <div className="flex w-full flex-col items-center justify-center gap-2 py-[74px] text-teal-grey-600">
+                      <h3 className="text-body-1-semibold">데이터를 불러오지 못했어요</h3>
+                      <p className="text-body-3-regular">잠시 후 다시 시도해 주세요.</p>
+                    </div>
+                  ) : isPending ? (
+                    <div className="flex w-full items-center justify-center py-[74px]">
+                      <span
+                        aria-label="로딩 중"
+                        className="size-6 animate-spin rounded-full border-2 border-teal-grey-200 border-t-teal-500"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <table className="w-auto min-w-full border-collapse">
+                        <tbody>
+                          {projects.map((project) => (
+                            <QuotaTableRow
+                              key={project.projectId}
+                              project={project}
+                              values={draft[String(project.projectId!)]}
+                              columns={columns}
+                              editingCell={editingCell}
+                              inputRef={inputRef}
+                              canEdit={canEdit}
+                              onCellClick={handleCellClick}
+                              onCellChange={handleCellChange}
+                              onCellBlur={handleCellBlur}
+                            />
+                          ))}
+                        </tbody>
+                      </table>
+
+                      {projects.length === 0 && (
+                        <div className="flex flex-col items-center justify-center gap-2 py-[74px] text-teal-grey-600">
+                          <h3 className="text-body-1-semibold">검색 결과가 없어요</h3>
+                          <p className="text-body-3-regular">
+                            프로젝트명을 확인하고 다시 검색해 보세요.
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <QuotaTableFooter columns={columns} partTotal={partTotal} partQuota={partQuota} />
+              </div>
+            </div>
+          </section>
+        </div>
+        <div className="flex items-center gap-1">
+          <InfoIcon size={20} color="gray" />
+          <p className="text-neutral-weak-500">
+            TO 합계는 각 프로젝트에 입력한 TO를 파트별로 더한 값이에요. 표 상단의{' '}
+            <span className="underline">파트별 인원과 TO 합계가 같도록</span> TO를 입력해 주세요.
+          </p>
+        </div>
+      </main>
+
+      <Dialog
+        open={resetConfirmOpen}
+        onOpenChange={(open) => !open && setResetConfirmOpen(false)}
+        color="error"
+        icon={<WarningTriangleIcon weight="fill" />}
+        title="프로젝트별 TO를 초기화할까요?"
+        description="초기화하면 PM을 제외한 Design, Web PE, Mobile PE의 프로젝트 TO가 모두 0으로 변경돼요."
+        cancelLabel="취소"
+        confirmLabel="초기화"
+        onConfirm={() => {
+          setResetConfirmOpen(false);
+          handleReset();
+        }}
+      />
+    </>
+  );
+};
+
+export default QuotaPage;

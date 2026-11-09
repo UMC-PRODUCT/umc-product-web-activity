@@ -1,0 +1,155 @@
+import type {
+  ChapterScope,
+  ProjectRegisterAccess,
+  ProjectSettingsAccess,
+  Role,
+  Session,
+  View,
+} from '../model/types';
+
+const FULL_ACCESS_ROLES: Role[] = ['SUPER_ADMIN', 'HQ_LEAD', 'HQ_ADMIN', 'CHAPTER_ADMIN'];
+// 11기 권한표: 학교회장단 · 학교운영진은 프로젝트 설정 접근 불가, PM은 본인 프로젝트 관리만
+const BASIC_ACCESS_ROLES: Role[] = ['CHALLENGER_PM'];
+
+export type ViewOption = { value: View; label: string };
+
+// 어드민이 챌린저를 겸직할 때만 뷰 전환을 준다. 어드민 권한만 있으면 Admin View만 본다.
+// - 어드민 + PM(PLAN) → Admin View ↔ PM Challenger View
+// - 어드민 + 일반 챌린저(WEB · MOBILE · DESIGN 등) → Admin View ↔ Challenger View
+export const getViewOptions = ({
+  challengerType,
+}: Pick<Session, 'challengerType'>): ViewOption[] => {
+  if (!challengerType) return [];
+
+  return [
+    { value: 'ADMIN', label: 'Admin View' },
+    challengerType === 'PM'
+      ? { value: 'PM_CHALLENGER', label: 'PM Challenger View' }
+      : { value: 'CHALLENGER', label: 'Challenger View' },
+  ];
+};
+
+const CHALLENGER_ROLES: Role[] = ['CHALLENGER_PM', 'CHALLENGER'];
+
+// 마스터·중앙운영진은 전 지부, 지부장·학교 운영진은 소속 지부만 조회
+const ALL_CHAPTER_ROLES: Role[] = ['SUPER_ADMIN', 'HQ_LEAD', 'HQ_ADMIN'];
+
+export const getChapterScope = (role: Role): ChapterScope =>
+  ALL_CHAPTER_ROLES.includes(role) ? 'ALL' : 'OWN';
+
+// 지원 현황 페이지에서 보여줄 화면. 운영진은 선택한 뷰를, 챌린저는 자기 유형의 화면을 본다.
+export const getApplicationsView = (role: Role, view: View): View => {
+  if (view !== 'ADMIN') return view;
+  if (role === 'CHALLENGER_PM') return 'PM_CHALLENGER';
+  if (CHALLENGER_ROLES.includes(role)) return 'CHALLENGER';
+  return 'ADMIN';
+};
+
+// 피그마 '합/불 수정 가능 여부 정리': 지원자 배정 상태(합격·불합격·대기)를 바꿀 수 있는 역할
+// 매칭 기간 안인지는 차수별로 따로 확인
+// - 마스터(SUPER_ADMIN · HQ_LEAD): 전체 / 지부장: 본인 지부 프로젝트만 / 학교 운영진: 조회만
+// - PM: 본인 프로젝트만 (PM 뷰에는 본인 프로젝트만 보임)
+// - 중앙운영진: 합불 판정 불가
+export const canEditApplicantStatus = (
+  { role, chapterId }: Pick<Session, 'role' | 'chapterId'>,
+  applicationsView: View,
+  projectChapterId: string | null, // 프로젝트 소속 지부
+): boolean => {
+  if (applicationsView === 'PM_CHALLENGER') return true;
+  if (applicationsView === 'CHALLENGER') return false;
+  if (role === 'SUPER_ADMIN' || role === 'HQ_LEAD') return true;
+  if (role === 'CHAPTER_ADMIN') return chapterId !== null && chapterId === projectChapterId;
+  return false;
+};
+
+// 피그마 전체 매칭 현황 '수동 배정 · 매칭 해제': 마스터(전체 지부) + 지부장(소속 지부)만
+// 그 외 뷰에서는 수동 배정하기가 보이지 않고 매칭 결과는 조회만 (최종 결과 발표 뒤에는 따로 막음)
+export const canManageMatching = (
+  { role, chapterId }: Pick<Session, 'role' | 'chapterId'>,
+  view: View,
+  projectChapterId: string | null, // 프로젝트 소속 지부
+): boolean => {
+  if (view !== 'ADMIN') return false;
+  if (role === 'SUPER_ADMIN' || role === 'HQ_LEAD') return true;
+  if (role === 'CHAPTER_ADMIN') return chapterId !== null && chapterId === projectChapterId;
+  return false;
+};
+
+// 11기 권한표 '매칭 차수 설정': 볼 수 있는 지부 · 일정을 바꿀 수 있는 지부
+// - 마스터(SUPER_ADMIN · HQ_LEAD): 전 지부 설정 · 수정 / 중앙운영진: 전 지부 조회만
+// - 지부장: 소속 지부만 고르고 설정 (다른 지부는 비활성)
+// 1차 매칭이 시작됐는지는 따로 확인
+export type MatchingScheduleAccess = {
+  chapterScope: ChapterScope; // 고를 수 있는 지부
+  editScope: ChapterScope | 'NONE'; // 일정을 바꿀 수 있는 지부
+};
+
+export const getMatchingScheduleAccess = (role: Role): MatchingScheduleAccess => {
+  if (role === 'SUPER_ADMIN' || role === 'HQ_LEAD')
+    return { chapterScope: 'ALL', editScope: 'ALL' };
+  if (role === 'HQ_ADMIN') return { chapterScope: 'ALL', editScope: 'NONE' };
+  if (role === 'CHAPTER_ADMIN') return { chapterScope: 'OWN', editScope: 'OWN' };
+  return { chapterScope: 'OWN', editScope: 'NONE' };
+};
+
+// 11기 권한표 '지원 현황' (어드민 뷰): 지원자 목록(지원 시트) · 프로젝트 지원서 모달 · 개인 지원서를 볼 수 있는지
+// - 마스터 · 지부장: 지원 시트 · 지원서 모달 · 개인 지원서
+// - 중앙운영진 · 학교회장단 · 학교운영진: 지원 통계 · 지원 시트만 (지원서 모달 · 개인 지원서 열람 불가)
+//   서버는 학교 회장단에게 지원 마감 후에만 지원자를 주고, 그 외 학교 운영진에게는 빈 목록을 줌
+// 합격 · 불합격 판정은 서버 권한(canDecide)으로 따로 확인
+export type ApplicationsAccess = {
+  canReadApplicants: boolean; // 02 지원자 목록 (지원 시트)
+  canOpenProject: boolean; // 프로젝트명을 눌러 프로젝트 지원서 모달 열기
+  canReadApplication: boolean; // 모달에서 지원자 이름을 눌러 개인 지원서(아코디언) 열기
+};
+
+export const getApplicationsAccess = (role: Role): ApplicationsAccess => {
+  if (['SUPER_ADMIN', 'HQ_LEAD', 'CHAPTER_ADMIN'].includes(role)) {
+    return { canReadApplicants: true, canOpenProject: true, canReadApplication: true };
+  }
+  if (role === 'HQ_ADMIN' || role === 'SCHOOL_ADMIN' || role === 'SCHOOL_STAFF') {
+    return { canReadApplicants: true, canOpenProject: false, canReadApplication: false };
+  }
+  return { canReadApplicants: false, canOpenProject: false, canReadApplication: false };
+};
+
+export const getProjectSettingsAccess = (role: Role, view: View): ProjectSettingsAccess => {
+  if (view === 'PM_CHALLENGER') return 'BASIC';
+  if (view === 'CHALLENGER') return 'NONE';
+
+  if (FULL_ACCESS_ROLES.includes(role)) return 'FULL';
+  if (BASIC_ACCESS_ROLES.includes(role)) return 'BASIC';
+  return 'NONE';
+};
+
+// 프로젝트 등록: 마스터(SUPER_ADMIN · HQ_LEAD)는 전 지부, 지부장은 본인 지부 PM으로 등록하고, PM은 본인 프로젝트를 등록
+// 중앙운영(HQ_ADMIN)은 프로젝트 조회만 가능해 등록 · 수정 · 삭제 · 승인이 모두 막힘
+export const getProjectRegisterAccess = (role: Role, view: View): ProjectRegisterAccess => {
+  const applicationsView = getApplicationsView(role, view);
+  if (applicationsView === 'PM_CHALLENGER') return 'PM';
+  if (applicationsView === 'CHALLENGER') return 'NONE';
+  if (role === 'SUPER_ADMIN' || role === 'HQ_LEAD' || role === 'CHAPTER_ADMIN') return 'ADMIN';
+  return 'NONE';
+};
+
+// 이미 쓰인 공지를 수정·삭제할 수 있는지. 최고 관리자는 모든 공지, 지부장은 본인이 쓴 공지만
+// (다른 지부장이나 최고 관리자가 쓴 공지는 건드릴 수 없음). 권한 자체는 canManageNotice로 따로 확인
+export const canModifyNotice = (
+  role: Role,
+  ownMemberId: number | null,
+  authorMemberId: number | null | undefined,
+): boolean => {
+  if (role === 'SUPER_ADMIN') return true;
+  return ownMemberId !== null && authorMemberId === ownMemberId;
+};
+
+// 공지 작성·수정·삭제 권한. 최고 관리자는 전 지부, 지부장은 본인 지부만, 총괄단·중앙운영·학교 운영진 등은 불가.
+// 총괄단·중앙운영은 전 지부 공지를 조회만 함 (getChapterScope)
+export const canManageNotice = (
+  role: Role,
+  ownChapterId: string | null,
+  targetChapterId: string,
+): boolean => {
+  if (role === 'SUPER_ADMIN') return true;
+  return role === 'CHAPTER_ADMIN' && ownChapterId === targetChapterId;
+};
