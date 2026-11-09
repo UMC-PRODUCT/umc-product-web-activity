@@ -18,7 +18,7 @@ import Section05 from './sections/Section05';
 import Section06 from './sections/Section06';
 
 const NAV_ITEMS = [
-  { label: '프로젝트', href: '/projects' },
+  { label: '프로젝트', href: EXTERNAL_LINKS.projects },
   { label: '데모데이 매칭', href: '/demo-day' },
   { label: '사용 가이드', href: '/guide' },
 ];
