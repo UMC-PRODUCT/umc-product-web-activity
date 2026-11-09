@@ -23,6 +23,7 @@
     "@hookform/resolvers": "5.9.1",
     "@tanstack/react-query": "5.104.2",
     "@tanstack/react-router": "1.170.44",
+    "@umc-product/auth-client": "0.1.1",
     "@umc-product/design-tokens": "0.13.0",
     "@umc-product/icons": "0.13.0",
     "@umc-product/react": "0.13.0",
