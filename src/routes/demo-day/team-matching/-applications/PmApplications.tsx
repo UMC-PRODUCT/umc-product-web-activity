@@ -24,6 +24,7 @@ import {
   useMyManagedProject,
 } from '@/features/application-stats';
 import { useProjectDetail } from '@/features/applications';
+import { toSchoolMatchedCounts, useChapterMatchingStatistics } from '@/features/matching-status';
 import { FilterDropdownGroup } from '@/widgets/filterDropdownGroup';
 import { SearchBar } from '@/widgets/searchBar';
 
@@ -67,6 +68,8 @@ const PmApplications = () => {
   // 지금 매칭 종류 · 차수는 서버가 알려 준 값을 쓰고, 진행 중인 차수가 없으면 지부 일정으로 정함
   const scheduleRound = useCurrentMatchingRound(chapterId);
   const current = (statistics.data && getCurrentRound(statistics.data)) ?? scheduleRound;
+  const matchingStatistics = useChapterMatchingStatistics(chapterId);
+  const schoolMatched = matchingStatistics.data && toSchoolMatchedCounts(matchingStatistics.data);
   const { isModalLocked, isCurrentRound } = useMatchingPeriodAccess(chapterId);
 
   // 02 지원자 목록: 프로젝트 하나라 전체를 받아 화면에서 검색 · 필터 · 페이지를 나눔
@@ -154,7 +157,14 @@ const PmApplications = () => {
                     />
                   </div>
                   <div className="min-w-0 flex-[466_1_0]">
-                    <TotalApplicantsCard {...toTotalApplicants(statistics.data, current.round)} />
+                    <TotalApplicantsCard
+                      {...toTotalApplicants(
+                        statistics.data,
+                        current.type,
+                        current.round,
+                        schoolMatched,
+                      )}
+                    />
                   </div>
                 </div>
               )}

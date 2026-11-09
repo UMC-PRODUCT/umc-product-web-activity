@@ -41,6 +41,7 @@ export type ProjectApplications = {
 export type TotalApplicants = {
   currentRound: MatchingRound;
   schools: SchoolApplicants[];
+  totalCount?: number | null;
 };
 
 export type MyProject = {

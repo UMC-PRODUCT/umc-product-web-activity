@@ -39,6 +39,18 @@ const countByRound = (rounds: PhaseCount[] = []) => {
   return counts;
 };
 
+const getAvailableCount = (
+  summary: Summary | undefined,
+  type: MatchingRoundType,
+  round: MatchingRound,
+) => {
+  const statistic = summary?.roundApplicationStatistics?.find(
+    ({ matchingRound }) =>
+      matchingRound?.type === type && !!matchingRound.phase && ROUND[matchingRound.phase] === round,
+  );
+  return statistic ? toCount(statistic.availableMemberCount) : null;
+};
+
 // 서버가 알려 주는 지금 매칭 종류 · 차수. 진행 중인 차수가 없으면 null (화면에서 일정으로 정함)
 // 랜덤 매칭 기간은 지원이 끝난 뒤라 3차로 봄
 export const getCurrentRound = ({
@@ -101,20 +113,44 @@ export const toProjectApplications = ({
 // TODO: 백엔드에 학교별 차수 지원 가능 인원(또는 매칭 인원) 추가 요청
 export const toTotalApplicants = (
   { summary }: ApplicationStatisticsResponse,
+  type: MatchingRoundType,
   currentRound: MatchingRound,
+  matchedBySchool?: Map<number, number>,
 ): TotalApplicants => ({
   currentRound,
+  totalCount: getAvailableCount(summary, type, currentRound),
   schools: (summary?.schoolApplicationStatistics ?? []).map(
-    ({ schoolName, totalMemberCount, rounds }) => {
+    ({ schoolId, schoolName, totalMemberCount, rounds = [] }) => {
       const counts = countByRound(rounds);
+      const available = (round: MatchingRound) => {
+        const count = rounds.find(
+          ({ phase }) => phase && ROUND[phase] === round,
+        )?.availableMemberCount;
+        return count === undefined ? undefined : toCount(count);
+      };
       return {
         schoolName: formatSchoolName(schoolName),
-        eligibleCount: toCount(totalMemberCount),
-        rounds: ROUNDS.map((round) => ({
-          round,
-          applied: counts.get(round) ?? null,
-          matched: null,
-        })),
+        eligibleCount: available(1) ?? toCount(totalMemberCount),
+        rounds: ROUNDS.map((round) => {
+          const current = available(round);
+          const next = round < 3 ? available((round + 1) as MatchingRound) : undefined;
+          const publishedMatched =
+            schoolId === undefined ? undefined : matchedBySchool?.get(toCount(schoolId));
+          const fallbackMatched =
+            publishedMatched === undefined || round >= currentRound
+              ? null
+              : round === 1
+                ? publishedMatched
+                : 0;
+          return {
+            round,
+            applied: counts.get(round) ?? null,
+            matched:
+              current !== undefined && next !== undefined
+                ? Math.max(0, current - next)
+                : fallbackMatched,
+          };
+        }),
       };
     },
   ),

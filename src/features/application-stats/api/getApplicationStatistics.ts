@@ -9,7 +9,11 @@ type MatchingRoundBrief = {
   phase?: 'FIRST' | 'SECOND' | 'THIRD' | 'RANDOM_MATCHING';
 };
 
-type PhaseCount = { phase?: MatchingRoundBrief['phase']; applicantCount?: Int64 };
+type PhaseCount = {
+  phase?: MatchingRoundBrief['phase'];
+  applicantCount?: Int64;
+  availableMemberCount?: Int64;
+};
 
 // 받아 둔 OpenAPI 문서에 아직 없는 API라 개발 서버 실제 응답을 기준으로 정의
 // TODO: 최신 OpenAPI 문서를 받으면 생성 타입(operations)으로 교체
