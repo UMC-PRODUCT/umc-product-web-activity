@@ -37,9 +37,11 @@ const Header = () => {
       actions={
         <>
           {isDark ? (
-            <Button size="sm" onClick={() => openExternalLink(EXTERNAL_LINKS.umcWebsite)}>
-              UMC 바로가기
-            </Button>
+            <div>
+              {/* // <Button size="sm" onClick={() => openExternalLink(EXTERNAL_LINKS.umcWebsite)}>
+              //   UMC 바로가기
+              // </Button> */}
+            </div>
           ) : (
             <HeaderActionButton onClick={() => openExternalLink(EXTERNAL_LINKS.inquiry)}>
               문의사항
