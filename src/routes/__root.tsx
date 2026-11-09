@@ -16,7 +16,7 @@ import { RouterLink } from '@/shared/ui/RouterLink';
 import { Header } from '@/widgets/header';
 import { ToastProvider } from '@/widgets/toast';
 
-const PUBLIC_PATHS = ['/login', '/auth/callback', '/guide'];
+const PUBLIC_PATHS = ['/login', '/auth/callback', '/guide', '/'];
 
 const isSameSession = (left: Session, right: Session) =>
   left.role === right.role &&
