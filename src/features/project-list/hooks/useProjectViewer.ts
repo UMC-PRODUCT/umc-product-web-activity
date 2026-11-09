@@ -17,18 +17,23 @@ const CHALLENGER_PART: Record<string, RecruitPart> = {
 // - 챌린저 뷰: 내 지원 내역으로 지원한 프로젝트 · 매칭 여부 (합격 · 랜덤 매칭 배정은 APPROVED)
 // - PM 뷰: 내가 맡은 프로젝트
 // 불러오는 중이거나 해당 없는 뷰는 관계 없음으로 취급
-export const useProjectViewer = (session: Pick<Session, 'gisuId'>, view: View): ProjectViewer => {
-  const { gisuId } = session;
-  const { data: myInfo } = useQuery(myInfoQueryOptions);
+export const useProjectViewer = (
+  session: Pick<Session, 'gisuId' | 'memberId'>,
+  view: View,
+): ProjectViewer => {
+  const { gisuId, memberId } = session;
+  // 비로그인(내 정보가 없는 세션)은 내 정보 · 지원 내역 · 담당 프로젝트를 부르지 않음
+  const isSignedIn = memberId !== null;
+  const { data: myInfo } = useQuery({ ...myInfoQueryOptions, enabled: isSignedIn });
   const { data: applications } = useQuery({
     queryKey: ['project-applications', 'me', gisuId],
     queryFn: () => getMyApplications(gisuId as number),
-    enabled: gisuId !== null && view === 'CHALLENGER',
+    enabled: isSignedIn && gisuId !== null && view === 'CHALLENGER',
   });
   const { data: managed } = useQuery({
     queryKey: ['projects', 'managed', gisuId],
     queryFn: () => getManagedProjects(gisuId as number),
-    enabled: gisuId !== null && view === 'PM_CHALLENGER',
+    enabled: isSignedIn && gisuId !== null && view === 'PM_CHALLENGER',
   });
 
   const part = myInfo?.currentGisuMemberInfo?.challenger?.part;
