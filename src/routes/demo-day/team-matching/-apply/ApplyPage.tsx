@@ -147,6 +147,8 @@ const ApplyPage = ({ projectId }: ApplyPageProps) => {
                 subtitle={project ? `${project.pmName} · ${project.schoolName}` : undefined}
               />
             }
+            // 피그마: 본문 위에 비어 있는 24px 액션 줄이 있음 (모집 문항 보기와 동일)
+            action={null}
             description={
               project && (
                 <div className="flex items-start gap-5">
@@ -196,33 +198,35 @@ const ApplyPage = ({ projectId }: ApplyPageProps) => {
                   title={section.title}
                   className="[&_.umc-form-section\_\_switch]:hidden"
                 >
-                  <div className="flex flex-col gap-10 px-5 pt-8 pb-6">
+                  <div className="flex flex-col">
                     {getSortedQuestions(section).map((question, index) => {
                       const { questionId } = question;
                       if (questionId === undefined) return null;
                       return (
-                        <FormQuestion
-                          key={questionId}
-                          number={String(index + 1).padStart(2, '0')}
-                          title={question.title}
-                          description={question.description}
-                          required={question.isRequired}
-                        >
-                          <ApplyQuestionField
-                            question={question}
-                            draft={drafts[questionId] ?? EMPTY_ANSWER}
-                            isUploading={uploadingIds.includes(questionId)}
-                            fileError={fileErrors[questionId]}
-                            onChange={(draft) => setDraft(questionId, draft)}
-                            onFileSelect={(file) => handleFileSelect(questionId, file)}
-                            onFileReject={(reason) =>
-                              setFileErrors((prev) => ({
-                                ...prev,
-                                [questionId]: FILE_REJECT_MESSAGE[reason],
-                              }))
-                            }
-                          />
-                        </FormQuestion>
+                        // 모집 문항 보기와 같은 문항 패딩 (피그마 Question Editor)
+                        <div key={questionId} className="pt-8 pr-6 pb-[38px] pl-5">
+                          <FormQuestion
+                            number={String(index + 1).padStart(2, '0')}
+                            title={question.title}
+                            description={question.description}
+                            required={question.isRequired}
+                          >
+                            <ApplyQuestionField
+                              question={question}
+                              draft={drafts[questionId] ?? EMPTY_ANSWER}
+                              isUploading={uploadingIds.includes(questionId)}
+                              fileError={fileErrors[questionId]}
+                              onChange={(draft) => setDraft(questionId, draft)}
+                              onFileSelect={(file) => handleFileSelect(questionId, file)}
+                              onFileReject={(reason) =>
+                                setFileErrors((prev) => ({
+                                  ...prev,
+                                  [questionId]: FILE_REJECT_MESSAGE[reason],
+                                }))
+                              }
+                            />
+                          </FormQuestion>
+                        </div>
                       );
                     })}
                   </div>

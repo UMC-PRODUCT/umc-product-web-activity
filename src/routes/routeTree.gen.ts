@@ -14,6 +14,7 @@ import { Route as DemoDayRouteRouteImport } from './demo-day/route'
 import { Route as GuideRouteImport } from './guide'
 import { Route as LoginRouteImport } from './login'
 import { Route as ProjectsRouteImport } from './projects'
+import { Route as AuthCallbackRouteImport } from './auth/callback'
 import { Route as DemoDayIndexRouteImport } from './demo-day/index'
 import { Route as DemoDayProjectSettingsRouteRouteImport } from './demo-day/project-settings/route'
 import { Route as DemoDayProjectSettingsNoticeRouteRouteImport } from './demo-day/project-settings/notice/route'
@@ -56,6 +57,11 @@ const LoginRoute = LoginRouteImport.update({
 const ProjectsRoute = ProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoDayIndexRoute = DemoDayIndexRouteImport.update({
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/projects': typeof ProjectsRoute
   '/demo-day/project-settings': typeof DemoDayProjectSettingsRouteRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/demo-day/': typeof DemoDayIndexRoute
   '/demo-day/project-settings/notice': typeof DemoDayProjectSettingsNoticeRouteRouteWithChildren
   '/demo-day/project-settings/projects': typeof DemoDayProjectSettingsProjectsRouteRouteWithChildren
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/projects': typeof ProjectsRoute
   '/demo-day/project-settings': typeof DemoDayProjectSettingsRouteRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/demo-day': typeof DemoDayIndexRoute
   '/demo-day/project-settings/quota': typeof DemoDayProjectSettingsQuotaRoute
   '/demo-day/project-settings/rounds': typeof DemoDayProjectSettingsRoundsRoute
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/projects': typeof ProjectsRoute
   '/demo-day/project-settings': typeof DemoDayProjectSettingsRouteRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/demo-day/': typeof DemoDayIndexRoute
   '/demo-day/project-settings/notice': typeof DemoDayProjectSettingsNoticeRouteRouteWithChildren
   '/demo-day/project-settings/projects': typeof DemoDayProjectSettingsProjectsRouteRouteWithChildren
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/projects'
     | '/demo-day/project-settings'
+    | '/auth/callback'
     | '/demo-day/'
     | '/demo-day/project-settings/notice'
     | '/demo-day/project-settings/projects'
@@ -271,6 +281,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/projects'
     | '/demo-day/project-settings'
+    | '/auth/callback'
     | '/demo-day'
     | '/demo-day/project-settings/quota'
     | '/demo-day/project-settings/rounds'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/projects'
     | '/demo-day/project-settings'
+    | '/auth/callback'
     | '/demo-day/'
     | '/demo-day/project-settings/notice'
     | '/demo-day/project-settings/projects'
@@ -318,6 +330,7 @@ export interface RootRouteChildren {
   GuideRoute: typeof GuideRoute
   LoginRoute: typeof LoginRoute
   ProjectsRoute: typeof ProjectsRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -355,6 +368,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo-day/': {
@@ -608,6 +628,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuideRoute: GuideRoute,
   LoginRoute: LoginRoute,
   ProjectsRoute: ProjectsRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

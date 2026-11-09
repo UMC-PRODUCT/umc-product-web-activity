@@ -1,38 +1,19 @@
-// TODO: 정식 로그인(다른 팀)이 붙으면 그쪽 토큰 저장 방식으로 교체. 지금은 QA용 임시 로그인이 넣은 토큰을 씀
-const ACCESS_TOKEN_KEY = 'auth:accessToken';
-const REFRESH_TOKEN_KEY = 'auth:refreshToken';
+import { getSsoClient } from '@/shared/auth/sso-client';
 
-// 시크릿 창 · 저장소 차단 환경에서는 접근만 해도 에러가 나서 감쌈
-const read = (key: string) => {
+/** SSO 메모리 access token. 없으면 null. */
+export const getAccessToken = () => {
   try {
-    return localStorage.getItem(key);
+    return getSsoClient().getAccessToken();
   } catch {
     return null;
   }
 };
 
-export const getAccessToken = () => read(ACCESS_TOKEN_KEY);
-
-export const setAuthTokens = ({
-  accessToken,
-  refreshToken,
-}: {
-  accessToken: string;
-  refreshToken?: string;
-}) => {
-  try {
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-    if (refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-  } catch {
-    // 저장이 막힌 환경에서는 새로고침하면 다시 로그인해야 함
-  }
-};
-
+/** 이 앱의 SSO 세션(access/refresh)만 지운다. 글로벌 SSO 쿠키는 유지. */
 export const clearAuthTokens = () => {
   try {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    getSsoClient().clearSession();
   } catch {
-    // 지울 수 없으면 그대로 둠
+    // 등록되지 않은 origin 등에서는 무시
   }
 };

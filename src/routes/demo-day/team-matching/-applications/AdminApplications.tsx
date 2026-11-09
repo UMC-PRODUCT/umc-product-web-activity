@@ -107,13 +107,9 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
   const groups: ProjectApplicationGroup[] = rows.map((project) => ({
     project,
     coPms: coPms.data?.get(project.projectId) ?? [],
-    applicants: (applicants.data?.get(project.projectId) ?? [])
-      .filter(({ round }) => filters.round.length === 0 || filters.round.includes(String(round)))
-      .map((applicant) =>
-        hidesUnpublishedResult && !isResultPublished(applicant)
-          ? { ...applicant, status: 'WAITING' as const, processedAt: null }
-          : applicant,
-      ),
+    applicants: (applicants.data?.get(project.projectId) ?? []).filter(
+      ({ round }) => filters.round.length === 0 || filters.round.includes(String(round)),
+    ),
   }));
   const selectedGroup = groups.find(({ project }) => project.projectId === selectedProjectId);
 
@@ -256,6 +252,9 @@ const AdminApplications = ({ initialChapterId }: { initialChapterId?: number }) 
                     className="max-w-[calc(100cqw-64px)]"
                     contentClassName="min-w-[1060px]"
                     groups={groups}
+                    canSeeStatus={(applicant) =>
+                      !hidesUnpublishedResult || isResultPublished(applicant)
+                    }
                     // 지원서 모달을 열 수 없는 역할은 프로젝트명이 링크가 아님
                     onProjectClick={
                       canOpenProject && canManageChapter && !isModalLocked

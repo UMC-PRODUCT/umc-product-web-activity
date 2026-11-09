@@ -34,6 +34,7 @@ const DateTimeCell = ({ iso, label }: { iso: string | null; label: string }) => 
 };
 
 type ApplicantRowProps = Applicant & {
+  statusHidden?: boolean;
   onApplicantClick?: () => void; // 챌린저 지원서 열기. 없으면 행을 누를 수 없음
 };
 
@@ -46,6 +47,7 @@ const ApplicantRow = ({
   status,
   appliedAt,
   processedAt,
+  statusHidden = false,
   onApplicantClick,
 }: ApplicantRowProps) => {
   const statusTag = APPLICANT_STATUS_TAG[status];
@@ -78,10 +80,10 @@ const ApplicantRow = ({
         <span className="text-caption-3-regular text-teal-grey-500">{schoolName}</span>
       </p>
       <div className="flex min-w-24 flex-[1_1_136px] justify-center px-2.5">
-        <StatusTag color={statusTag.color}>{statusTag.label}</StatusTag>
+        {!statusHidden && <StatusTag color={statusTag.color}>{statusTag.label}</StatusTag>}
       </div>
       <DateTimeCell iso={appliedAt} label="지원" />
-      <DateTimeCell iso={processedAt} label="처리" />
+      <DateTimeCell iso={statusHidden ? null : processedAt} label="처리" />
     </li>
   );
 };

@@ -10,14 +10,18 @@ type ProjectMatchingRowProps = {
     part: PartMatching,
     member: MatchedMember,
   ) => void;
-  onEmptySlotClick?: (project: ProjectMatchingResult, part: PartMatching) => void;
+  onAddMemberClick?: (project: ProjectMatchingResult, part: PartMatching) => void;
+  canAddMember?: (part: PartMatching) => boolean;
+  canAddOverQuota?: (part: PartMatching) => boolean;
 };
 
 // 매칭 결과 시트의 프로젝트 한 줄: 프로젝트명(+ 모집 중) · PM · 파트별 매칭 결과 칸 · 매칭 인원
 const ProjectMatchingRow = ({
   project,
   onMemberClick,
-  onEmptySlotClick,
+  onAddMemberClick,
+  canAddMember = () => true,
+  canAddOverQuota = () => false,
 }: ProjectMatchingRowProps) => {
   const { projectName, pmName, pmSchoolName, recruiting, parts } = project;
   const matchedCount = parts.reduce((sum, { members }) => sum + members.length, 0);
@@ -53,7 +57,12 @@ const ProjectMatchingRow = ({
                 roundedClassName={index === 0 ? 'rounded-t-md' : 'rounded-tr-md'}
                 fillBlocked={index !== 0}
                 onMemberClick={onMemberClick && ((member) => onMemberClick(project, part, member))}
-                onEmptySlotClick={onEmptySlotClick && (() => onEmptySlotClick(project, part))}
+                onAddMemberClick={
+                  onAddMemberClick && canAddMember(part)
+                    ? () => onAddMemberClick(project, part)
+                    : undefined
+                }
+                overQuotaAddable={canAddOverQuota(part)}
               />
             </div>
             {/* 첫 줄 오른쪽: 매칭 진행 중이면 매칭 인원/모집 인원, 끝났으면 총 매칭 인원 */}

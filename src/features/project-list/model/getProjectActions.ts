@@ -79,8 +79,11 @@ const getChallengerPrimaryAction = ({
   if (viewer.isMatched) return null;
 
   // 지원한 프로젝트의 지원서는 매칭 기간에도 열람 가능 (수정은 지원 기간에만, 내 지원 현황에서 막음)
+  // 매칭 기간에는 버튼은 활성인 채로 지원 기간이 아니라는 안내만 함께 보여줌
   if (viewer.appliedProjectId === project.projectId) {
-    return enabled('MY_APPLICATION', '내 지원서 보기');
+    return period.phase === 'MATCHING'
+      ? { ...enabled('MY_APPLICATION', '내 지원서 보기'), notice: NOTICE_NOT_APPLY_PERIOD }
+      : enabled('MY_APPLICATION', '내 지원서 보기');
   }
 
   const myPart = project.recruitments.find(({ part }) => part === viewer.challengerPart);

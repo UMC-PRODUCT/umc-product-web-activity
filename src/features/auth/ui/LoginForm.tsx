@@ -1,15 +1,19 @@
 import { Button, Chip, TextFieldBox } from '@umc-product/react';
 import { type FormEvent, useState } from 'react';
 
+import { HOME_PATH } from '@/shared/config/teamMatchingMenu';
+
 import { useEmailLogin } from '../hooks/useEmailLogin';
 import { QA_ACCOUNTS } from '../model/qaAccounts';
 
 type LoginFormProps = {
-  initialError?: string; // 콜백에서 로그인을 끝내지 못하고 돌아온 경우
+  initialError?: string;
+  /** 로그인 후 돌아갈 앱 안 상대 경로 */
+  returnTo?: string;
 };
 
-// TODO: 정식 로그인 화면(다른 팀)이 오면 삭제. QA 동안 권한별 계정으로 바로 로그인하는 임시 화면
-const LoginForm = ({ initialError }: LoginFormProps) => {
+// local direct 모드에서만 쓰는 QA 폼. Chip으로 계정을 고르고 SSO `devLogin`으로 이어진다.
+const LoginForm = ({ initialError, returnTo = HOME_PATH }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { mutate, isPending, error } = useEmailLogin();
@@ -18,7 +22,7 @@ const LoginForm = ({ initialError }: LoginFormProps) => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    mutate({ email: email.trim(), password });
+    mutate({ email: email.trim(), password, returnTo });
   };
 
   return (
@@ -29,7 +33,7 @@ const LoginForm = ({ initialError }: LoginFormProps) => {
       <div className="flex flex-col gap-1">
         <h1 className="text-heading-4-semibold text-teal-grey-900">QA 임시 로그인</h1>
         <p className="text-body-3-regular text-teal-grey-500">
-          QA 기간에만 쓰는 화면이에요. 권한을 고르고 비밀번호를 입력해 주세요.
+          로컬 direct 모드에서만 쓰는 화면이에요. 권한을 고르고 비밀번호를 입력해 주세요.
         </p>
       </div>
 

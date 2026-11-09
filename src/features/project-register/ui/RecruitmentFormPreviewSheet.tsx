@@ -59,13 +59,7 @@ const RecruitmentFormPreviewSheet = ({
         partSections.length === 0 ? undefined : (
           <div className="flex flex-1 items-center justify-center gap-3">
             {step === 'PART' ? (
-              <Button
-                variant="weak"
-                color="neutral"
-                size="lg"
-                className="w-[140px]"
-                onClick={() => setStep('COMMON')}
-              >
+              <Button variant="weak" color="neutral" size="md" onClick={() => setStep('COMMON')}>
                 돌아가기
               </Button>
             ) : (

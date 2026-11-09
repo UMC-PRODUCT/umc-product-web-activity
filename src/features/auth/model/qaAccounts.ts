@@ -15,4 +15,6 @@ export const parseQaAccounts = (raw: string | undefined): QaAccount[] =>
     })
     .filter(({ label, email }) => label && email);
 
-export const QA_ACCOUNTS = parseQaAccounts(import.meta.env.VITE_QA_ACCOUNTS);
+export const QA_ACCOUNTS = import.meta.env.DEV
+  ? parseQaAccounts(import.meta.env.VITE_QA_ACCOUNTS)
+  : [];

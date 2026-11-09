@@ -50,6 +50,7 @@ const NoticeWritePage = ({ kind, chapter, onComplete }: NoticeWritePageProps) =>
         onSubmit={async (input, chapterIds) => {
           try {
             await createNotice.mutateAsync({
+              kind,
               gisuId,
               chapterIds: chapterIds.map(Number),
               input,
