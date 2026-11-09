@@ -17,6 +17,7 @@ import { Header } from '@/widgets/header';
 import { ToastProvider } from '@/widgets/toast';
 
 const PUBLIC_PATHS = ['/login', '/auth/callback', '/guide', '/'];
+const CHROME_HIDDEN_PATHS = ['/login', '/auth/callback', '/'];
 
 const isSameSession = (left: Session, right: Session) =>
   left.role === right.role &&
@@ -29,7 +30,7 @@ const isSameSession = (left: Session, right: Session) =>
 const RootComponent = () => {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   // 로그인 · 콜백 · 가이드는 앱 셸(Header) 없이 화면만 보여 깜빡임을 줄인다
-  const hideChrome = PUBLIC_PATHS.includes(pathname);
+  const hideChrome = CHROME_HIDDEN_PATHS.includes(pathname);
 
   return (
     <LinkProvider component={RouterLink}>
