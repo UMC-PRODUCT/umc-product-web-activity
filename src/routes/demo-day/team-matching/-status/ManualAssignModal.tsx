@@ -13,7 +13,8 @@ import { useDebouncedValue } from '@/shared/lib/useDebouncedValue';
 import NoticeDialog from '@/shared/ui/NoticeDialog';
 import UpmsPanel from '@/shared/ui/UpmsPanel';
 import { SearchBar } from '@/widgets/searchBar';
-import { useAppToast } from '@/widgets/toast';
+
+import { useOneLineToast } from '../-shared/useOneLineToast';
 
 // 글자마다 요청하지 않도록 입력이 멈추면(300ms) 검색, 계속 입력해도 1초마다는 중간 결과
 const SEARCH_DEBOUNCE = { delay: 300, maxWait: 1000 };
@@ -30,7 +31,7 @@ const ManualAssignModal = ({ target, onClose }: ManualAssignModalProps) => {
   const searchKeyword = useDebouncedValue(keyword, SEARCH_DEBOUNCE);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [assigned, setAssigned] = useState(false);
-  const toast = useAppToast();
+  const toast = useOneLineToast();
 
   const candidates = useMatchingCandidates(
     target && { projectId: target.project.projectId, part: target.part.part },

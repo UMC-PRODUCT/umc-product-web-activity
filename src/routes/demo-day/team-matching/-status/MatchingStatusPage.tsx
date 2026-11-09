@@ -20,11 +20,11 @@ import {
   useMatchingOverview,
   useMatchingPermissions,
 } from '@/features/matching-status';
-import { useAppToast } from '@/widgets/toast';
 
 import { getBreadcrumbs } from '../-shared/constants';
 import UpdatedAtCaption from '../-shared/UpdatedAtCaption';
 import { useMatchingChapterId } from '../-shared/useMatchingChapterId';
+import { useOneLineToast } from '../-shared/useOneLineToast';
 import ManualAssignModal from './ManualAssignModal';
 import MatchedApplicationModal, { type MatchedApplicationTarget } from './MatchedApplicationModal';
 import { useAssignablePeriod } from './useAssignablePeriod';
@@ -71,7 +71,7 @@ const MatchingStatusPage = () => {
     part: PartMatching;
   } | null>(null);
   const [applicationTarget, setApplicationTarget] = useState<MatchedApplicationTarget | null>(null);
-  const toast = useAppToast();
+  const toast = useOneLineToast();
   const chapterName = chapters.find(({ id }) => id === chapterId)?.name ?? '';
 
   // 권한을 확인하지 못한 경우(요청 실패 · 불러오는 중)와 권한이 없는 경우를 구분해서 알려 줌

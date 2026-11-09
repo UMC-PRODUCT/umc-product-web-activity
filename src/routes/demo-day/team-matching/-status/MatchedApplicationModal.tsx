@@ -20,7 +20,8 @@ import {
 } from '@/features/matching-status';
 import UpmsPanel from '@/shared/ui/UpmsPanel';
 import { ApplicationForm } from '@/widgets/application';
-import { useAppToast } from '@/widgets/toast';
+
+import { useOneLineToast } from '../-shared/useOneLineToast';
 
 // 지원서 제목의 파트 이름 (예: Design 파트 지원서)
 const PART_TITLE: Record<MatchingPart, string> = {
@@ -70,7 +71,7 @@ const MatchedApplicationModal = ({
 }: MatchedApplicationModalProps) => {
   const [releaseDialogOpen, setReleaseDialogOpen] = useState(false);
   const release = useReleaseProjectMember();
-  const toast = useAppToast();
+  const toast = useOneLineToast();
 
   // 팀원 구성에는 지원서 ID가 없어서, 프로젝트 지원자 중 이 멤버의 합격 지원서를 찾음
   // 지원 없이 수동 배정된 팀원은 지원서가 없음
