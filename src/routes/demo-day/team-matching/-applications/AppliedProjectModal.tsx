@@ -162,6 +162,7 @@ const AppliedProjectModal = ({
               description={detail?.description ?? ''}
               isCanceling={isCanceling}
               onCancelClick={() => setCancelDialogOpen(true)}
+              onClose={() => setView('PROJECT')}
             />
           </Dialog.Content>
         )}
