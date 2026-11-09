@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { ProjectRecruitmentSummary } from '@/features/applications';
 import {
   getRecruitmentRows,
+  maskTeamRecruitments,
   type Project,
   type ProjectActions,
   type ProjectPeriod,
@@ -130,7 +131,7 @@ const ProjectDetailModal = ({ project, period, actions, onClose }: ProjectDetail
             <TeamCompositionPanel
               open={teamPanelOpen}
               onOpenChange={setTeamPanelOpen}
-              recruitments={project.recruitments}
+              recruitments={maskTeamRecruitments(project.recruitments, period)}
               // 1차 매칭 기간 이후: 매칭 기간이거나 2차 이상의 지원 기간
               hasMatchingStarted={
                 period.phase === 'MATCHING' || (period.phase === 'APPLY' && period.round >= 2)
@@ -144,7 +145,7 @@ const ProjectDetailModal = ({ project, period, actions, onClose }: ProjectDetail
                 <Dialog.Content
                   aria-describedby={undefined}
                   onOpenAutoFocus={(e) => e.preventDefault()}
-                  className="fixed top-1/2 left-1/2 z-(--umc-z-dimmed) max-h-[calc(100vh-40px)] w-[1000px] max-w-[calc(100vw-40px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[20px] outline-none"
+                  className="fixed top-1/2 left-1/2 z-(--umc-z-dimmed) max-h-[calc(100vh-40px)] w-[1000px] max-w-[calc(100vw-40px)] -translate-x-1/2 -translate-y-1/2 scrollbar-none overflow-y-auto rounded-[20px] outline-none"
                 >
                   <Dialog.Title className="sr-only">모집 문항 미리보기</Dialog.Title>
                   <RecruitmentFormPreviewSheet
@@ -153,11 +154,13 @@ const ProjectDetailModal = ({ project, period, actions, onClose }: ProjectDetail
                     pmName={project.pmName}
                     schoolName={project.schoolName}
                     logoUrl={project.logoUrl}
+                    onClose={() => setRecruitmentFormOpen(false)}
                     description={
                       <ProjectRecruitmentSummary
                         description={project.description}
                         platform={project.platform}
-                        recruitments={project.recruitments}
+                        // 상세 카드와 같은 TO 표기 (디자인 매칭 기간에는 Web · Mobile이 0/0)
+                        recruitments={getRecruitmentRows(project, period, 'detail')}
                       />
                     }
                   />

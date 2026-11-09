@@ -10,7 +10,11 @@ import {
   useCancelApplication,
   useMyApplications,
 } from '@/features/applications';
-import { getOpenRoundIds, useMatchingRounds } from '@/features/matching-schedule';
+import {
+  getMatchingStepFromRounds,
+  getOpenRoundIds,
+  useMatchingRounds,
+} from '@/features/matching-schedule';
 import { useAppToast } from '@/widgets/toast';
 
 import { getBreadcrumbs } from '../-shared/constants';
@@ -31,6 +35,12 @@ const ChallengerApplications = () => {
   const groups = applications.data
     ? toAppliedRoundGroups(applications.data, getOpenRoundIds(rounds.data ?? [], now))
     : [];
+
+  // 1차 매칭 기간 이후(매칭 기간이거나 2차 이상의 지원 기간)면 팀원 구성에서 파트별 매칭 진행 안내를 보여줌
+  const step = rounds.data ? getMatchingStepFromRounds(rounds.data, now) : null;
+  const hasMatchingStarted =
+    step?.status === 'ENDED' ||
+    (step?.status === 'ONGOING' && (step.phase === 'MATCHING' || step.round >= 2));
 
   const cancelApplication = useCancelApplication();
 
@@ -92,6 +102,7 @@ const ChallengerApplications = () => {
         onClose={() => setSelectedProject(null)}
         onCancelApplication={handleCancelApplication}
         isCanceling={cancelApplication.isPending}
+        hasMatchingStarted={hasMatchingStarted}
       />
     </main>
   );

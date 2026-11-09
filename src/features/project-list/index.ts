@@ -13,7 +13,11 @@ export {
   type ProjectActionKind,
   type ProjectActions,
 } from './model/getProjectActions';
-export { getRecruitmentRows, type RecruitmentRow } from './model/getRecruitmentRows';
+export {
+  getRecruitmentRows,
+  maskTeamRecruitments,
+  type RecruitmentRow,
+} from './model/getRecruitmentRows';
 export { INITIAL_PROJECT_FILTERS } from './model/projectFilters';
 export type {
   PartRecruitment,

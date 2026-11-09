@@ -1,4 +1,4 @@
-import { getRecruitmentRows } from './getRecruitmentRows';
+import { getRecruitmentRows, maskTeamRecruitments } from './getRecruitmentRows';
 import type { PartRecruitment } from './types';
 
 const recruit = (part: PartRecruitment['part'], applied: number, capacity: number) => ({
@@ -31,5 +31,24 @@ describe('getRecruitmentRows', () => {
       'Design',
       'Mobile',
     ]);
+  });
+});
+
+describe('maskTeamRecruitments', () => {
+  const member = { memberId: '1', challengerName: '가/나', schoolName: '다', round: 1 as const };
+  const recruitments = [
+    { ...recruit('DESIGN', 1, 2), members: [member] },
+    { ...recruit('MOBILE_PE', 3, 4), members: [member] },
+  ];
+
+  it('디자인 매칭 기간에는 PE 파트의 인원과 팀원을 비운다', () => {
+    expect(maskTeamRecruitments(recruitments, { track: 'DESIGN' })).toMatchObject([
+      { part: 'DESIGN', capacity: 2, members: [member] },
+      { part: 'MOBILE_PE', applied: 0, capacity: 0, members: [] },
+    ]);
+  });
+
+  it('PE 매칭 기간에는 그대로 둔다', () => {
+    expect(maskTeamRecruitments(recruitments, { track: 'PE' })).toEqual(recruitments);
   });
 });

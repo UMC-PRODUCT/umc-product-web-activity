@@ -21,6 +21,7 @@ type RecruitmentFormPreviewSheetProps = {
   schoolName: string;
   logoUrl: string | null;
   description?: ReactNode; // 헤더 아래 프로젝트 소개 · 모집 현황
+  onClose: () => void;
 };
 
 // 모집 문항 미리보기 시트. 지원서와 같이 공통 문항 → (다음) → 파트별 문항 순으로 넘겨 볼 수 있음
@@ -32,6 +33,7 @@ const RecruitmentFormPreviewSheet = ({
   schoolName,
   logoUrl,
   description,
+  onClose,
 }: RecruitmentFormPreviewSheetProps) => {
   const [step, setStep] = useState<'COMMON' | 'PART'>('COMMON');
 
@@ -41,6 +43,8 @@ const RecruitmentFormPreviewSheet = ({
     ({ type, questions }) => type === 'PART' && questions.length > 0,
   );
   const visibleSections = step === 'COMMON' ? commonSections : partSections;
+  const hasPartStep = partSections.length > 0;
+  const isLastStep = !hasPartStep || step === 'PART';
 
   return (
     <FormSheet
@@ -54,21 +58,26 @@ const RecruitmentFormPreviewSheet = ({
       // 피그마: 본문 위에 비어 있는 24px 액션 줄이 있음
       action={null}
       description={description}
-      // 공통 문항만 있으면 넘어갈 곳이 없어서 다음 버튼을 두지 않음
+      // 공통 문항만 있으면 넘어갈 곳이 없어서 바로 닫기. 파트 문항이 있으면 다음 → (마지막 페이지) 닫기
       control={
-        partSections.length === 0 ? undefined : (
-          <div className="flex flex-1 items-center justify-center gap-3">
-            {step === 'PART' ? (
-              <Button variant="weak" color="neutral" size="md" onClick={() => setStep('COMMON')}>
-                돌아가기
+        <div className="flex flex-1 items-center justify-between gap-3">
+          {isLastStep ? (
+            <>
+              {hasPartStep && (
+                <Button variant="weak" color="neutral" size="md" onClick={() => setStep('COMMON')}>
+                  돌아가기
+                </Button>
+              )}
+              <Button size="md" className="ml-auto" onClick={onClose}>
+                닫기
               </Button>
-            ) : (
-              <Button size="md" className="ml-auto" onClick={() => setStep('PART')}>
-                다음
-              </Button>
-            )}
-          </div>
-        )
+            </>
+          ) : (
+            <Button size="md" className="ml-auto" onClick={() => setStep('PART')}>
+              다음
+            </Button>
+          )}
+        </div>
       }
     >
       <div className="flex flex-col gap-6">
