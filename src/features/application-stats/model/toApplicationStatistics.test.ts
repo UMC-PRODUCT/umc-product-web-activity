@@ -81,11 +81,74 @@ describe('toProjectApplications', () => {
 });
 
 describe('toTotalApplicants', () => {
-  it('학교별 현재 차수 지원 인원 / 지원 가능 인원', () => {
-    expect(getSchoolApplicantStats(toTotalApplicants(statistics, 1))).toEqual({
-      totalCount: 3,
+  it('학교별 현재 차수 지원 인원 / 지원 가능 인원, 총원은 지부의 현재 차수 지원 가능 인원', () => {
+    expect(getSchoolApplicantStats(toTotalApplicants(statistics, 'PLAN_DESIGN', 1))).toEqual({
+      totalCount: 15,
       schools: [{ schoolName: '단국대', applied: 3, eligible: 3 }],
       hasApplicants: true,
+    });
+  });
+
+  it('2차부터 학교별 지원 가능 인원을 몰라도 총원은 지부 기준으로 보여 줌', () => {
+    const second: ApplicationStatisticsResponse = {
+      summary: {
+        roundApplicationStatistics: [
+          { matchingRound: design('FIRST'), appliedMemberCount: '12', availableMemberCount: '18' },
+          { matchingRound: design('SECOND'), appliedMemberCount: '1', availableMemberCount: '17' },
+        ],
+        schoolApplicationStatistics: [
+          {
+            schoolName: '동양미래대학교',
+            totalMemberCount: '4',
+            rounds: [{ phase: 'SECOND', applicantCount: '1' }],
+          },
+        ],
+      },
+    };
+    expect(getSchoolApplicantStats(toTotalApplicants(second, 'PLAN_DESIGN', 2))).toMatchObject({
+      totalCount: 17,
+      schools: [{ applied: 1, eligible: null }],
+    });
+  });
+
+  it('학교별 차수 지원 가능 인원이 없으면 총원에서 공개된 매칭 인원을 뺌', () => {
+    const second: ApplicationStatisticsResponse = {
+      summary: {
+        schoolApplicationStatistics: [
+          {
+            schoolId: '20',
+            schoolName: '숭실대학교',
+            totalMemberCount: '9',
+            rounds: [
+              { phase: 'FIRST', applicantCount: '7' },
+              { phase: 'SECOND', applicantCount: '0' },
+            ],
+          },
+        ],
+      },
+    };
+    expect(
+      getSchoolApplicantStats(toTotalApplicants(second, 'PLAN_DESIGN', 2, new Map([[20, 1]]))),
+    ).toMatchObject({ schools: [{ applied: 0, eligible: 8 }] });
+  });
+
+  it('학교별 차수 지원 가능 인원이 오면 그 값을 분모로 씀', () => {
+    const second: ApplicationStatisticsResponse = {
+      summary: {
+        schoolApplicationStatistics: [
+          {
+            schoolName: '동양미래대학교',
+            totalMemberCount: '4',
+            rounds: [
+              { phase: 'FIRST', applicantCount: '3', availableMemberCount: '4' },
+              { phase: 'SECOND', applicantCount: '1', availableMemberCount: '3' },
+            ],
+          },
+        ],
+      },
+    };
+    expect(getSchoolApplicantStats(toTotalApplicants(second, 'PLAN_DESIGN', 2))).toMatchObject({
+      schools: [{ applied: 1, eligible: 3 }],
     });
   });
 });

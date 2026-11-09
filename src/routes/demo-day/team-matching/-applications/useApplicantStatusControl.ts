@@ -7,13 +7,14 @@ import {
   useUpdateApplicantStatus,
 } from '@/features/application-list';
 import { getDecisionOpenRoundIds, useMatchingRounds } from '@/features/matching-schedule';
-import { useAppToast } from '@/widgets/toast';
+
+import { useOneLineToast } from '../-shared/useOneLineToast';
 
 // 지원 현황(어드민 · PM)의 배정 상태 변경
 // 바꿀 수 있는 조건 (서버 규칙과 같게): 프로젝트 권한(canDecide) + 지원자 차수가 결정 기간(지원 마감 ~ 결정 마감)
 export const useApplicantStatusControl = (chapterId: number | null, projectIds: number[]) => {
   const [now] = useState(() => new Date());
-  const toast = useAppToast();
+  const toast = useOneLineToast();
   const { data: permissions } = useDecisionPermissions(projectIds);
   const { data: rounds } = useMatchingRounds(chapterId ?? undefined);
   const openRoundIds = getDecisionOpenRoundIds(rounds ?? [], now);

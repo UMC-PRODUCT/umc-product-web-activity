@@ -1,4 +1,4 @@
-import { toCount } from '@/shared/api/toId';
+import { toCount, toId } from '@/shared/api/toId';
 import { formatSchoolName } from '@/shared/lib/formatSchoolName';
 
 import type { ChapterMatchingStatisticsResponse } from '../api/getChapterMatchingStatistics';
@@ -100,6 +100,16 @@ export const toSchoolMatchings = ({
           },
         ]
       : [],
+  );
+
+export const toSchoolMatchedCounts = ({
+  schoolMatchingStatistics = [],
+}: ChapterMatchingStatisticsResponse): Map<number, number> =>
+  new Map(
+    schoolMatchingStatistics.flatMap(({ schoolId, matchedMemberCount }) => {
+      const id = toId(schoolId);
+      return id === null ? [] : [[id, toCount(matchedMemberCount)] as const];
+    }),
   );
 
 // 프로젝트별 매칭 현황 차트: 차수별 매칭 인원 + 툴팁의 파트별 매칭 인원 / 정원 (모집하는 파트만)

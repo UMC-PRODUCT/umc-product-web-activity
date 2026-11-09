@@ -7,6 +7,7 @@ export {
   toChapterMatchingRate,
   toProjectMatchings,
   toRoundMatchings,
+  toSchoolMatchedCounts,
   toSchoolMatchings,
 } from './model/toMatchingStatistics';
 export type {

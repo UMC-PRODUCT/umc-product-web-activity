@@ -15,8 +15,8 @@ import {
 } from '@/features/applications';
 import { getApplicationForm } from '@/features/project-register/api/applicationForm';
 import { ApplicationForm } from '@/widgets/application';
-import { useAppToast } from '@/widgets/toast';
 
+import { useOneLineToast } from '../-shared/useOneLineToast';
 import EditApplicationSections from './EditApplicationSections';
 
 // 지원서 머리는 PE를 플랫폼 이름으로만 표기
@@ -52,7 +52,7 @@ const MyApplicationView = ({
     enabled: project.applicationEditable,
   });
   const edit = useEditApplication(project.applicationEditable ? target : null, form.data?.sections);
-  const toast = useAppToast();
+  const toast = useOneLineToast();
   const [drafts, setDrafts] = useState<AnswerDrafts | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const isEditing = drafts !== null;
