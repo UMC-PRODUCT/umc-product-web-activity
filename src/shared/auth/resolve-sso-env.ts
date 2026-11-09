@@ -17,8 +17,8 @@ const ACTIVITY_ORIGINS: Record<string, SsoStage> = {
 
 const CLIENT_ID: Record<SsoStage, string> = {
   local: 'local',
-  dev: 'UMC Activity',
-  prod: 'UMC Activity',
+  dev: 'activity',
+  prod: 'activity',
 };
 
 export const resolveSsoEnv = (origin: string, runtime: SsoRuntimeEnv = {}): AuthClientConfig =>

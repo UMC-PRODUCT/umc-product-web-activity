@@ -29,7 +29,7 @@ describe('resolveSsoEnv', () => {
   it('uses the activity client on dev and prod origins', () => {
     expect(resolveSsoEnv('https://dev.activity.university.neordinary.com')).toMatchObject({
       apiBaseUrl: 'https://api-dev.university.neordinary.com',
-      clientId: 'UMC Activity',
+      clientId: 'activity',
       loginMode: 'auth-app',
     });
     expect(
@@ -38,7 +38,7 @@ describe('resolveSsoEnv', () => {
       }),
     ).toMatchObject({
       apiBaseUrl: 'https://api.university.neordinary.com',
-      clientId: 'UMC Activity',
+      clientId: 'activity',
       loginMode: 'auth-app',
     });
   });
