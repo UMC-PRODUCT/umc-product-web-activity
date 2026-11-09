@@ -1,3 +1,4 @@
+import { PaginationBar } from '@umc-product/react';
 import { useState } from 'react';
 
 import { useSessionStore } from '@/entities/session';
@@ -29,7 +30,6 @@ import PM06 from '@/routes/-guide/assets/Section5/PM/PM_06.png';
 import PM07 from '@/routes/-guide/assets/Section5/PM/PM_07.png';
 import PM08 from '@/routes/-guide/assets/Section5/PM/PM_08.png';
 import PM09 from '@/routes/-guide/assets/Section5/PM/PM_09.png';
-import GuidePagination from '@/routes/-guide/components/GuidePagination';
 import GuideSegmentControl from '@/routes/-guide/components/GuideSegmentControl';
 import { cn } from '@/shared/lib/cn';
 
@@ -107,7 +107,12 @@ const Section05 = () => {
             <img src={images[currentPage]} alt="" className="relative z-10" />
           )}
         </div>
-        <GuidePagination total={images.length} current={currentPage} onChange={setCurrentPage} />
+        <PaginationBar
+          totalPages={images.length}
+          page={currentPage + 1}
+          onPageChange={(page: number) => setCurrentPage(page - 1)}
+          highlightNext
+        />
       </div>
     </section>
   );

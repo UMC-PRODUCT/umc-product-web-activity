@@ -2,6 +2,7 @@
 // 빈 문자열이면 아직 정해지지 않은 주소라, 쓰는 쪽에서 눌러도 아무 일 없게 처리
 export const EXTERNAL_LINKS = {
   inquiry: 'http://pf.kakao.com/_MDxhqX', // 헤더 문의사항
+  umcWebsite: 'https://university.neordinary.com', // 헤더 UMC 바로가기
   projects: 'https://university.neordinary.com/projects',
 } as const;
 
