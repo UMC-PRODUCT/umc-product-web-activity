@@ -1,5 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query';
-import { createRootRouteWithContext, Outlet, redirect } from '@tanstack/react-router';
+import { createRootRouteWithContext, Outlet, redirect, useLocation } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { LinkProvider } from '@umc-product/react';
 
@@ -12,7 +12,7 @@ import { Header } from '@/widgets/header';
 import { ToastProvider } from '@/widgets/toast';
 
 // TODO: 정식 로그인(다른 팀)이 붙으면 그쪽 경로로 교체
-const PUBLIC_PATHS = ['/login'];
+const PUBLIC_PATHS = ['/login', '/guide'];
 
 const isSameSession = (left: Session, right: Session) =>
   left.role === right.role &&
@@ -21,6 +21,24 @@ const isSameSession = (left: Session, right: Session) =>
   left.serverChapterId === right.serverChapterId &&
   left.memberId === right.memberId &&
   left.gisuId === right.gisuId;
+
+const RootLayout = () => {
+  const pathname = useLocation({ select: (l) => l.pathname });
+  return (
+    <LinkProvider component={RouterLink}>
+      <ToastProvider>
+        {/* TODO: 푸터 잠시 숨김. 다시 넣을 때 <Footer />(@/widgets/footer)를 내용 영역 아래에 추가 */}
+        <div className="flex min-h-dvh flex-col">
+          {pathname !== '/guide' && <Header />}
+          <div className="flex flex-1 flex-col">
+            <Outlet />
+          </div>
+        </div>
+      </ToastProvider>
+      <TanStackRouterDevtools />
+    </LinkProvider>
+  );
+};
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   // 하위 라우트의 권한 확인(beforeLoad)보다 먼저 실행돼서, 화면을 그리기 전에 내 정보로 세션을 채움
@@ -52,18 +70,5 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     const { session: current, setSession } = useSessionStore.getState();
     if (!isSameSession(current, session)) setSession(session);
   },
-  component: () => (
-    <LinkProvider component={RouterLink}>
-      <ToastProvider>
-        {/* TODO: 푸터 잠시 숨김. 다시 넣을 때 <Footer />(@/widgets/footer)를 내용 영역 아래에 추가 */}
-        <div className="flex min-h-dvh flex-col">
-          <Header />
-          <div className="flex flex-1 flex-col">
-            <Outlet />
-          </div>
-        </div>
-      </ToastProvider>
-      <TanStackRouterDevtools />
-    </LinkProvider>
-  ),
+  component: RootLayout,
 });
