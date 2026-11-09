@@ -72,8 +72,9 @@ const toMatchingChapterSession = async (
 
 const RootComponent = () => {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const normalizedPathname = normalizePath(pathname);
   // 로그인 · 콜백 · 가이드는 앱 셸(Header) 없이 화면만 보여 깜빡임을 줄인다
-  const hideChrome = CHROME_HIDDEN_PATHS.includes(pathname);
+  const hideChrome = CHROME_HIDDEN_PATHS.includes(normalizedPathname);
 
   return (
     <LinkProvider component={RouterLink}>
@@ -81,7 +82,7 @@ const RootComponent = () => {
         {/* TODO: 푸터 잠시 숨김. 다시 넣을 때 <Footer />(@/widgets/footer)를 내용 영역 아래에 추가 */}
         <div className="flex min-h-dvh flex-col">
           {!hideChrome &&
-            (pathname === '/guide' ? (
+            (normalizedPathname === '/guide' ? (
               <div className="fixed top-0 left-0 z-50 w-full">
                 <Header />
               </div>
