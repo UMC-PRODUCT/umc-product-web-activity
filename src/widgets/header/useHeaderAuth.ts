@@ -10,7 +10,7 @@ import { getProfileGisuIds, toProfileMenu } from './toProfileMenu';
 
 const LOGIN_PATH = '/login';
 
-export const useHeaderAuth = (options?: { logoutReturnTo?: string }) => {
+export const useHeaderAuth = (options?: { logoutReturnTo?: string; loginRedirectTo?: string }) => {
   const pathname = useLocation({ select: (l) => l.pathname });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -34,7 +34,10 @@ export const useHeaderAuth = (options?: { logoutReturnTo?: string }) => {
 
   const handleLogin = () => {
     if (pathname === LOGIN_PATH) return;
-    void navigate({ to: LOGIN_PATH });
+    void navigate({
+      to: LOGIN_PATH,
+      search: options?.loginRedirectTo ? { redirect: options.loginRedirectTo } : {},
+    });
   };
 
   const handleLogout = () => {

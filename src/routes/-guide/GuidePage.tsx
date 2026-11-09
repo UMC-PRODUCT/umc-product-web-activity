@@ -26,6 +26,7 @@ const NAV_ITEMS = [
 const GuideHeader = ({ isPastSection1 }: { isPastSection1: boolean }) => {
   const { pathname, profileMenu, showLogin, handleLogin, handleLogout } = useHeaderAuth({
     logoutReturnTo: '/guide',
+    loginRedirectTo: '/demo-day',
   });
 
   const mode = isPastSection1 ? 'light' : 'dark';
