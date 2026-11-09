@@ -36,13 +36,25 @@ const Header = () => {
       currentPath={pathname}
       actions={
         <>
-          <HeaderActionButton onClick={() => openExternalLink(EXTERNAL_LINKS.inquiry)}>
-            문의사항
-          </HeaderActionButton>
-          {showLogin ? (
-            <Button variant="weak" color="brand" size="sm" onClick={handleLogin}>
-              로그인
+          {isDark ? (
+            <Button size="sm" onClick={() => openExternalLink(EXTERNAL_LINKS.umcWebsite)}>
+              UMC 바로가기
             </Button>
+          ) : (
+            <HeaderActionButton onClick={() => openExternalLink(EXTERNAL_LINKS.inquiry)}>
+              문의사항
+            </HeaderActionButton>
+          )}
+          {showLogin ? (
+            isDark ? (
+              <Button size="sm" variant="weak" onClick={handleLogin}>
+                로그인
+              </Button>
+            ) : (
+              <Button variant="weak" color="brand" size="sm" onClick={handleLogin}>
+                로그인
+              </Button>
+            )
           ) : (
             profileMenu && (
               <HeaderProfileMenu
