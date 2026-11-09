@@ -80,7 +80,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
   const [schoolIds, setSchoolIds] = useState<string[]>([]);
   const schoolId = schoolIds.length > 0 ? Number(schoolIds[0]) : undefined;
 
-  const { data, isError } = useQuery(
+  const { data, isError, isPending } = useQuery(
     partQuotasQueryOptions({
       gisuId: gisuId ?? 0,
       chapterId: chapterId,
@@ -107,7 +107,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
     toast.show(<span className="toast-nowrap">{msg}</span>, opts);
   const queryClient = useQueryClient();
 
-  const { mutate: saveMutate, isPending } = useMutation({
+  const { mutate: saveMutate, isPending: isSaving } = useMutation({
     mutationFn: ({
       isUnder: _,
       skipToast: __,
@@ -324,9 +324,9 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
                       color="white"
                       size="sm"
                       onClick={() => setResetConfirmOpen(true)}
-                      isLoading={isPending}
+                      isLoading={isSaving}
                       className={
-                        isPending || allColumnsLocked
+                        isSaving || allColumnsLocked
                           ? 'h-11'
                           : 'h-11 text-teal-grey-900 [--umc-button-border-pressed:var(--umc-color-teal-grey-300)] [--umc-button-border:var(--umc-color-teal-grey-300)]'
                       }
@@ -338,7 +338,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
                       size="sm"
                       className="h-11"
                       disabled={allColumnsLocked}
-                      isLoading={isPending}
+                      isLoading={isSaving}
                       onClick={handleSave}
                     >
                       저장
@@ -388,6 +388,13 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
                     <div className="flex w-full flex-col items-center justify-center gap-2 py-[74px] text-teal-grey-600">
                       <h3 className="text-body-1-semibold">데이터를 불러오지 못했어요</h3>
                       <p className="text-body-3-regular">잠시 후 다시 시도해 주세요.</p>
+                    </div>
+                  ) : isPending ? (
+                    <div className="flex w-full items-center justify-center py-[74px]">
+                      <span
+                        aria-label="로딩 중"
+                        className="size-6 animate-spin rounded-full border-2 border-teal-grey-200 border-t-teal-500"
+                      />
                     </div>
                   ) : (
                     <>
