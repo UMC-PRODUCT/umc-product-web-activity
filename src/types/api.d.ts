@@ -10352,6 +10352,11 @@ export interface components {
              */
             mustRead: boolean;
             targetInfo: components["schemas"]["NoticeTargetInfo"];
+            /**
+             * @description UPMS 공지 유형. 팀 매칭 / 프로젝트 설정 공지를 구분
+             * @enum {string}
+             */
+            upmsNoticeType?: "TEAM_MATCHING" | "PROJECT_SETTING";
         };
         /** @description 공지 대상 범위. null인 필드는 전체 대상. 예) targetGisuId만 입력하면 해당 기수 전체, targetChapterId도 입력하면 해당 지부만, targetParts도 입력하면 해당 파트만, targetNoticeTab이 CHALLENGER가 아니면 운영진 공지 */
         NoticeTargetInfo: {
@@ -19273,6 +19278,8 @@ export interface operations {
                  * @example CHALLENGER
                  */
                 noticeTab: "CHALLENGER" | "CENTRAL_MEMBER" | "SCHOOL_CORE" | "SCHOOL_PART_LEADER";
+                /** @description UPMS 공지 유형. 현재 화면의 유형 */
+                upmsNoticeType?: "TEAM_MATCHING" | "PROJECT_SETTING";
                 /** @description Zero-based page index (0..N) */
                 page?: number;
                 /** @description The size of the page to be returned */

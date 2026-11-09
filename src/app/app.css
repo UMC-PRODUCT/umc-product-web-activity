@@ -16,6 +16,11 @@
   --breakpoint-3xl: 1920px;
 }
 
+/* 토스트 메시지 줄바꿈 방지: 메시지 안에 .toast-nowrap이 있을 때만 적용. min-width(400px)는 유지 */
+.umc-toast:has(.toast-nowrap) {
+  width: max-content;
+}
+
 /* 디자인 시스템 Tooltip은 className을 못 받아서, 줄바꿈을 직접 정한 문구는 표식 클래스로 최대 너비(240px)를 풂 */
 .umc-tooltip__positioner:has(.tooltip-nowrap) {
   --umc-tooltip-max-width: none;

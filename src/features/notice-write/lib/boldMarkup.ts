@@ -1,6 +1,8 @@
+import { splitBoldSegments } from '@/entities/notice';
+
+import { BULLET } from './bullet';
+
 const MARK = '**';
-const BOLD_SPLIT_PATTERN = /(\*\*.+?\*\*)/g;
-const BOLD_PATTERN = /^\*\*(.+)\*\*$/;
 
 const isBoldElement = (node: Node): node is HTMLElement =>
   node instanceof HTMLElement &&
@@ -14,7 +16,7 @@ const serializeInline = (node: Node, bold: boolean): string => {
   if (node.nodeType === Node.TEXT_NODE) {
     // 편집 영역이 끝 공백을 줄바꿈 없는 공백으로 바꾸는 경우가 있어 일반 공백으로 되돌린다
     const text = (node.textContent ?? '').replace(/\xa0/g, ' ');
-    return bold && text ? `${MARK}${text}${MARK}` : text;
+    return text;
   }
   if (node.nodeName === 'BR') return '';
 
@@ -58,7 +60,13 @@ export const serializeEditor = (root: HTMLElement): string => {
   };
 
   walk(root);
-  return lines.join('\n');
+  // 굵은 불렛('**· 글**')은 목록에서 불렛으로 알아볼 수 있게 불렛을 굵은 구간 밖으로 뺀다
+  const boldBullet = `${MARK}${BULLET}`;
+  return lines
+    .map((line) =>
+      line.startsWith(boldBullet) ? `${BULLET}${MARK}${line.slice(boldBullet.length)}` : line,
+    )
+    .join('\n');
 };
 
 // 저장 형식 → 편집 영역. 줄마다 div, **굵게** 구간은 strong
@@ -70,16 +78,14 @@ export const renderEditor = (root: HTMLElement, value: string) => {
     if (line === '') {
       row.append(document.createElement('br'));
     } else {
-      line.split(BOLD_SPLIT_PATTERN).forEach((part) => {
-        if (part === '') return;
-        const bold = BOLD_PATTERN.exec(part)?.[1];
+      splitBoldSegments(line).forEach(({ text, bold }) => {
         if (bold) {
           const strong = document.createElement('strong');
           strong.className = 'font-bold';
-          strong.textContent = bold;
+          strong.textContent = text;
           row.append(strong);
         } else {
-          row.append(part);
+          row.append(text);
         }
       });
     }

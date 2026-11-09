@@ -10,27 +10,37 @@ import {
   useCancelApplication,
   useMyApplications,
 } from '@/features/applications';
-import { getOpenRoundIds, useMatchingRounds } from '@/features/matching-schedule';
+import {
+  getMatchingStepFromRounds,
+  getOpenRoundIds,
+  useMatchingRounds,
+} from '@/features/matching-schedule';
 import { useAppToast } from '@/widgets/toast';
 
 import { getBreadcrumbs } from '../-shared/constants';
+import { useMatchingChapterId } from '../-shared/useMatchingChapterId';
 import AppliedProjectModal from './AppliedProjectModal';
 
 // 챌린저 뷰: 내 지원 현황 (매칭 차수별 지원한 프로젝트)
 const ChallengerApplications = () => {
   const gisuId = useSessionStore((state) => state.session.gisuId);
-  const chapterId = useSessionStore((state) => state.session.serverChapterId);
+  const chapterId = useMatchingChapterId();
   const [now] = useState(() => new Date());
   const [selectedProject, setSelectedProject] = useState<AppliedProject | null>(null);
   const toast = useAppToast();
 
   const applications = useMyApplications(gisuId);
   // 목록 API에 지원 기간이 없어서 소속 지부의 매칭 차수로 지금 취소할 수 있는 차수를 구함
-  // TODO: 매칭 지부 이동(PROJECT-TRANSFER)으로 지원 지부가 바뀐 챌린저 확인
   const rounds = useMatchingRounds(chapterId ?? undefined);
   const groups = applications.data
     ? toAppliedRoundGroups(applications.data, getOpenRoundIds(rounds.data ?? [], now))
     : [];
+
+  // 1차 매칭 기간 이후(매칭 기간이거나 2차 이상의 지원 기간)면 팀원 구성에서 파트별 매칭 진행 안내를 보여줌
+  const step = rounds.data ? getMatchingStepFromRounds(rounds.data, now) : null;
+  const hasMatchingStarted =
+    step?.status === 'ENDED' ||
+    (step?.status === 'ONGOING' && (step.phase === 'MATCHING' || step.round >= 2));
 
   const cancelApplication = useCancelApplication();
 
@@ -92,6 +102,7 @@ const ChallengerApplications = () => {
         onClose={() => setSelectedProject(null)}
         onCancelApplication={handleCancelApplication}
         isCanceling={cancelApplication.isPending}
+        hasMatchingStarted={hasMatchingStarted}
       />
     </main>
   );

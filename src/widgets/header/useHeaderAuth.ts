@@ -2,7 +2,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate } from '@tanstack/react-router';
 
 import { myInfoQueryOptions, toSession, useSessionStore } from '@/entities/session';
-import { clearAuthTokens, getAccessToken } from '@/shared/api/authToken';
+import { getAccessToken } from '@/shared/api/authToken';
+import { getSsoClient } from '@/shared/auth/sso-client';
 
 import { getGisus, toGisuYears } from './gisuYears';
 import { getProfileGisuIds, toProfileMenu } from './toProfileMenu';
@@ -37,9 +38,15 @@ export const useHeaderAuth = () => {
   };
 
   const handleLogout = () => {
-    clearAuthTokens();
-    queryClient.clear();
-    void navigate({ to: LOGIN_PATH });
+    // 리다이렉트 전에 캐시를 비우면 빈 화면이 한 프레임 보여서, logout 이후에 비운다
+    void getSsoClient()
+      .logout({
+        global: true,
+        returnTo: `${window.location.origin}${LOGIN_PATH}`,
+      })
+      .finally(() => {
+        queryClient.clear();
+      });
   };
 
   return { pathname, profileMenu, showLogin, handleLogin, handleLogout, serverChapterId };

@@ -3,6 +3,7 @@
 export const EXTERNAL_LINKS = {
   inquiry: 'http://pf.kakao.com/_MDxhqX', // 헤더 문의사항
   umcWebsite: 'https://university.neordinary.com', // 헤더 UMC 바로가기
+  projects: 'https://university.neordinary.com/projects',
 } as const;
 
 // 새 탭으로 열고, 열린 페이지가 이 탭에 접근하지 못하게 noopener
