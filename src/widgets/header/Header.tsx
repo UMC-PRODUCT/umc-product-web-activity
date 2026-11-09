@@ -7,6 +7,7 @@ import {
 } from '@umc-product/react';
 
 import { EXTERNAL_LINKS, openExternalLink } from '@/shared/config/externalLinks';
+import { HOME_PATH } from '@/shared/config/teamMatchingMenu';
 
 import { useHeaderModeStore } from './headerModeStore';
 import { useHeaderAuth } from './useHeaderAuth';
@@ -15,7 +16,7 @@ type HeaderNavItem = { label: string; href: string };
 
 const NAV_ITEMS: HeaderNavItem[] = [
   { label: '프로젝트', href: EXTERNAL_LINKS.projects },
-  { label: '데모데이 매칭', href: '/demo-day' },
+  { label: '데모데이 매칭', href: HOME_PATH },
   { label: '사용 가이드', href: '/guide' },
 ];
 
@@ -23,7 +24,7 @@ const Header = () => {
   const isDark = useHeaderModeStore((state) => state.isDark);
   const { pathname, profileMenu, showLogin, handleLogin, handleLogout } = useHeaderAuth({
     logoutReturnTo: '/guide',
-    loginRedirectTo: '/demo-day',
+    loginRedirectTo: HOME_PATH,
   });
 
   return (
