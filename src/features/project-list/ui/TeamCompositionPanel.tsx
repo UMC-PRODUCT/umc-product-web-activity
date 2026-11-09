@@ -31,7 +31,10 @@ type TeamCompositionPanelProps = {
   onOpenChange: (open: boolean) => void;
   recruitments: PartRecruitment[];
   hasMatchingStarted?: boolean; // 1차 매칭 기간 이후에는 팀원이 없어도 파트별로 "매칭이 진행 중이에요"를 보여줌
+  isPePending?: boolean; // 디자인 매칭 기간: PE(Web · Mobile)는 아직 매칭 전이라 "추후 진행될 예정이에요"를 보여줌
 };
+
+const PE_PARTS: RecruitPart[] = ['WEB_PE', 'MOBILE_PE'];
 
 // 피그마 팀원 구성: 파트별 매칭 인원 / 모집 인원과 매칭된 팀원 카드
 // 팀원이 아직 없는 파트는 "매칭이 진행 중이에요"
@@ -42,6 +45,7 @@ const TeamCompositionPanel = ({
   onOpenChange,
   recruitments,
   hasMatchingStarted = false,
+  isPePending = false,
 }: TeamCompositionPanelProps) => {
   const isEmpty = !hasMatchingStarted && recruitments.every(({ members }) => members.length === 0);
 
@@ -96,7 +100,9 @@ const TeamCompositionPanel = ({
                     </div>
                     {members.length === 0 ? (
                       <p className="flex h-[60px] items-center justify-center text-body-3-regular text-teal-grey-500">
-                        매칭이 진행 중이에요
+                        {isPePending && PE_PARTS.includes(part)
+                          ? 'PE 매칭은 추후 진행될 예정이에요'
+                          : '매칭이 진행 중이에요'}
                       </p>
                     ) : (
                       <ul className="flex flex-wrap gap-x-3 gap-y-2.5">
