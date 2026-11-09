@@ -1,4 +1,8 @@
 export { getMyInfo, type MyInfoResponse } from './api/getMyInfo';
+export {
+  matchingAffiliationQueryOptions,
+  type MatchingAffiliationResponse,
+} from './api/matchingAffiliationQuery';
 export { myInfoQueryOptions } from './api/myInfoQuery';
 export {
   canEditApplicantStatus,

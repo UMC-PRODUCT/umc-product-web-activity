@@ -9,9 +9,17 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { LinkProvider } from '@umc-product/react';
 
 import { MOCK_CHAPTERS } from '@/entities/chapter';
-import { myInfoQueryOptions, type Session, toSession, useSessionStore } from '@/entities/session';
+import {
+  matchingAffiliationQueryOptions,
+  myInfoQueryOptions,
+  type ServerSession,
+  type Session,
+  toSession,
+  useSessionStore,
+} from '@/entities/session';
 import { clearAuthTokens, getAccessToken } from '@/shared/api/authToken';
 import { ApiError } from '@/shared/api/client';
+import { toId } from '@/shared/api/toId';
 import { RouterLink } from '@/shared/ui/RouterLink';
 import { Header } from '@/widgets/header';
 import { ToastProvider } from '@/widgets/toast';
@@ -26,6 +34,23 @@ const isSameSession = (left: Session, right: Session) =>
   left.serverChapterId === right.serverChapterId &&
   left.memberId === right.memberId &&
   left.gisuId === right.gisuId;
+
+const toMatchingChapterSession = async (
+  queryClient: QueryClient,
+  session: ServerSession,
+): Promise<ServerSession> => {
+  if (session.gisuId === null) return session;
+  const affiliation = await queryClient
+    .ensureQueryData(matchingAffiliationQueryOptions(session.gisuId))
+    .catch(() => null);
+  const matchingChapterId = toId(affiliation?.matchingChapter?.id);
+  if (!affiliation?.transferred || matchingChapterId === null) return session;
+  return {
+    ...session,
+    serverChapterId: matchingChapterId,
+    chapterName: affiliation.matchingChapter?.name ?? null,
+  };
+};
 
 const RootComponent = () => {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
@@ -76,7 +101,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         }
         throw error;
       });
-    const { chapterName, ...serverSession } = toSession(myInfo);
+    const { chapterName, ...serverSession } = await toMatchingChapterSession(
+      context.queryClient,
+      toSession(myInfo),
+    );
     const session: Session = {
       ...serverSession,
       // TODO: mock 지부를 쓰는 화면이 서버 지부로 바뀌면 제거. 지금은 이름으로 mock 지부를 찾음

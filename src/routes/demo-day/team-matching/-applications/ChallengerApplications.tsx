@@ -17,14 +17,12 @@ import {
 } from '@/features/matching-schedule';
 
 import { getBreadcrumbs } from '../-shared/constants';
-import { useMatchingChapterId } from '../-shared/useMatchingChapterId';
 import { useOneLineToast } from '../-shared/useOneLineToast';
 import AppliedProjectModal from './AppliedProjectModal';
 
 // 챌린저 뷰: 내 지원 현황 (매칭 차수별 지원한 프로젝트)
 const ChallengerApplications = () => {
-  const gisuId = useSessionStore((state) => state.session.gisuId);
-  const chapterId = useMatchingChapterId();
+  const { gisuId, serverChapterId: chapterId } = useSessionStore((state) => state.session);
   const [now] = useState(() => new Date());
   const [selectedProject, setSelectedProject] = useState<AppliedProject | null>(null);
   const toast = useOneLineToast();
