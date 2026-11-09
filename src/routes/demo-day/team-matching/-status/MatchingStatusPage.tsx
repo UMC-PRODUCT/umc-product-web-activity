@@ -23,7 +23,6 @@ import {
 
 import { getBreadcrumbs } from '../-shared/constants';
 import UpdatedAtCaption from '../-shared/UpdatedAtCaption';
-import { useMatchingChapterId } from '../-shared/useMatchingChapterId';
 import { useOneLineToast } from '../-shared/useOneLineToast';
 import ManualAssignModal from './ManualAssignModal';
 import MatchedApplicationModal, { type MatchedApplicationTarget } from './MatchedApplicationModal';
@@ -37,12 +36,11 @@ const MatchingStatusPage = () => {
   const { data: chapters = [] } = useChapters(gisuId);
   // 기본 선택: 소속 지부, 없으면 첫 번째 지부
   const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
-  const matchingChapterId = useMatchingChapterId();
   const chapterId =
     selectedChapterId ??
-    (matchingChapterId === undefined
-      ? null
-      : (chapters.find(({ id }) => id === matchingChapterId)?.id ?? chapters[0]?.id ?? null));
+    chapters.find(({ id }) => id === ownChapterId)?.id ??
+    chapters[0]?.id ??
+    null;
   // 권한표: 지원서 열람 · 매칭 해제 · 수동 배정은 마스터(전 지부) · 지부장(소속 지부 프로젝트)만
   // 칸을 누를 수 있는지는 역할로, 실제 해제 · 배정은 서버 권한(canUnassign · canAssign)으로 한 번 더 확인
   // 배정 · 해제 기간은 파트별로 확인 (Design은 Plan-Design 일정, PE는 Plan-PE 일정)
