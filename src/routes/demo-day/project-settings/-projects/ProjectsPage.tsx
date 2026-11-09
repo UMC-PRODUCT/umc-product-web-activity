@@ -44,9 +44,11 @@ const getDescription = (role: Role, view: View): string => {
 
 const EmptyState = ({
   showRegisterButton,
+  disabled,
   onRegister,
 }: {
   showRegisterButton: boolean;
+  disabled?: boolean;
   onRegister?: () => void;
 }) => (
   <div className="flex flex-col items-center gap-6 py-20">
@@ -58,7 +60,7 @@ const EmptyState = ({
       </p>
     </div>
     {showRegisterButton && (
-      <Button size="sm" onClick={onRegister}>
+      <Button size="sm" disabled={disabled} onClick={onRegister}>
         <div className="flex items-center gap-2">
           <AddIcon size={16} />
           프로젝트 등록
@@ -264,6 +266,7 @@ const ProjectsPage = ({ initialChapterId, onChapterChange }: ProjectsPageProps) 
           <div className="flex min-h-[400px] w-full items-center justify-center rounded-xl border border-teal-grey-100 bg-white shadow-drop-neutral-3">
             <EmptyState
               showRegisterButton={isPmChallenger}
+              disabled={role === 'HQ_ADMIN' || !isBeforeStart}
               onRegister={() =>
                 navigate({
                   to: '/demo-day/project-settings/projects/new',

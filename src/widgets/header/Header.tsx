@@ -20,7 +20,9 @@ const NAV_ITEMS: HeaderNavItem[] = [
 ];
 
 const Header = () => {
-  const { pathname, profileMenu, showLogin, handleLogin, handleLogout } = useHeaderAuth();
+  const { pathname, profileMenu, showLogin, handleLogin, handleLogout } = useHeaderAuth({
+    logoutReturnTo: '/guide',
+  });
 
   return (
     <HeaderDesktop
