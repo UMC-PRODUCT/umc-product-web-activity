@@ -47,8 +47,15 @@ export const useAssignablePeriod = (chapterId: number | null) => {
     );
   };
 
+  const isAdjustmentOpen = (part: MatchingPart) => {
+    const random = rounds.find(
+      ({ type, phase }) => type === PART_TRACK[part] && phase === 'RANDOM_MATCHING',
+    );
+    return isWithin(Date.now(), random?.startsAt, random?.endsAt);
+  };
+
   const closedMessage = (part: MatchingPart) =>
     `지금은 ${PART_LABEL[part]} 파트를 배정하거나 해제할 수 있는 기간이 아니에요.`;
 
-  return { isPartOpen, isAllPublished, closedMessage };
+  return { isPartOpen, isAdjustmentOpen, isAllPublished, closedMessage };
 };

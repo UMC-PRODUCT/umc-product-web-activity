@@ -185,6 +185,7 @@ const MatchingStatusPage = () => {
                       }
                       onAddMemberClick={canManage ? handleAddMemberClick : undefined}
                       canAddMember={(part) => assignablePeriod.isPartOpen(part.part)}
+                      canAddOverQuota={(part) => assignablePeriod.isAdjustmentOpen(part.part)}
                     />
                   </div>
                 </div>
