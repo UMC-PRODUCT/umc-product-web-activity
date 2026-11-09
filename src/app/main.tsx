@@ -8,7 +8,7 @@ import { createRoot } from 'react-dom/client';
 
 import { routeTree } from '@/routes/routeTree.gen';
 import { ApiError } from '@/shared/api/client';
-import { initAnalytics, trackPageView } from '@/shared/lib/analytics';
+import { initAnalytics } from '@/shared/lib/analytics';
 import { NotFoundPage, ServerErrorPage } from '@/widgets/error-page';
 
 const queryClient = new QueryClient({
@@ -37,8 +37,7 @@ const router = createRouter({
   defaultErrorComponent: ServerErrorPage,
 });
 
-initAnalytics();
-router.subscribe('onResolved', ({ toLocation }) => trackPageView(toLocation.href));
+void initAnalytics();
 
 declare module '@tanstack/react-router' {
   interface Register {
