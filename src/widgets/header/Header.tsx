@@ -26,9 +26,7 @@ const Header = () => {
     loginRedirectTo: '/demo-day',
   });
 
-  const isGuide = pathname === '/guide';
-
-  const header = (
+  return (
     <HeaderDesktop
       mode={isDark ? 'dark' : 'light'}
       logo={<HeaderHomeLink context="activity" generation={11} href="/" />}
@@ -38,9 +36,9 @@ const Header = () => {
         <>
           {isDark ? (
             <div>
-              {/* // <Button size="sm" onClick={() => openExternalLink(EXTERNAL_LINKS.umcWebsite)}>
-              //   UMC 바로가기
-              // </Button> */}
+              {/* <Button size="sm" onClick={() => openExternalLink(EXTERNAL_LINKS.umcWebsite)}>
+                UMC 바로가기
+              </Button> */}
             </div>
           ) : (
             <HeaderActionButton onClick={() => openExternalLink(EXTERNAL_LINKS.inquiry)}>
@@ -71,12 +69,6 @@ const Header = () => {
       }
     />
   );
-
-  if (isGuide) {
-    return <div className="fixed top-0 left-0 z-50 w-full">{header}</div>;
-  }
-
-  return header;
 };
 
 export default Header;

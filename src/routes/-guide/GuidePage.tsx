@@ -14,16 +14,18 @@ const GuidePage = () => {
   const section1Ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setDark(true);
+    return () => setDark(false);
+  }, [setDark]);
+
+  useEffect(() => {
     const el = section1Ref.current;
     if (!el) return;
     const observer = new IntersectionObserver(([entry]) => setDark(entry.isIntersecting), {
       threshold: 0,
     });
     observer.observe(el);
-    return () => {
-      observer.disconnect();
-      setDark(false);
-    };
+    return () => observer.disconnect();
   }, [setDark]);
 
   return (

@@ -37,7 +37,14 @@ const RootComponent = () => {
       <ToastProvider>
         {/* TODO: 푸터 잠시 숨김. 다시 넣을 때 <Footer />(@/widgets/footer)를 내용 영역 아래에 추가 */}
         <div className="flex min-h-dvh flex-col">
-          {!hideChrome && <Header />}
+          {!hideChrome &&
+            (pathname === '/guide' ? (
+              <div className="fixed top-0 left-0 z-50 w-full">
+                <Header />
+              </div>
+            ) : (
+              <Header />
+            ))}
           <div className="flex flex-1 flex-col">
             <Outlet />
           </div>
