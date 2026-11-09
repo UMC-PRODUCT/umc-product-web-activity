@@ -20,12 +20,30 @@ import {
 import { clearAuthTokens, getAccessToken } from '@/shared/api/authToken';
 import { ApiError } from '@/shared/api/client';
 import { toId } from '@/shared/api/toId';
+import { HOME_PATH } from '@/shared/config/teamMatchingMenu';
 import { RouterLink } from '@/shared/ui/RouterLink';
 import { Header } from '@/widgets/header';
 import { ToastProvider } from '@/widgets/toast';
 
+// 로그인 여부와 상관없이 내 정보를 부르지 않는 화면
 const PUBLIC_PATHS = ['/login', '/auth/callback', '/guide', '/'];
+// 비로그인도 볼 수 있지만, 로그인했으면 내 정보로 세션을 채우는 화면 (이 외에는 로그인 필요)
+const GUEST_PATHS = [HOME_PATH];
 const CHROME_HIDDEN_PATHS = ['/login', '/auth/callback', '/'];
+
+// 끝의 '/'는 같은 화면으로 봄 (/guide/ → /guide)
+const normalizePath = (pathname: string) =>
+  pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+
+// 비로그인 세션 (내 정보가 없음)
+const GUEST_SESSION: Session = {
+  role: 'CHALLENGER',
+  challengerType: null,
+  chapterId: null,
+  serverChapterId: null,
+  memberId: null,
+  gisuId: null,
+};
 
 const isSameSession = (left: Session, right: Session) =>
   left.role === right.role &&
@@ -76,9 +94,11 @@ const RootComponent = () => {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   // 하위 라우트의 권한 확인(beforeLoad)보다 먼저 실행돼서, 화면을 그리기 전에 내 정보로 세션을 채움
   beforeLoad: async ({ context, location }) => {
+    const pathname = normalizePath(location.pathname);
     // 로그인 · 콜백은 토큰 없이 들어와야 함
-    if (PUBLIC_PATHS.includes(location.pathname)) return;
+    if (PUBLIC_PATHS.includes(pathname)) return;
 
+    const isGuestPath = GUEST_PATHS.includes(pathname);
     const loginRedirect = location.href;
     const toLogin = () =>
       redirect({
@@ -89,31 +109,43 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             : {},
       });
 
-    if (!getAccessToken()) throw toLogin();
+    // 이동할 때마다 실행되므로, 바뀌었을 때만 넣어야 뷰 선택(setSession이 초기화)이 유지됨
+    const commitSession = (session: Session) => {
+      const { session: current, setSession } = useSessionStore.getState();
+      if (!isSameSession(current, session)) setSession(session);
+    };
+
+    if (!getAccessToken()) {
+      if (!isGuestPath) throw toLogin();
+      commitSession(GUEST_SESSION);
+      return;
+    }
 
     const myInfo = await context.queryClient
       .ensureQueryData(myInfoQueryOptions)
       .catch((error: unknown) => {
-        // 토큰이 만료 · 무효면 다시 로그인
+        // 토큰이 만료 · 무효면 비로그인으로 보거나(열린 화면) 다시 로그인
         if (error instanceof ApiError && error.status === 401) {
           clearAuthTokens();
+          if (isGuestPath) return null;
           throw toLogin();
         }
         throw error;
       });
+    if (!myInfo) {
+      commitSession(GUEST_SESSION);
+      return;
+    }
+
     const { chapterName, ...serverSession } = await toMatchingChapterSession(
       context.queryClient,
       toSession(myInfo),
     );
-    const session: Session = {
+    commitSession({
       ...serverSession,
       // TODO: mock 지부를 쓰는 화면이 서버 지부로 바뀌면 제거. 지금은 이름으로 mock 지부를 찾음
       chapterId: MOCK_CHAPTERS.find(({ name }) => name === chapterName)?.id ?? null,
-    };
-
-    // 이동할 때마다 실행되므로, 바뀌었을 때만 넣어야 뷰 선택(setSession이 초기화)이 유지됨
-    const { session: current, setSession } = useSessionStore.getState();
-    if (!isSameSession(current, session)) setSession(session);
+    });
   },
   component: RootComponent,
 });

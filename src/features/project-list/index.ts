@@ -2,6 +2,7 @@ export type { ProjectMembersResponse } from './api/getProjectMembers';
 export { getProjectMembers } from './api/getProjectMembers';
 export { useProjectById } from './hooks/useProjectById';
 export { useProjectFilters } from './hooks/useProjectFilters';
+export { useProjectGisuId } from './hooks/useProjectGisuId';
 export { useProjects } from './hooks/useProjects';
 export { useProjectViewer } from './hooks/useProjectViewer';
 export { useProjectWithDetail } from './hooks/useProjectWithDetail';
