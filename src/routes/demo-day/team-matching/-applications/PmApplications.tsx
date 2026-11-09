@@ -23,7 +23,7 @@ import {
   useApplicationStatistics,
   useMyManagedProject,
 } from '@/features/application-stats';
-import { useProjectDetail } from '@/features/applications';
+import { ApplicationListCard, useProjectDetail } from '@/features/applications';
 import { toSchoolMatchedCounts, useChapterMatchingStatistics } from '@/features/matching-status';
 import { FilterDropdownGroup } from '@/widgets/filterDropdownGroup';
 import { SearchBar } from '@/widgets/searchBar';
@@ -108,16 +108,30 @@ const PmApplications = () => {
     />
   );
 
-  // TODO: 불러오기 실패 · 진행 중 프로젝트 없음 화면이 피그마에 나오면 교체
-  if (managedProject.isError || (managedProject.isSuccess && !project)) {
+  // TODO: 불러오기 실패 화면이 피그마에 나오면 교체
+  if (managedProject.isError) {
     return (
       <main className="flex flex-col items-start gap-8 px-8 pt-12 pb-20">
         {pageHeader}
         <p role="alert" className="text-body-3-medium text-red-500">
-          {managedProject.isError
-            ? '내 프로젝트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
-            : '내가 PM인 프로젝트가 없어요.'}
+          내 프로젝트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </p>
+      </main>
+    );
+  }
+
+  if (managedProject.isSuccess && !project) {
+    return (
+      <main className="flex flex-col items-start gap-8 px-8 pt-12 pb-20">
+        {pageHeader}
+        <div className="flex w-full max-w-[1160px] flex-col">
+          <ApplicationListCard
+            title="아직 승인 완료된 프로젝트가 없어요."
+            description="프로젝트 승인이 완료된 후 프로젝트 지원현황을 확인할 수 있어요."
+            actionLabel="내 프로젝트 목록으로"
+            to="/demo-day/project-settings/projects"
+          />
+        </div>
       </main>
     );
   }

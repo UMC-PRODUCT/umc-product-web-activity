@@ -85,7 +85,12 @@ const Sidebar = () => {
       currentPath={pathname}
       slot={
         viewOptions.length > 0 && (
-          <ContextSwitcher options={viewOptions} value={view} onValueChange={handleViewChange} />
+          <ContextSwitcher
+            key={view}
+            options={viewOptions}
+            value={view}
+            onValueChange={handleViewChange}
+          />
         )
       }
     />
