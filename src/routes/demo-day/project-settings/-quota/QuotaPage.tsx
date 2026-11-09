@@ -103,6 +103,8 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const toast = useAppToast();
+  const showToast = (msg: string, opts?: Parameters<typeof toast.show>[1]) =>
+    toast.show(<span className="toast-nowrap">{msg}</span>, opts);
   const queryClient = useQueryClient();
 
   const { mutate: saveMutate, isPending } = useMutation({
@@ -115,7 +117,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
       setSaved(draft);
       setEditingCell(null);
       if (!skipToast)
-        toast.show(
+        showToast(
           isUnder ? '임시 저장 됐어요. 현재 파트 인원보다 TO가 적어요.' : '저장되었어요',
           isUnder ? { color: 'neutral' } : undefined,
         );
@@ -128,7 +130,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
       queryClient.invalidateQueries({ queryKey: ['managed-projects'] });
     },
     onError: () => {
-      toast.show('TO는 배정 인원(발표 대기 포함) 이상으로 설정해 주세요.', { color: 'error' });
+      showToast('TO는 배정 인원(발표 대기 포함) 이상으로 설정해 주세요.', { color: 'error' });
     },
   });
 
@@ -175,7 +177,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
 
     const isPartOver = columns.some((col) => partTotal(col.part!) > partQuota(col.part!));
     if (isPartOver) {
-      toast.show('파트 인원보다 TO가 많아요. 초과한 파트의 TO를 줄여 주세요.', { color: 'error' });
+      showToast('파트 인원보다 TO가 많아요. 초과한 파트의 TO를 줄여 주세요.', { color: 'error' });
       return;
     }
 
@@ -238,7 +240,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
       .filter((p): p is NonNullable<typeof p> => p !== null);
 
     if (changedProjects.length === 0) {
-      toast.show('프로젝트 전체 TO가 초기화되었어요.', { color: 'neutral' });
+      showToast('프로젝트 전체 TO가 초기화되었어요.', { color: 'neutral' });
       return;
     }
 
