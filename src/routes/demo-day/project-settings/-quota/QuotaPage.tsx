@@ -80,7 +80,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
   const [schoolIds, setSchoolIds] = useState<string[]>([]);
   const schoolId = schoolIds.length > 0 ? Number(schoolIds[0]) : undefined;
 
-  const { data, isError } = useQuery(
+  const { data, isError, isPending } = useQuery(
     partQuotasQueryOptions({
       gisuId: gisuId ?? 0,
       chapterId: chapterId,
@@ -103,9 +103,11 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const toast = useAppToast();
+  const showToast = (msg: string, opts?: Parameters<typeof toast.show>[1]) =>
+    toast.show(<span className="toast-nowrap">{msg}</span>, opts);
   const queryClient = useQueryClient();
 
-  const { mutate: saveMutate, isPending } = useMutation({
+  const { mutate: saveMutate, isPending: isSaving } = useMutation({
     mutationFn: ({
       isUnder: _,
       skipToast: __,
@@ -115,7 +117,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
       setSaved(draft);
       setEditingCell(null);
       if (!skipToast)
-        toast.show(
+        showToast(
           isUnder ? '임시 저장 됐어요. 현재 파트 인원보다 TO가 적어요.' : '저장되었어요',
           isUnder ? { color: 'neutral' } : undefined,
         );
@@ -127,8 +129,8 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['managed-projects'] });
     },
-    onError: (error: Error) => {
-      toast.show(error.message, { color: 'error' });
+    onError: () => {
+      showToast('TO는 배정 인원(발표 대기 포함) 이상으로 설정해 주세요.', { color: 'error' });
     },
   });
 
@@ -175,7 +177,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
 
     const isPartOver = columns.some((col) => partTotal(col.part!) > partQuota(col.part!));
     if (isPartOver) {
-      toast.show('파트 인원보다 TO가 많아요. 초과한 파트의 TO를 줄여 주세요.', { color: 'error' });
+      showToast('파트 인원보다 TO가 많아요. 초과한 파트의 TO를 줄여 주세요.', { color: 'error' });
       return;
     }
 
@@ -238,7 +240,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
       .filter((p): p is NonNullable<typeof p> => p !== null);
 
     if (changedProjects.length === 0) {
-      toast.show('프로젝트 전체 TO가 초기화되었어요.', { color: 'neutral' });
+      showToast('프로젝트 전체 TO가 초기화되었어요.', { color: 'neutral' });
       return;
     }
 
@@ -322,9 +324,9 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
                       color="white"
                       size="sm"
                       onClick={() => setResetConfirmOpen(true)}
-                      isLoading={isPending}
+                      isLoading={isSaving}
                       className={
-                        isPending || allColumnsLocked
+                        isSaving || allColumnsLocked
                           ? 'h-11'
                           : 'h-11 text-teal-grey-900 [--umc-button-border-pressed:var(--umc-color-teal-grey-300)] [--umc-button-border:var(--umc-color-teal-grey-300)]'
                       }
@@ -336,7 +338,7 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
                       size="sm"
                       className="h-11"
                       disabled={allColumnsLocked}
-                      isLoading={isPending}
+                      isLoading={isSaving}
                       onClick={handleSave}
                     >
                       저장
@@ -386,6 +388,13 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
                     <div className="flex w-full flex-col items-center justify-center gap-2 py-[74px] text-teal-grey-600">
                       <h3 className="text-body-1-semibold">데이터를 불러오지 못했어요</h3>
                       <p className="text-body-3-regular">잠시 후 다시 시도해 주세요.</p>
+                    </div>
+                  ) : isPending ? (
+                    <div className="flex w-full items-center justify-center py-[74px]">
+                      <span
+                        aria-label="로딩 중"
+                        className="size-6 animate-spin rounded-full border-2 border-teal-grey-200 border-t-teal-500"
+                      />
                     </div>
                   ) : (
                     <>

@@ -38,7 +38,7 @@ const QuotaTableRow = ({
     <tr className="flex">
       <td className="flex h-[60px] w-[170px] shrink-0 cursor-pointer items-center justify-center overflow-hidden border border-l-0 border-teal-grey-200 bg-fill-neutral-weaker-50 px-3">
         <Tooltip content={project.projectName ?? ''} size="sm" side="bottom" mode="dark">
-          <span>{project.projectName}</span>
+          <span className="max-w-full truncate">{project.projectName}</span>
         </Tooltip>
       </td>
 
