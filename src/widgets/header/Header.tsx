@@ -16,11 +16,11 @@ import { EXTERNAL_LINKS, openExternalLink } from '@/shared/config/externalLinks'
 import { getGisus, toGisuYears } from './gisuYears';
 import { getProfileGisuIds, toProfileMenu } from './toProfileMenu';
 
-type HeaderNavItem = { label: string; href: NonNullable<LinkProps['to']> };
+type HeaderNavItem = { label: string; href: NonNullable<LinkProps['to']> | `https://${string}` };
 
 // 피그마 Web/Header: 홈은 로고(DS HeaderHomeLink, Header 기본 logo)로 이동하고 메뉴는 3개
 const NAV_ITEMS: HeaderNavItem[] = [
-  { label: '프로젝트', href: '/projects' },
+  { label: '프로젝트', href: EXTERNAL_LINKS.projects },
   { label: '데모데이 매칭', href: '/demo-day' },
   { label: '사용 가이드', href: '/guide' },
 ];
