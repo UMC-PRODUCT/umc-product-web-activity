@@ -37,25 +37,35 @@ const GuideHeader = ({ isPastSection1 }: { isPastSection1: boolean }) => {
         currentPath={pathname}
         actions={
           <>
-            {mode === 'light' && (
+            {mode === 'dark' ? (
+              <Button
+                variant="weak"
+                color="brand"
+                size="sm"
+                onClick={() => openExternalLink(EXTERNAL_LINKS.umcWebsite)}
+                className="[--umc-button-bg-pressed:rgba(251,252,252,0.4)] [--umc-button-bg:rgba(251,252,252,0.3)] [--umc-button-border:white] [--umc-button-fg:white] [--umc-button-overlay-pressed:transparent]"
+              >
+                UMC 바로가기
+              </Button>
+            ) : (
               <HeaderActionButton onClick={() => openExternalLink(EXTERNAL_LINKS.inquiry)}>
                 문의사항
               </HeaderActionButton>
             )}
             {showLogin ? (
-              mode === 'dark' ? (
-                <button
-                  type="button"
-                  className="flex h-10 cursor-pointer items-center justify-center rounded-xl border-[0.5px] border-white px-4 font-medium tracking-[-0.03em] text-white"
-                  onClick={handleLogin}
-                >
-                  로그인
-                </button>
-              ) : (
-                <Button variant="weak" color="brand" size="sm" onClick={handleLogin}>
-                  로그인
-                </Button>
-              )
+              <Button
+                variant="weak"
+                color="brand"
+                size="sm"
+                onClick={handleLogin}
+                className={
+                  mode === 'dark'
+                    ? '[--umc-button-bg-pressed:rgba(255,255,255,0.08)] [--umc-button-bg:transparent] [--umc-button-border:white] [--umc-button-fg:white] [--umc-button-overlay-pressed:transparent]'
+                    : undefined
+                }
+              >
+                로그인
+              </Button>
             ) : (
               profileMenu && (
                 <HeaderProfileMenu
