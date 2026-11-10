@@ -1,5 +1,7 @@
 import { NumberBadge, Tag } from '@umc-product/react';
 
+import IconInfo from '@/routes/-guide/assets/icon-info.svg';
+
 type GuideItem = {
   number?: number;
   title: string;
@@ -14,26 +16,39 @@ export type GuideCardData = {
   mockupSrc: string;
   items: GuideItem[];
   note?: string;
+  isAdmin?: boolean;
 };
 
 const CARD_BG =
   'linear-gradient(134.38deg, rgba(46,209,190,0.16) 8.35%, rgba(46,209,190,0) 48.63%), linear-gradient(-54.78deg, rgba(46,209,190,0.4) 16.52%, rgba(46,209,190,0) 37.28%)';
 
-const GuideCard = ({ chip, step, title, body, mockupSrc, items, note }: GuideCardData) => (
+const GuideCard = ({ chip, step, title, body, mockupSrc, items, note, isAdmin }: GuideCardData) => (
   <div
     className="h-[740px] w-full overflow-hidden rounded-[16px] p-10"
     style={{ background: CARD_BG }}
   >
     <div className="flex h-full flex-col gap-[41px]">
       <div className="flex flex-col gap-[28px]">
-        <p className="text-[18px] leading-[1.4] font-semibold text-[#36d3c0]">{step}</p>
+        <div className="flex justify-between">
+          <p className="text-[18px] leading-[1.4] font-semibold text-[#36d3c0]">{step}</p>
+          {isAdmin && (
+            <div className="flex items-center gap-[6px]">
+              <img src={IconInfo} alt="" className="size-[20px] shrink-0" />
+              <button className="group">
+                <p className="text-heading-5-medium text-white decoration-white decoration-solid [text-decoration-skip-ink:none] [text-underline-position:from-font] group-hover:underline group-active:underline">
+                  권한 별 이용 안내
+                </p>
+              </button>
+            </div>
+          )}
+        </div>
         <div className="flex flex-col gap-[6px]">
           <p className="text-[24px] leading-[1.35] font-bold text-white">{title}</p>
           <p className="text-[24px] leading-[1.35] font-normal text-white">{body}</p>
         </div>
       </div>
       <div className="flex gap-[53px]">
-        <div className="h-[470px] w-[700px] shrink-0 overflow-hidden rounded-[12px] border border-[#e2e3e3]">
+        <div className="h-[470px] w-[700px] shrink-0 overflow-hidden rounded-[12px]">
           <img src={mockupSrc} alt="" className="h-full w-full object-cover object-top" />
         </div>
         <div className="flex flex-col gap-[39px]">
