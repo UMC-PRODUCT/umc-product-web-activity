@@ -175,7 +175,7 @@ const DayCell = ({ day, roundedCorner }: { day: DayColumn; roundedCorner?: strin
 
 const Section04 = () => {
   return (
-    <section className="relative flex min-w-[1440px] justify-center overflow-hidden bg-[#020A09] pt-[260px] pb-[80px]">
+    <section className="relative flex min-w-[1440px] justify-center overflow-hidden bg-[#020A09] pt-[260px] pb-[200px]">
       <div className="flex w-[1312px] flex-col items-center gap-[48px]">
         {/* 헤더 */}
         <div className="flex w-full flex-col items-center gap-1 text-center">

@@ -1,25 +1,25 @@
 import { NumberBadge, Tag } from '@umc-product/react';
 
-type PmGuideItem = {
+type GuideItem = {
   number?: number;
   title: string;
   desc: string;
 };
 
-export type PmGuideCardData = {
+export type GuideCardData = {
   chip: string;
   step: string;
   title: string;
   body: string;
   mockupSrc: string;
-  items: PmGuideItem[];
+  items: GuideItem[];
   note?: string;
 };
 
 const CARD_BG =
   'linear-gradient(134.38deg, rgba(46,209,190,0.16) 8.35%, rgba(46,209,190,0) 48.63%), linear-gradient(-54.78deg, rgba(46,209,190,0.4) 16.52%, rgba(46,209,190,0) 37.28%)';
 
-const PmGuideCard = ({ chip, step, title, body, mockupSrc, items, note }: PmGuideCardData) => (
+const GuideCard = ({ chip, step, title, body, mockupSrc, items, note }: GuideCardData) => (
   <div
     className="h-[740px] w-full overflow-hidden rounded-[16px] p-10"
     style={{ background: CARD_BG }}
@@ -70,4 +70,4 @@ const PmGuideCard = ({ chip, step, title, body, mockupSrc, items, note }: PmGuid
   </div>
 );
 
-export default PmGuideCard;
+export default GuideCard;
