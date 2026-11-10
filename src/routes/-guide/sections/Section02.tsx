@@ -13,7 +13,7 @@ const CHIPS = [
 
 const Section02 = () => {
   return (
-    <section className="flex min-w-[1440px] justify-center bg-[#F6FAF9] pt-[108px] pb-[80px]">
+    <section className="flex min-w-[1440px] justify-center bg-[#F6FAF9] pt-[168px] pb-[60px]">
       <div className="flex w-[1312px] flex-col items-center gap-[48px]">
         <div className="flex w-full flex-col items-center gap-3">
           <p className="text-[22px] leading-[1.4] font-medium tracking-[-0.22px] text-[#02746c]">

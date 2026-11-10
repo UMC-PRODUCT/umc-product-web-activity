@@ -11,13 +11,13 @@ const STEPS = [
 
 const Section03 = () => {
   return (
-    <section className="relative flex min-w-[1440px] justify-center overflow-hidden bg-[#020A09] pt-[108px] pb-[80px]">
+    <section className="relative flex min-w-[1440px] justify-center overflow-hidden bg-[#020A09] pt-[168px] pb-[60px]">
       {/* 테알 방사형 글로우 배경 */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 659px 611px at 50% 55%, rgba(54,211,192,0.28) 0%, transparent 100%)',
+            'radial-gradient(ellipse 659px 400px at 50% 55%, rgba(54,211,192,0.28) 0%, transparent 100%)',
         }}
       />
 
