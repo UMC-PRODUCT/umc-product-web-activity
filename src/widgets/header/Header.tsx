@@ -72,7 +72,7 @@ const Header = () => {
     <HeaderDesktop
       logo={<HeaderHomeLink context="activity" generation={11} href="/" />}
       navItems={NAV_ITEMS}
-      currentPath={pathname}
+      currentPath={pathname.startsWith('/demo-day') ? HOME_PATH : pathname}
       actions={
         <>
           <HeaderActionButton onClick={() => openExternalLink(EXTERNAL_LINKS.inquiry)}>
