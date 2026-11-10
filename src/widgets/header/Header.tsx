@@ -32,7 +32,7 @@ const Header = () => {
       mode={isDark ? 'dark' : 'light'}
       logo={<HeaderHomeLink context="activity" generation={11} href="/" />}
       navItems={NAV_ITEMS}
-      currentPath={pathname}
+      currentPath={pathname.startsWith('/demo-day') ? HOME_PATH : pathname}
       actions={
         <>
           {isDark ? (
