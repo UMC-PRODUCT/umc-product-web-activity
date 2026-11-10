@@ -32,10 +32,11 @@ const SCHOOL_ROLES: Role[] = ['SCHOOL_ADMIN', 'SCHOOL_STAFF'];
 const getProjectSettingsGroup = (
   access: ProjectSettingsAccess,
   role: Role,
+  view: View,
 ): SideNavigationGroup | null => {
   if (access === 'NONE') return null;
 
-  const showProjectManagement = !SCHOOL_ROLES.includes(role);
+  const showProjectManagement = view === 'PM_CHALLENGER' || !SCHOOL_ROLES.includes(role);
 
   const basicChildren = [
     { label: '공지', href: '/demo-day/project-settings/notice' },
@@ -65,7 +66,7 @@ const Sidebar = () => {
   const applicationsView = useApplicationsView();
 
   const viewOptions = getViewOptions(session);
-  const projectSettingsGroup = getProjectSettingsGroup(access, session.role);
+  const projectSettingsGroup = getProjectSettingsGroup(access, session.role, view);
   const teamMatchingGroup = getTeamMatchingGroup(applicationsView === 'CHALLENGER');
   const items = projectSettingsGroup
     ? [projectSettingsGroup, teamMatchingGroup]
