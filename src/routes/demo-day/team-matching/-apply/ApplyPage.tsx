@@ -31,6 +31,7 @@ import {
 import { findApplyRoundId, useMatchingRounds } from '@/features/matching-schedule';
 import { useProjectById, useProjectViewer } from '@/features/project-list';
 import { getApplicationForm } from '@/features/project-register/api/applicationForm';
+import { useApplicationFeedbackTrigger } from '@/features/user-feedback';
 
 import { useProjectPeriod } from '../-projects/useProjectPeriod';
 import ApplyQuestionField from './ApplyQuestionField';
@@ -61,6 +62,7 @@ const ApplyPage = ({ projectId }: ApplyPageProps) => {
   });
   const { data: rounds } = useMatchingRounds(session.serverChapterId ?? undefined);
   const submit = useSubmitApplication();
+  const feedback = useApplicationFeedbackTrigger();
 
   const [step, setStep] = useState<'COMMON' | 'PART'>('COMMON');
   const [drafts, setDrafts] = useState<AnswerDrafts>({});
@@ -249,9 +251,15 @@ const ApplyPage = ({ projectId }: ApplyPageProps) => {
           title="지원서를 제출했어요"
           description="내 지원 현황에서 지원서를 확인하고, 지원 기간이 끝나기 전까지 수정할 수 있어요."
           cancelLabel="지원 현황 가기"
-          onCancel={() => navigate({ to: '/demo-day/team-matching/applications' })}
+          onCancel={() => {
+            feedback.afterSubmitGoToApplications(matchingRoundId);
+            navigate({ to: '/demo-day/team-matching/applications' });
+          }}
           confirmLabel="확인"
-          onConfirm={goToProjects}
+          onConfirm={() => {
+            feedback.afterSubmitConfirm(matchingRoundId);
+            goToProjects();
+          }}
         />
       </Dialog.Portal>
     </Dialog.Root>

@@ -15,6 +15,7 @@ import {
   getOpenRoundIds,
   useMatchingRounds,
 } from '@/features/matching-schedule';
+import { useApplicationFeedbackTrigger } from '@/features/user-feedback';
 
 import { getBreadcrumbs } from '../-shared/constants';
 import { useOneLineToast } from '../-shared/useOneLineToast';
@@ -26,6 +27,7 @@ const ChallengerApplications = () => {
   const [now] = useState(() => new Date());
   const [selectedProject, setSelectedProject] = useState<AppliedProject | null>(null);
   const toast = useOneLineToast();
+  const feedback = useApplicationFeedbackTrigger();
 
   const applications = useMyApplications(gisuId);
   // 목록 API에 지원 기간이 없어서 소속 지부의 매칭 차수로 지금 취소할 수 있는 차수를 구함
@@ -49,6 +51,7 @@ const ChallengerApplications = () => {
       {
         onSuccess: () => {
           setSelectedProject(null);
+          feedback.afterProjectModalClosed();
           toast.show('프로젝트 지원이 취소되었어요.', { color: 'error' });
         },
         onError: (error) => toast.show(error.message, { color: 'error' }),

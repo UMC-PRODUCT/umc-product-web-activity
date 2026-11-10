@@ -15,6 +15,7 @@ import {
   TeamCompositionPanel,
   toTeamRecruitments,
 } from '@/features/project-list';
+import { useApplicationFeedbackTrigger } from '@/features/user-feedback';
 import { ProjectCard } from '@/widgets/card';
 import { CancelApplicationDialog } from '@/widgets/dialog';
 
@@ -49,6 +50,7 @@ const AppliedProjectModal = ({
   const [view, setView] = useState<ModalView>('PROJECT');
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [teamPanelOpen, setTeamPanelOpen] = useState(false);
+  const feedback = useApplicationFeedbackTrigger();
   // 목록 API에 없는 소개 · 로고는 모달을 열 때 프로젝트 상세로 불러옴
   const { data: detail } = useProjectDetail(project?.projectId ?? null);
   // 팀원 구성도 목록 API에 없어서 팀원 보기를 열 때 불러옴
@@ -62,12 +64,15 @@ const AppliedProjectModal = ({
     setView('PROJECT');
     setTeamPanelOpen(false);
     onClose();
+    feedback.afterProjectModalClosed();
   };
+
+  const leaveApplicationView = () => setView('PROJECT');
 
   // 지원서 화면에서 딤 · ESC를 누르면 닫지 않고 프로젝트 상세로 돌아감
   const handleOpenChange = (open: boolean) => {
     if (open) return;
-    if (view === 'APPLICATION') setView('PROJECT');
+    if (view === 'APPLICATION') leaveApplicationView();
     else close();
   };
 
@@ -147,7 +152,7 @@ const AppliedProjectModal = ({
           <Dialog.Content
             aria-describedby={undefined}
             onPointerDown={(event) => {
-              if (event.target === event.currentTarget) setView('PROJECT');
+              if (event.target === event.currentTarget) leaveApplicationView();
             }}
             // 화면 전체를 덮어서 바깥 클릭은 위에 뜬 경고창뿐. 경고창이 떠 있으면 ESC도 경고창만 닫음
             onInteractOutside={(event) => event.preventDefault()}
@@ -162,7 +167,7 @@ const AppliedProjectModal = ({
               description={detail?.description ?? ''}
               isCanceling={isCanceling}
               onCancelClick={() => setCancelDialogOpen(true)}
-              onClose={() => setView('PROJECT')}
+              onClose={leaveApplicationView}
             />
           </Dialog.Content>
         )}
