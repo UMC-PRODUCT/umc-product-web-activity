@@ -68,14 +68,16 @@ const GuideCard = ({
             <div className="flex justify-between">
               <p className="text-[18px] leading-[1.4] font-semibold text-[#36d3c0]">{step}</p>
               {showRoleButton && (
-                <div className="flex items-center gap-[6px]">
+                <button
+                  type="button"
+                  className="group flex cursor-pointer items-center gap-[6px]"
+                  onClick={() => setIsRolePopupOpen(true)}
+                >
                   <InfoIcon size={20} color="white" />
-                  <button className="group" onClick={() => setIsRolePopupOpen(true)}>
-                    <p className="text-heading-5-medium text-white decoration-white decoration-solid [text-decoration-skip-ink:none] [text-underline-position:from-font] group-hover:underline group-active:underline">
-                      권한 별 이용 안내
-                    </p>
-                  </button>
-                </div>
+                  <p className="text-heading-5-medium text-white decoration-white decoration-solid [text-decoration-skip-ink:none] [text-underline-position:from-font] group-hover:underline group-active:underline">
+                    권한 별 이용 안내
+                  </p>
+                </button>
               )}
             </div>
             <div className="flex flex-col gap-[6px]">
@@ -117,20 +119,22 @@ const GuideCard = ({
                   <p className="text-[14px] leading-[1.4] text-[#e2e3e3]">{note}</p>
                 </div>
               )}
-              {showPeriodButton && (
-                <div className="absolute right-10 bottom-10.75 flex items-center gap-1.5">
-                  <InfoIcon size={20} color="white" />
-                  <button className="group" onClick={() => setIsPeriodPopupOpen(true)}>
-                    <p className="text-heading-5-medium text-white decoration-white decoration-solid [text-decoration-skip-ink:none] [text-underline-position:from-font] group-hover:underline group-active:underline">
-                      수동 배정 및 매칭 해제 가능 기간
-                    </p>
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
       </div>
+      {showPeriodButton && (
+        <button
+          type="button"
+          className="group absolute right-10 bottom-10.75 flex cursor-pointer items-center gap-1.5"
+          onClick={() => setIsPeriodPopupOpen(true)}
+        >
+          <InfoIcon size={20} color="white" />
+          <p className="text-heading-5-medium text-white decoration-white decoration-solid [text-decoration-skip-ink:none] [text-underline-position:from-font] group-hover:underline group-active:underline">
+            수동 배정 및 매칭 해제 가능 기간
+          </p>
+        </button>
+      )}
       {showRoleButton && isRolePopupOpen && (
         <GuideAdminInfoPopup
           items={popupItems}
