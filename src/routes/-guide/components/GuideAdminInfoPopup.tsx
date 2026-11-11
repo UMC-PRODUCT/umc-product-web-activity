@@ -60,7 +60,7 @@ const GuideAdminInfoPopup = ({ items, chipText, bg, withDim = false, onClose }: 
       <>
         <Dimmed intensity="medium" onClick={onClose} className="cursor-pointer" />
         <div
-          className="fixed inset-0 flex items-center justify-center"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{ zIndex: 'var(--umc-z-dialog)' }}
         >
           <PopupContent items={items} chipText={chipText} bg={bg} onClose={onClose} />
@@ -70,9 +70,12 @@ const GuideAdminInfoPopup = ({ items, chipText, bg, withDim = false, onClose }: 
   }
 
   return (
-    <div className="absolute top-10 right-10 z-10">
-      <PopupContent items={items} chipText={chipText} bg={bg} onClose={onClose} />
-    </div>
+    <>
+      <div className="fixed inset-0 z-10" onClick={onClose} />
+      <div className="absolute top-10 right-10 z-10">
+        <PopupContent items={items} chipText={chipText} bg={bg} onClose={onClose} />
+      </div>
+    </>
   );
 };
 

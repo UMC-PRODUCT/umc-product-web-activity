@@ -1,7 +1,7 @@
+import { InfoIcon } from '@umc-product/icons';
 import { NumberBadge, Tag } from '@umc-product/react';
 import { useState } from 'react';
 
-import IconInfo from '@/routes/-guide/assets/icon-info.svg';
 import GuideAdminInfoPopup from '@/routes/-guide/components/GuideAdminInfoPopup';
 
 type GuideItem = {
@@ -69,7 +69,7 @@ const GuideCard = ({
               <p className="text-[18px] leading-[1.4] font-semibold text-[#36d3c0]">{step}</p>
               {showRoleButton && (
                 <div className="flex items-center gap-[6px]">
-                  <img src={IconInfo} alt="" className="size-[20px] shrink-0" />
+                  <InfoIcon size={20} color="white" />
                   <button className="group" onClick={() => setIsRolePopupOpen(true)}>
                     <p className="text-heading-5-medium text-white decoration-white decoration-solid [text-decoration-skip-ink:none] [text-underline-position:from-font] group-hover:underline group-active:underline">
                       권한 별 이용 안내
@@ -118,10 +118,10 @@ const GuideCard = ({
                 </div>
               )}
               {showPeriodButton && (
-                <div className="absolute right-10 bottom-[43px] flex items-center gap-[6px]">
-                  <img src={IconInfo} alt="" className="size-[20px] shrink-0" />
+                <div className="absolute right-10 bottom-10.75 flex items-center gap-1.5">
+                  <InfoIcon size={20} color="white" />
                   <button className="group" onClick={() => setIsPeriodPopupOpen(true)}>
-                    <p className="text-heading-5-medium text-teal-grey-200">
+                    <p className="text-heading-5-medium text-white decoration-white decoration-solid [text-decoration-skip-ink:none] [text-underline-position:from-font] group-hover:underline group-active:underline">
                       수동 배정 및 매칭 해제 가능 기간
                     </p>
                   </button>
