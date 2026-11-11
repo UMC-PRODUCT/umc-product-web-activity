@@ -16,7 +16,7 @@ type HeaderNavItem = { label: string; href: string };
 
 const NAV_ITEMS: HeaderNavItem[] = [
   { label: '프로젝트', href: EXTERNAL_LINKS.projects },
-  { label: '데모데이 매칭', href: HOME_PATH },
+  { label: '데모데이 매칭', href: '/demo-day' },
   { label: '사용 가이드', href: '/guide' },
 ];
 

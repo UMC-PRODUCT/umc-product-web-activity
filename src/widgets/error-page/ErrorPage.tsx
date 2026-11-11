@@ -22,7 +22,7 @@ const ErrorPage = ({ title, body }: ErrorPageProps) => {
 
   return (
     <main
-      className="flex w-full flex-1 items-center justify-center self-stretch px-4 py-20"
+      className="fixed inset-0 z-(--umc-z-dimmed) flex items-center justify-center overflow-y-auto px-4 py-20"
       style={{ backgroundImage: BACKGROUND }}
     >
       <ErrorPageContainer

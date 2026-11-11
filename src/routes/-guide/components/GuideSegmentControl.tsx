@@ -21,7 +21,7 @@ const GuideSegmentControl = ({ items, value, onValueChange }: GuideSegmentContro
           key={item.value}
           onClick={() => onValueChange(item.value)}
           className={cn(
-            'flex-1 rounded-[6px] px-[10px] py-[5px] text-label-5-medium whitespace-nowrap',
+            'flex-1 rounded-[6px] px-[10px] py-[5px] text-label-5-medium whitespace-nowrap hover:text-brand-default-600',
             value === item.value ? 'bg-[#DDF4F1] text-[#02746C]' : 'text-teal-grey-400',
           )}
         >

@@ -1,4 +1,5 @@
 import './app.css';
+import '@/shared/lib/analytics';
 
 import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -8,7 +9,6 @@ import { createRoot } from 'react-dom/client';
 
 import { routeTree } from '@/routes/routeTree.gen';
 import { ApiError } from '@/shared/api/client';
-import { initAnalytics } from '@/shared/lib/analytics';
 import { NotFoundPage, ServerErrorPage } from '@/widgets/error-page';
 
 const queryClient = new QueryClient({
@@ -36,8 +36,6 @@ const router = createRouter({
   defaultNotFoundComponent: NotFoundPage,
   defaultErrorComponent: ServerErrorPage,
 });
-
-void initAnalytics();
 
 declare module '@tanstack/react-router' {
   interface Register {
