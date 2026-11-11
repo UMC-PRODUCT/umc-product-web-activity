@@ -29,7 +29,7 @@ const PopupContent = ({
         <Tag variant="fill" color="brand" size="lg">
           {chipText}
         </Tag>
-        <button onClick={onClose} className="shrink-0 text-white" aria-label="닫기">
+        <button onClick={onClose} className="shrink-0 cursor-pointer text-white" aria-label="닫기">
           <CloseIcon size={24} />
         </button>
       </div>
