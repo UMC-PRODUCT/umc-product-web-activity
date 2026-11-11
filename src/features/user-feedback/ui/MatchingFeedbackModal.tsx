@@ -54,6 +54,7 @@ const MatchingFeedbackModal = ({ active }: MatchingFeedbackModalProps) => {
       title="프로젝트 매칭 경험이 어떠셨나요?"
       template={{ ...template, templateId: template.templateId }}
       onDone={handleDone}
+      listQuestionNumbers={[3]}
     />
   );
 };

@@ -27,9 +27,15 @@ type FeedbackSurveyDialogProps = {
   title: string;
   template: UserFeedbackTemplate & { templateId: number };
   onDone: () => void;
+  listQuestionNumbers?: number[];
 };
 
-const FeedbackSurveyDialog = ({ title, template, onDone }: FeedbackSurveyDialogProps) => {
+const FeedbackSurveyDialog = ({
+  title,
+  template,
+  onDone,
+  listQuestionNumbers = [],
+}: FeedbackSurveyDialogProps) => {
   const [answers, setAnswers] = useState<SurveyAnswers>({});
   const questions = getSurveyQuestions(template);
   const requiredQuestions = questions.filter((question) => question.isRequired);
@@ -62,6 +68,7 @@ const FeedbackSurveyDialog = ({ title, template, onDone }: FeedbackSurveyDialogP
         question={question}
         answer={answers[question.questionId] ?? EMPTY_SURVEY_ANSWER}
         onChange={(answer) => setAnswers((prev) => ({ ...prev, [question.questionId]: answer }))}
+        asList={listQuestionNumbers.includes(questions.indexOf(question) + 1)}
       />
     </div>
   );

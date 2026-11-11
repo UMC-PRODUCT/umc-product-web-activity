@@ -10,9 +10,15 @@ type SurveyQuestionFieldProps = {
   question: SurveyQuestion;
   answer: SurveyAnswer;
   onChange: (answer: SurveyAnswer) => void;
+  asList?: boolean;
 };
 
-const SurveyQuestionField = ({ question, answer, onChange }: SurveyQuestionFieldProps) => {
+const SurveyQuestionField = ({
+  question,
+  answer,
+  onChange,
+  asList = false,
+}: SurveyQuestionFieldProps) => {
   const options = (question.options ?? []).flatMap(({ optionId, content }) =>
     optionId === undefined ? [] : [{ optionId, label: content ?? '' }],
   );
@@ -34,7 +40,7 @@ const SurveyQuestionField = ({ question, answer, onChange }: SurveyQuestionField
     );
   }
 
-  if (question.type === 'RADIO' && options.length === 5) {
+  if (!asList && question.type === 'RADIO' && options.length === 5) {
     return (
       <FaceScale
         aria-label={question.title}
@@ -45,7 +51,7 @@ const SurveyQuestionField = ({ question, answer, onChange }: SurveyQuestionField
     );
   }
 
-  if (question.type === 'RADIO' && options.length === 2) {
+  if (!asList && question.type === 'RADIO' && options.length === 2) {
     return (
       <EmojiChoice
         aria-label={question.title}
