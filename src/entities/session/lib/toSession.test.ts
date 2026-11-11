@@ -47,6 +47,15 @@ describe('toSession', () => {
     );
   });
 
+  it.each<[RoleTypes, string]>([
+    [['CENTRAL_OPERATING_TEAM_MEMBER', 'CHAPTER_PRESIDENT'], 'CHAPTER_ADMIN'],
+    [['CENTRAL_EDUCATION_TEAM_MEMBER', 'CHAPTER_PRESIDENT'], 'CHAPTER_ADMIN'],
+    [['CENTRAL_VICE_PRESIDENT', 'CHAPTER_PRESIDENT'], 'HQ_LEAD'],
+    [['CENTRAL_OPERATING_TEAM_MEMBER', 'SCHOOL_PRESIDENT'], 'HQ_ADMIN'],
+  ])('겸직 %s → %s', (roleTypes, role) => {
+    expect(toSession(me({ roleTypes })).role).toBe(role);
+  });
+
   it('슈퍼어드민은 운영진 역할보다 우선한다', () => {
     expect(toSession(me({ isSuperAdmin: true, roleTypes: ['CHAPTER_PRESIDENT'] })).role).toBe(
       'SUPER_ADMIN',
