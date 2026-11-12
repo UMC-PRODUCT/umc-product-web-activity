@@ -120,13 +120,53 @@ describe('toProfileMenu', () => {
     ]);
   });
 
-  it('현재 기수도 이력도 없으면 기수 목록이 비어 있다', () => {
+  it.each([
+    ['슈퍼어드민', { isSuperAdmin: true, isUmcProduct: false }],
+    ['Product 멤버', { isSuperAdmin: false, isUmcProduct: true }],
+  ])('%s는 현재 기수도 이력도 없으면 기수 목록이 비어 있다', (_, flags) => {
     const myInfo = {
       ...MY_INFO,
+      ...flags,
       currentGisuMemberInfo: null,
       challengerHistory: [],
     } as unknown as MyInfoResponse;
 
-    expect(toProfileMenu(myInfo, 'SUPER_ADMIN').generations).toEqual([]);
+    expect(toProfileMenu(myInfo, 'SUPER_ADMIN')).toMatchObject({
+      generations: [],
+      generation: undefined,
+    });
+  });
+
+  it('현재 기수가 없는 회원은 기수 자리에 챌린저 코드 미등록을 보여 준다', () => {
+    const myInfo = {
+      ...MY_INFO,
+      isSuperAdmin: false,
+      isUmcProduct: false,
+      currentGisuMemberInfo: null,
+      challengerHistory: [],
+    } as unknown as MyInfoResponse;
+
+    expect(toProfileMenu(myInfo, 'CHALLENGER')).toMatchObject({
+      generations: [{ value: 'UNREGISTERED', label: '챌린저 코드 미등록' }],
+      generation: 'UNREGISTERED',
+    });
+  });
+
+  it('현재 기수가 없는 회원도 지난 기수는 미등록 아래에 그대로 보여 준다', () => {
+    const myInfo = {
+      ...MY_INFO,
+      isSuperAdmin: false,
+      isUmcProduct: false,
+      currentGisuMemberInfo: { gisuId: null },
+      challengerHistory: [{ gisuId: '6', generation: 10, chapterName: '아홀로틀' }],
+    } as unknown as MyInfoResponse;
+
+    expect(toProfileMenu(myInfo, 'CHALLENGER')).toMatchObject({
+      generations: [
+        { value: 'UNREGISTERED', label: '챌린저 코드 미등록' },
+        { value: '6', label: '10기', disabled: true },
+      ],
+      generation: 'UNREGISTERED',
+    });
   });
 });

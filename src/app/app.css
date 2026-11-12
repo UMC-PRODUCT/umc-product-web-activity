@@ -35,6 +35,15 @@
   display: none;
 }
 
+.umc-dropdown-item:has(.generation-unregistered) {
+  background-color: #fed7d7;
+  color: var(--umc-color-red-700);
+}
+
+.umc-dropdown-item:has(.generation-unregistered) .umc-dropdown-item__indicator {
+  display: none;
+}
+
 /* 피그마 Dialog: 팝업 뒤 그림자는 없고, 뒤 배경(Dimmed)은 medium(#0f1010 65%). 디자인 시스템 Dialog는 backdrop에 className을 못 줘서 표식 클래스로 맞춤 */
 .umc-dialog__popup.dialog-flat {
   box-shadow: none;
