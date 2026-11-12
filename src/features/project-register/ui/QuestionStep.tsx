@@ -29,7 +29,6 @@ import {
 import {
   FormAttachmentField,
   FormChoiceListEditor,
-  FormEditableQuestion,
   FormQuestion,
   FormQuestionEditor,
   FormQuestionToolbar,
@@ -74,6 +73,62 @@ const SECTION_KEYS: QuestionSectionKey[] = ['COMMON', 'DESIGN', 'PE'];
 const toSectionDropId = (key: QuestionSectionKey) => `${SECTION_DROP_PREFIX}${key}`;
 
 const formatNumber = (index: number) => String(index).padStart(2, '0');
+
+type MultilineQuestionProps = {
+  number: string;
+  required: boolean;
+  title: string;
+  description: string;
+  onTitleChange: (value: string) => void;
+  onDescriptionChange: (value: string) => void;
+  children: ReactNode;
+};
+
+// 디자인 시스템 FormEditableQuestion은 한 줄 input이라 긴 글이 잘림. 같은 클래스(스타일)로 줄바꿈 되는 textarea를 씀
+const MultilineQuestion = ({
+  number,
+  required,
+  title,
+  description,
+  onTitleChange,
+  onDescriptionChange,
+  children,
+}: MultilineQuestionProps) => (
+  <div className="umc-form-editable-question">
+    <div className="umc-form-editable-question__header">
+      <span className="umc-form-editable-question__number">{number}</span>
+      <div className="umc-form-editable-question__fields">
+        <div className="umc-form-editable-question__title-row">
+          <textarea
+            rows={1}
+            aria-label="질문 제목"
+            placeholder="질문을 작성하세요"
+            value={title}
+            onChange={(event) => onTitleChange(event.target.value)}
+            className="umc-form-editable-question__title question-editor-textarea"
+          />
+          {required && (
+            <>
+              <span className="umc-form-editable-question__required" aria-hidden="true">
+                *
+              </span>
+              <span className="umc-visually-hidden"> (필수)</span>
+            </>
+          )}
+        </div>
+        <textarea
+          rows={1}
+          aria-label="질문 설명"
+          placeholder="설명을 적어주세요 (선택 사항)"
+          value={description}
+          onChange={(event) => onDescriptionChange(event.target.value)}
+          className="umc-form-editable-question__description question-editor-textarea"
+        />
+      </div>
+    </div>
+    <div className="umc-form-editable-question__answer">{children}</div>
+  </div>
+);
 
 type QuestionEditorProps = {
   question: ProjectQuestion;
@@ -120,7 +175,8 @@ const QuestionEditor = ({
       onCopy={(event) => {
         const { target } = event;
         const hasTextSelected =
-          target instanceof HTMLInputElement && target.selectionStart !== target.selectionEnd;
+          (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) &&
+          target.selectionStart !== target.selectionEnd;
         if (hasTextSelected) return;
         event.clipboardData.setData('text/plain', serializeQuestion(question));
         event.preventDefault();
@@ -153,19 +209,13 @@ const QuestionEditor = ({
         onRequiredChange={(next) => onChange({ ...question, required: next })}
         onDelete={onDelete}
       >
-        <FormEditableQuestion
+        <MultilineQuestion
           number={number}
           required={required}
-          titleProps={{
-            value: title,
-            placeholder: '질문을 작성하세요',
-            onChange: (event) => onChange({ ...question, title: event.target.value }),
-          }}
-          descriptionProps={{
-            value: description,
-            placeholder: '설명을 적어주세요 (선택 사항)',
-            onChange: (event) => onChange({ ...question, description: event.target.value }),
-          }}
+          title={title}
+          description={description}
+          onTitleChange={(value) => onChange({ ...question, title: value })}
+          onDescriptionChange={(value) => onChange({ ...question, description: value })}
         >
           {(type === 'SHORT' || type === 'LONG') && (
             <FormTextAnswer
@@ -199,7 +249,7 @@ const QuestionEditor = ({
             />
           )}
           {(type === 'FILE' || type === 'PORTFOLIO') && <FormAttachmentField disabled />}
-        </FormEditableQuestion>
+        </MultilineQuestion>
       </FormQuestionEditor>
     </div>
   );
@@ -238,7 +288,7 @@ const QuestionList = ({
     const id = focusIdRef.current;
     if (!id) return;
     focusIdRef.current = null;
-    document.querySelector<HTMLElement>(`[data-question-id="${id}"] input`)?.focus();
+    document.querySelector<HTMLElement>(`[data-question-id="${id}"] textarea`)?.focus();
   }, [questions]);
 
   // 붙여넣은 문항은 선택한 문항 바로 아래에 붙고, 바로 질문을 고칠 수 있게 포커스

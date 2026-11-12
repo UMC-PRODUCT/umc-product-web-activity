@@ -63,3 +63,18 @@
   --umc-text-area-bg: var(--umc-color-fill-neutral-default);
   --umc-text-area-placeholder-color: var(--umc-color-text-placeholder);
 }
+
+/* 문항 제목 · 설명, 프로젝트 소개의 줄바꿈 보존. 디자인 시스템 기본값은 줄바꿈 문자를 공백으로 접어버림 */
+.umc-form-question .umc-section-header__title,
+.umc-form-question .umc-section-header__description {
+  white-space: pre-wrap;
+}
+
+/* 모집 문항 등록 입력칸: 한 줄 input 대신 textarea라 크기 조절 · 스크롤 없이 내용만큼 늘어남 */
+.question-editor-textarea {
+  resize: none;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  field-sizing: content;
+}
