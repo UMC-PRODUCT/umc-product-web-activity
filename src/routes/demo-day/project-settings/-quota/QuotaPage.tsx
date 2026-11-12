@@ -151,9 +151,9 @@ const QuotaPage = ({ initialChapterId, onChapterChange }: QuotaPageProps) => {
   const partTotal = (part: string) =>
     projects.reduce((sum, p) => sum + (draft[String(p.projectId!)]?.[part] ?? 0), 0);
   const partTotalAll = (part: string) =>
-    Number(data?.summary?.find((s) => s.part === part)?.availableCount ?? 0);
+    Number(data?.summary?.find((s) => s.part === part)?.allocatedQuota ?? 0);
   const partQuota = (part: string) =>
-    Number(data?.filteredSummary?.find((s) => s.part === part)?.availableCount ?? 0);
+    Number(data?.filteredSummary?.find((s) => s.part === part)?.allocatedQuota ?? 0);
 
   const handleCellClick = (projectId: string, part: string, disabled: boolean) => {
     const isLocked = columns.find((c) => c.part === part)?.canEdit?.allowed === false;
