@@ -20,7 +20,9 @@ const ProjectRecruitmentSummary = ({
   recruitments,
 }: ProjectRecruitmentSummaryProps) => (
   <div className="flex items-start gap-5">
-    <p className="flex-1 text-body-1-regular text-teal-grey-600">{description}</p>
+    <p className="flex-1 text-body-1-regular whitespace-pre-wrap text-teal-grey-600">
+      {description}
+    </p>
     <RecruitmentList
       recruitments={getVisibleRecruitments({ platform, recruitments })}
       partLabels={PART_LABEL}

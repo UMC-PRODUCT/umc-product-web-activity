@@ -154,7 +154,7 @@ const ApplyPage = ({ projectId }: ApplyPageProps) => {
             description={
               project && (
                 <div className="flex items-start gap-5">
-                  <p className="flex-1 text-body-1-regular text-teal-grey-600">
+                  <p className="flex-1 text-body-1-regular whitespace-pre-wrap text-teal-grey-600">
                     {project.description}
                   </p>
                   <RecruitmentList
