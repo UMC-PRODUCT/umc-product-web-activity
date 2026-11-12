@@ -17,18 +17,19 @@ import {
   toSession,
   useSessionStore,
 } from '@/entities/session';
-import { clearAuthTokens, getAccessToken } from '@/shared/api/authToken';
+import { clearAuthTokens, getAccessToken, getRefreshToken } from '@/shared/api/authToken';
 import { ApiError } from '@/shared/api/client';
 import { toId } from '@/shared/api/toId';
+import { getSsoClient } from '@/shared/auth/sso-client';
 import { HOME_PATH } from '@/shared/config/teamMatchingMenu';
 import { RouterLink } from '@/shared/ui/RouterLink';
 import { Header } from '@/widgets/header';
 import { ToastProvider } from '@/widgets/toast';
 
 // 로그인 여부와 상관없이 내 정보를 부르지 않는 화면
-const PUBLIC_PATHS = ['/login', '/auth/callback', '/guide', '/'];
+const PUBLIC_PATHS = ['/login', '/auth/callback', '/'];
 // 비로그인도 볼 수 있지만, 로그인했으면 내 정보로 세션을 채우는 화면 (이 외에는 로그인 필요)
-const GUEST_PATHS = [HOME_PATH];
+const GUEST_PATHS = [HOME_PATH, '/guide'];
 const CHROME_HIDDEN_PATHS = ['/login', '/auth/callback', '/'];
 
 // 끝의 '/'는 같은 화면으로 봄 (/guide/ → /guide)
@@ -124,9 +125,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     };
 
     if (!getAccessToken()) {
-      if (!isGuestPath) throw toLogin();
-      commitSession(GUEST_SESSION);
-      return;
+      if (getRefreshToken()) {
+        try {
+          await getSsoClient().renewAccessToken();
+        } catch {
+          clearAuthTokens();
+          if (!isGuestPath) throw toLogin();
+          commitSession(GUEST_SESSION);
+          return;
+        }
+      } else {
+        if (!isGuestPath) throw toLogin();
+        commitSession(GUEST_SESSION);
+        return;
+      }
     }
 
     const myInfo = await context.queryClient
