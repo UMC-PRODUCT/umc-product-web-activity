@@ -35,6 +35,18 @@ const getRoleTag = (myInfo: MyInfoResponse, role: Role): HeaderProfileMenuRole =
   return ROLE_TAG[role];
 };
 
+export const UNREGISTERED_GENERATION_VALUE = 'UNREGISTERED';
+
+const UNREGISTERED_GENERATION: HeaderProfileMenuGeneration = {
+  value: UNREGISTERED_GENERATION_VALUE,
+  label: '챌린저 코드 미등록',
+};
+
+const isChallengerCodeUnregistered = (myInfo: MyInfoResponse) =>
+  toId(myInfo.currentGisuMemberInfo?.gisuId) === null &&
+  !myInfo.isSuperAdmin &&
+  !myInfo.isUmcProduct;
+
 export type ProfileMenu = {
   profile: HeaderProfileMenuProfile;
   generations: HeaderProfileMenuGeneration[];
@@ -84,14 +96,24 @@ export const toProfileMenu = (
     .sort((left, right) => right.generation - left.generation)
     .map(({ generation: _generation, ...item }) => item);
 
+  const profile: HeaderProfileMenuProfile = {
+    nickname: myInfo.nickname ?? '-',
+    name: myInfo.name ?? '-',
+    school: formatSchoolName(myInfo.schoolName),
+    role: getRoleTag(myInfo, role),
+    imageSrc: myInfo.profileImageLink || undefined,
+  };
+
+  if (isChallengerCodeUnregistered(myInfo)) {
+    return {
+      profile,
+      generations: [UNREGISTERED_GENERATION, ...generations],
+      generation: UNREGISTERED_GENERATION.value,
+    };
+  }
+
   return {
-    profile: {
-      nickname: myInfo.nickname ?? '-',
-      name: myInfo.name ?? '-',
-      school: formatSchoolName(myInfo.schoolName),
-      role: getRoleTag(myInfo, role),
-      imageSrc: myInfo.profileImageLink || undefined,
-    },
+    profile,
     generations,
     generation: currentGisuId === null ? undefined : String(currentGisuId),
   };

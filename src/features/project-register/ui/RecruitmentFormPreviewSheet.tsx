@@ -9,7 +9,7 @@ import {
   FormTextAnswer,
   ImageThumbnail,
 } from '@umc-product/react';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useRef, useState } from 'react';
 
 import type { ApplicationFormSections } from '../api/applicationForm';
 import { LONG_ANSWER_MAX_LENGTH, SHORT_ANSWER_MAX_LENGTH } from '../model/limits';
@@ -36,6 +36,13 @@ const RecruitmentFormPreviewSheet = ({
   onClose,
 }: RecruitmentFormPreviewSheetProps) => {
   const [step, setStep] = useState<'COMMON' | 'PART'>('COMMON');
+  const anchorRef = useRef<HTMLDivElement>(null);
+
+  // 모달(스크롤되는 Dialog)이 아래로 스크롤된 채 단계가 바뀌면 새 화면도 하단에서 시작하므로 맨 위로 올림
+  const goToStep = (next: 'COMMON' | 'PART') => {
+    setStep(next);
+    anchorRef.current?.closest('[role="dialog"]')?.scrollTo({ top: 0 });
+  };
 
   const commonSections = sections.filter(({ type }) => type !== 'PART');
   // 질문이 하나도 없는 파트 섹션은 없는 것으로 봄
@@ -64,7 +71,7 @@ const RecruitmentFormPreviewSheet = ({
           {isLastStep ? (
             <>
               {hasPartStep && (
-                <Button variant="weak" color="neutral" size="md" onClick={() => setStep('COMMON')}>
+                <Button variant="weak" color="neutral" size="md" onClick={() => goToStep('COMMON')}>
                   돌아가기
                 </Button>
               )}
@@ -73,14 +80,14 @@ const RecruitmentFormPreviewSheet = ({
               </Button>
             </>
           ) : (
-            <Button size="md" className="ml-auto" onClick={() => setStep('PART')}>
+            <Button size="md" className="ml-auto" onClick={() => goToStep('PART')}>
               다음
             </Button>
           )}
         </div>
       }
     >
-      <div className="flex flex-col gap-6">
+      <div ref={anchorRef} className="flex flex-col gap-6">
         {visibleSections.map((section, si) => (
           // 피그마 Section Control: toggle 헤더 모양에서 스위치만 숨김 (미리보기라 섹션을 끌 수 없음)
           <FormSection

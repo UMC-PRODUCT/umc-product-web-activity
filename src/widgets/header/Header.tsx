@@ -10,6 +10,7 @@ import { EXTERNAL_LINKS, openExternalLink } from '@/shared/config/externalLinks'
 import { HOME_PATH } from '@/shared/config/teamMatchingMenu';
 
 import { useHeaderModeStore } from './headerModeStore';
+import { UNREGISTERED_GENERATION_VALUE } from './toProfileMenu';
 import { useHeaderAuth } from './useHeaderAuth';
 
 type HeaderNavItem = { label: string; href: string };
@@ -60,7 +61,14 @@ const Header = () => {
             profileMenu && (
               <HeaderProfileMenu
                 profile={profileMenu.profile}
-                generations={profileMenu.generations}
+                generations={profileMenu.generations.map((item) =>
+                  item.value === UNREGISTERED_GENERATION_VALUE
+                    ? {
+                        ...item,
+                        label: <span className="generation-unregistered">{item.label}</span>,
+                      }
+                    : item,
+                )}
                 generation={profileMenu.generation}
                 onLogout={handleLogout}
               />
