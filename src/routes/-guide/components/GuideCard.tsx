@@ -1,13 +1,29 @@
 import { InfoIcon } from '@umc-product/icons';
 import { NumberBadge, Tag } from '@umc-product/react';
-import { useState } from 'react';
+import { type ComponentType, useState } from 'react';
 
 import GuideAdminInfoPopup from '@/routes/-guide/components/GuideAdminInfoPopup';
 
 type GuideItem = {
   number?: number;
-  title: string;
-  desc: string;
+  title: string; // 줄바꿈은 \n
+  desc?: string;
+  underline?: string; // 제목에서 밑줄로 강조할 부분
+};
+
+// 제목에서 underline 부분만 밑줄을 그음
+const renderItemTitle = ({ title, underline }: GuideItem) => {
+  const index = underline ? title.indexOf(underline) : -1;
+  if (!underline || index === -1) return title;
+  return (
+    <>
+      {title.slice(0, index)}
+      <span className="underline [text-decoration-skip-ink:none] [text-underline-position:from-font]">
+        {underline}
+      </span>
+      {title.slice(index + underline.length)}
+    </>
+  );
 };
 
 export type PopupItem = {
@@ -20,10 +36,11 @@ export type GuideCardData = {
   chip: string;
   step: string;
   title: string;
-  body: string;
+  body?: string;
   mockupSrc: string;
   items: GuideItem[];
   note?: string;
+  Illustration?: ComponentType; // 설명 아래에 붙는 그림
   isAdmin?: boolean;
   popupItems?: PopupItem[];
   popupChipText?: string;
@@ -44,6 +61,7 @@ const GuideCard = ({
   mockupSrc,
   items,
   note,
+  Illustration,
   isAdmin,
   popupItems,
   popupChipText,
@@ -82,7 +100,7 @@ const GuideCard = ({
             </div>
             <div className="flex flex-col gap-[6px]">
               <p className="text-[24px] leading-[1.35] font-bold text-white">{title}</p>
-              <p className="text-[24px] leading-[1.35] font-normal text-white">{body}</p>
+              {body && <p className="text-[24px] leading-[1.35] font-normal text-white">{body}</p>}
             </div>
           </div>
           <div className="flex gap-[53px]">
@@ -104,16 +122,24 @@ const GuideCard = ({
                       </div>
                     )}
                     <div className="flex flex-col gap-[6px]">
-                      <p className="text-[18px] leading-[1.2] font-semibold text-white">
-                        {item.title}
+                      <p className="text-[18px] leading-[1.2] font-semibold whitespace-pre-line text-white">
+                        {renderItemTitle(item)}
                       </p>
-                      <p className="text-[15px] leading-[1.4] font-medium text-[#e2e3e3]">
-                        {item.desc}
-                      </p>
+                      {item.desc && (
+                        <p className="text-[15px] leading-[1.4] font-medium text-[#e2e3e3]">
+                          {item.desc}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
+              {/* 피그마: 마지막 설명과 그림 사이 25px (열 간격 39px에서 뺌) */}
+              {Illustration && (
+                <div className="-mt-3.5">
+                  <Illustration />
+                </div>
+              )}
               {note && (
                 <div className="rounded-[10px] border border-white/10 bg-white/[0.08] p-3">
                   <p className="text-[14px] leading-[1.4] text-[#e2e3e3]">{note}</p>

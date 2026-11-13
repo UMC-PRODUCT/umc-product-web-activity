@@ -1,31 +1,25 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { ApiError } from '@/shared/api/client';
-import { toId } from '@/shared/api/toId';
-
-import { createApplication } from '../api/createApplication';
+import { prepareDraft } from '../api/prepareDraft';
 import { applicationKeys } from '../api/queryKeys';
 import { type ApplicationAnswerItem, saveApplicationAnswers } from '../api/saveApplicationAnswers';
 import { submitApplication } from '../api/submitApplication';
 
 type SubmitParams = {
+  gisuId: number | null;
   projectId: number;
   matchingRoundId: number;
   answers: ApplicationAnswerItem[];
 };
 
-// 지원서 제출: 초안 만들기 → 답변 저장 → 최종 제출을 차례로 보냄 (초안이 이미 있으면 그 지원서를 이어 씀)
+// 지원서 제출: 쓸 초안 준비 → 답변 저장 → 최종 제출을 차례로 보냄
+// (이 프로젝트의 초안이 있으면 이어 쓰고, 없으면 같은 차수의 다른 프로젝트 초안을 지우고 새로 만듦)
 export const useSubmitApplication = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ projectId, matchingRoundId, answers }: SubmitParams) => {
-      const draft = await createApplication({ projectId, matchingRoundId });
-      const applicationId = toId(draft.applicationId);
-      if (applicationId === null) {
-        throw new ApiError(0, 'APPLICATION_NOT_CREATED', '지원서를 만들지 못했어요.');
-      }
-
+    mutationFn: async ({ gisuId, projectId, matchingRoundId, answers }: SubmitParams) => {
+      const applicationId = await prepareDraft({ gisuId, projectId, matchingRoundId });
       await saveApplicationAnswers({ projectId, applicationId, answers });
       return submitApplication({ projectId, applicationId });
     },

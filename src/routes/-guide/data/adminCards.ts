@@ -10,7 +10,9 @@ import Admin09Mockup from '@/routes/-guide/assets/Section5/Admin/Admin_09_mockup
 import Admin10Mockup from '@/routes/-guide/assets/Section5/Admin/Admin_10_mockup.png';
 import Admin11Mockup from '@/routes/-guide/assets/Section5/Admin/Admin_11_mockup.png';
 import Admin12Mockup from '@/routes/-guide/assets/Section5/Admin/Admin_12_mockup.png';
+import AdminViewSwitchMockup from '@/routes/-guide/assets/Section5/Admin/Admin_ViewSwitch_mockup.png';
 import type { GuideCardData } from '@/routes/-guide/components/GuideCard';
+import GuideViewSwitchIllustration from '@/routes/-guide/components/GuideViewSwitchIllustration';
 import {
   POPUP_APPLICATION,
   POPUP_MATCHING,
@@ -330,8 +332,28 @@ export const ADMIN_CARDS: GuideCardData[] = [
     ],
   },
   {
+    chip: '권한별 뷰 전환',
+    step: '# 9 권한 별 뷰 전환',
+    title: '챌린저로 지원하려면 뷰를 전환해 주세요!',
+    mockupSrc: AdminViewSwitchMockup,
+    Illustration: GuideViewSwitchIllustration,
+    items: [
+      {
+        number: 1,
+        title:
+          '어드민과 챌린저를 겸직하고 있다면, 사이드바 상단의 드롭다운에서 권한별 뷰를 전환할 수 있어요.',
+      },
+      {
+        number: 2,
+        title:
+          '프로젝트 지원은 챌린저 뷰에서만 가능해요.\n지원 기간에 프로젝트에 지원하려면, 반드시 ‘챌린저’ 뷰로 전환한 뒤 진행해 주세요!',
+        underline: '‘챌린저’ 뷰',
+      },
+    ],
+  },
+  {
     chip: '사용자 만족도 조사',
-    step: '# 9 사용자 만족도 조사',
+    step: '# 10 사용자 만족도 조사',
     title: '서비스 이용 경험을 자유롭게 공유해요.',
     body: '더 나은 서비스를 위해 많은 참여 부탁드려요!',
     mockupSrc: Admin12Mockup,
