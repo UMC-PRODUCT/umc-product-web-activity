@@ -3,6 +3,7 @@
 export const applicationKeys = {
   all: ['applications'] as const,
   mine: (gisuId: number | null) => [...applicationKeys.all, 'me', gisuId] as const,
+  drafts: (gisuId: number | null) => [...applicationKeys.mine(gisuId), 'DRAFT'] as const,
   detail: (projectId: number | null, applicationId: number | null) =>
     [...applicationKeys.all, 'detail', projectId, applicationId] as const,
 };

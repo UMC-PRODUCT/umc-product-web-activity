@@ -11,7 +11,7 @@ import {
   ImageThumbnail,
 } from '@umc-product/react';
 import { Dialog } from 'radix-ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useApplicationsView, useSessionStore } from '@/entities/session';
 import {
@@ -26,6 +26,7 @@ import {
   RecruitmentList,
   toAnswerItems,
   uploadApplicationFile,
+  useApplyDraft,
   useSubmitApplication,
 } from '@/features/applications';
 import { findApplyRoundId, useMatchingRounds } from '@/features/matching-schedule';
@@ -69,6 +70,9 @@ const ApplyPage = ({ projectId }: ApplyPageProps) => {
   const [uploadingIds, setUploadingIds] = useState<number[]>([]);
   const [fileErrors, setFileErrors] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  // 사용자가 답변을 고쳤는지 (불러온 초안을 채운 것만으로는 저장하지 않음)
+  const [isEdited, setIsEdited] = useState(false);
+  const [isDraftApplied, setIsDraftApplied] = useState(false);
 
   const formSections = applicationForm?.sections ?? [];
   const commonSections = getCommonSections(formSections);
@@ -77,11 +81,36 @@ const ApplyPage = ({ projectId }: ApplyPageProps) => {
   const hasPartStep = partSections.length > 0;
   const sections: ApplyFormSection[] = step === 'COMMON' ? commonSections : partSections;
   const matchingRoundId = rounds ? findApplyRoundId(rounds, period.track, period.round) : null;
+  const applyDraft = useApplyDraft({ gisuId: session.gisuId, projectId, matchingRoundId });
+
+  // 이 차수에 임시저장한 답변이 있으면 한 번만 채움 (불러오는 사이 먼저 쓴 답변은 그대로 둠)
+  if (applyDraft.isLoaded && !isDraftApplied) {
+    setIsDraftApplied(true);
+    const { initialDrafts } = applyDraft;
+    if (initialDrafts) setDrafts((prev) => ({ ...initialDrafts, ...prev }));
+  }
+
+  // 답변이 바뀌면 자동 임시저장 (초안을 다 불러오기 전에 저장하면 저장된 답변을 덮어써서 기다림)
+  const { schedule } = applyDraft;
+  const savedFormSections = applicationForm?.sections;
+  const { challengerPart } = viewer;
+  useEffect(() => {
+    if (!isEdited || !isDraftApplied || submitted) return;
+    const allSections = savedFormSections ?? [];
+    schedule(
+      toAnswerItems(
+        [...getCommonSections(allSections), ...getPartSections(allSections, challengerPart)],
+        drafts,
+      ),
+    );
+  }, [drafts, isEdited, isDraftApplied, submitted, schedule, savedFormSections, challengerPart]);
 
   const goToProjects = () => navigate({ to: '/demo-day/team-matching/projects' });
 
-  const setDraft = (questionId: number, draft: AnswerDrafts[number]) =>
+  const setDraft = (questionId: number, draft: AnswerDrafts[number]) => {
+    setIsEdited(true);
     setDrafts((prev) => ({ ...prev, [questionId]: draft }));
+  };
 
   const handleFileSelect = async (questionId: number, file: File) => {
     setFileErrors(({ [questionId]: _removed, ...rest }) => rest);
@@ -102,10 +131,13 @@ const ApplyPage = ({ projectId }: ApplyPageProps) => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (matchingRoundId === null) return;
+    // 기다리던 자동 저장을 먼저 끝내야 제출 뒤에 임시저장이 끼어들지 않음
+    await applyDraft.flush();
     submit.mutate(
       {
+        gisuId: session.gisuId,
         projectId,
         matchingRoundId,
         answers: toAnswerItems([...commonSections, ...partSections], drafts),
