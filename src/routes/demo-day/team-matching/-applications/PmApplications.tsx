@@ -70,7 +70,7 @@ const PmApplications = () => {
   const current = (statistics.data && getCurrentRound(statistics.data)) ?? scheduleRound;
   const matchingStatistics = useChapterMatchingStatistics(chapterId);
   const schoolMatched = matchingStatistics.data && toSchoolMatchedCounts(matchingStatistics.data);
-  const { isModalLocked, isCurrentRound } = useMatchingPeriodAccess(chapterId);
+  const { canOpenApplicant } = useMatchingPeriodAccess(chapterId);
 
   // 02 지원자 목록: 프로젝트 하나라 전체를 받아 화면에서 검색 · 필터 · 페이지를 나눔
   const applicants = useProjectApplicants(projectId, 30_000);
@@ -227,12 +227,8 @@ const PmApplications = () => {
                         ),
                       },
                     ]}
-                    onApplicantClick={
-                      isModalLocked
-                        ? undefined
-                        : (_, { applicantId }) => setSelectedApplicantId(applicantId)
-                    }
-                    canOpenApplicant={isCurrentRound}
+                    onApplicantClick={(_, { applicantId }) => setSelectedApplicantId(applicantId)}
+                    canOpenApplicant={canOpenApplicant}
                   />
                 </div>
               </section>
