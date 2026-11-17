@@ -33,10 +33,26 @@ export const useMatchingPeriodAccess = (chapterId: number | null) => {
     }),
   );
 
+  const pastRoundIds = new Set(
+    rounds.flatMap(({ id, endsAt }) => {
+      const roundId = toId(id);
+      return roundId !== null && !currentRoundIds.has(roundId) && endsAt && new Date(endsAt) <= now
+        ? [roundId]
+        : [];
+    }),
+  );
+
+  const isCurrentRound = ({ matchingRoundId }: Applicant) =>
+    matchingRoundId !== null && currentRoundIds.has(matchingRoundId);
+
+  const isPastRoundPassed = ({ matchingRoundId, status }: Applicant) =>
+    status === 'PASSED' && matchingRoundId !== null && pastRoundIds.has(matchingRoundId);
+
   return {
     isModalLocked: isApplyPeriod || currentRoundIds.size === 0,
-    isCurrentRound: ({ matchingRoundId }: Applicant) =>
-      matchingRoundId !== null && currentRoundIds.has(matchingRoundId),
+    isCurrentRound,
+    canOpenApplicant: (applicant: Applicant) =>
+      isCurrentRound(applicant) || isPastRoundPassed(applicant),
     isResultPublished: ({ matchingRoundId }: Applicant) =>
       matchingRoundId !== null && publishedRoundIds.has(matchingRoundId),
   };
