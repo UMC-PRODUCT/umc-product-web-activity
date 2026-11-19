@@ -187,12 +187,6 @@ const Section04 = () => {
           </p>
         </div>
 
-        {/* 서브타이틀 */}
-        <p className="text-center text-[28px] leading-[1.4] font-light text-white">
-          지원기간과 매칭기간이 하루씩 번갈아 진행돼요.
-          <br />각 차수의 일정을 확인하고 지원기간을 놓치지 않도록 주의해 주세요!
-        </p>
-
         {/* 캘린더 */}
         <div className="w-[940px] overflow-hidden rounded-[18px] border border-[#ccc] bg-white p-[9px]">
           {/* Row 1 */}
