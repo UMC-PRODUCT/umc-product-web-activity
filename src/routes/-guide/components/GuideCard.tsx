@@ -110,7 +110,7 @@ const GuideCard = ({
               <img
                 src={mockupSrc}
                 alt=""
-                className={`h-full min-w-125 object-cover object-top${mockupPaddingLeft ? 'pl-15' : ''}`}
+                className={`h-full min-w-125 object-cover object-top ${mockupPaddingLeft ? 'pl-15' : 'pl-0'}`}
               />
             </div>
             <div className="flex flex-col gap-[39px]">
