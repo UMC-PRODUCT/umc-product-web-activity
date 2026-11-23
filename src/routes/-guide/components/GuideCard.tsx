@@ -48,6 +48,7 @@ export type GuideCardData = {
   periodPopupItems?: PopupItem[];
   periodPopupChipText?: string;
   periodPopupBg?: string;
+  mockupPaddingLeft?: boolean;
 };
 
 const CARD_BG =
@@ -69,6 +70,7 @@ const GuideCard = ({
   periodPopupItems,
   periodPopupChipText,
   periodPopupBg,
+  mockupPaddingLeft,
 }: GuideCardData) => {
   const [isRolePopupOpen, setIsRolePopupOpen] = useState(false);
   const [isPeriodPopupOpen, setIsPeriodPopupOpen] = useState(false);
@@ -105,7 +107,11 @@ const GuideCard = ({
           </div>
           <div className="flex gap-[53px]">
             <div className="h-[470px] w-[700px] shrink-0 overflow-hidden rounded-[12px]">
-              <img src={mockupSrc} alt="" className="h-full w-full object-cover object-top" />
+              <img
+                src={mockupSrc}
+                alt=""
+                className={`h-full min-w-125 object-cover object-top ${mockupPaddingLeft ? 'pl-15' : 'pl-0'}`}
+              />
             </div>
             <div className="flex flex-col gap-[39px]">
               <Tag variant="fill" color="brand" size="lg" className="self-start">

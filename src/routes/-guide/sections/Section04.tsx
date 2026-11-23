@@ -176,9 +176,9 @@ const DayCell = ({ day, roundedCorner }: { day: DayColumn; roundedCorner?: strin
 const Section04 = () => {
   return (
     <section className="relative flex min-w-[1440px] justify-center overflow-hidden bg-[#020A09] pt-[260px] pb-[200px]">
-      <div className="flex w-[1312px] flex-col items-center gap-[48px]">
+      <div className="flex w-[1312px] flex-col items-center">
         {/* 헤더 */}
-        <div className="flex w-full flex-col items-center gap-1 text-center">
+        <div className="mb-10 flex w-full flex-col items-center gap-1 text-center">
           <p className="text-[32px] leading-[1.6] font-bold tracking-[-0.64px] text-white">
             팀 매칭은 <span className="text-[#36d3c0]">총 3차에 걸쳐</span> 진행돼요
           </p>
@@ -188,7 +188,7 @@ const Section04 = () => {
         </div>
 
         {/* 캘린더 */}
-        <div className="w-[940px] overflow-hidden rounded-[18px] border border-[#ccc] bg-white p-[9px]">
+        <div className="mb-[15px] w-[940px] overflow-hidden rounded-[18px] border border-[#ccc] bg-white p-[9px]">
           {/* Row 1 */}
           <div className="flex divide-x divide-[#e2e3e3]" style={{ background: ROW1_BG }}>
             {ROW1.map((day, i) => (
@@ -217,7 +217,7 @@ const Section04 = () => {
             ))}
           </div>
         </div>
-        <p className="text-center text-[16px] leading-[1.4] font-medium tracking-[-0.48px] text-[#7e7f7f]">
+        <p className="mb-10 text-center text-[16px] leading-[1.4] font-medium tracking-[-0.48px] text-[#7e7f7f]">
           * 날짜와 시간은 예시이며, 변동될 수 있습니다.
         </p>
         <h1 className="text-center text-[28px] font-light text-white">
