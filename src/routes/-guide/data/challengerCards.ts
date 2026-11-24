@@ -149,6 +149,7 @@ export const CHALLENGER_CARDS: GuideCardData[] = [
     title: '서비스 이용 경험을 자유롭게 공유해요.',
     body: '더 나은 서비스를 위해 많은 참여 부탁드려요!',
     mockupSrc: Challenger08Mockup,
+    mockupPaddingLeft: true,
     items: [
       {
         title: '서비스 경험',
